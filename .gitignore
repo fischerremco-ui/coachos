@@ -1,0 +1,45 @@
+# Besturingssysteem en editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+
+# Tijdelijke bestanden en testuitvoer
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+coverage/
+playwright-report/
+test-results/
+test-*
+*.test.*
+
+# Lokale CoachOS-back-ups en exports
+coachos-backup-*.json
+backup-*.json
+*.backup.json
+
+# Lokale documenten en persoonsgegevens
+private/
+persoonlijk/
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.csv
+
+# Geheimen en lokale configuratie
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Lokale runtimes
+__pycache__/
+*.pyc
+node_modules/

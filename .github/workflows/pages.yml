@@ -1,0 +1,40 @@
+name: CoachOS publiceren via GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Statische site publiceren
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v6
+
+      - name: GitHub Pages configureren
+        uses: actions/configure-pages@v5
+
+      - name: Statische bestanden uploaden
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Publiceren naar GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

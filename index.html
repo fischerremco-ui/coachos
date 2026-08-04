@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Voetbalcoach platform voor trainingen, spelers en reflecties.">
+    <meta name="theme-color" content="#c8102e">
+    <meta name="application-name" content="CoachOS">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CoachOS">
+    <meta name="msapplication-TileColor" content="#c8102e">
+    <title>CoachOS — VSV Velserbroek</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" id="topbar">
+        <button class="back-button" id="back-button" type="button" aria-label="Ga terug" hidden>
+          <span aria-hidden="true">←</span>
+          <span>Terug</span>
+        </button>
+        <a class="wordmark" href="#home" aria-label="CoachOS startscherm">
+          <span class="wordmark-dot" aria-hidden="true"></span>
+          CoachOS
+        </a>
+        <span class="version">v0.1</span>
+      </header>
+
+      <main id="app" tabindex="-1">
+        <section class="screen screen-home startup-fallback" aria-labelledby="startup-title">
+          <div>
+            <div class="logo-stage" aria-label="Ruimte voor het VSV-logo">
+              <div class="club-mark" aria-hidden="true"><span>VSV</span></div>
+            </div>
+            <div class="home-copy">
+              <p class="eyebrow">Jeugdopleiding</p>
+              <h1 id="startup-title">VSV Velserbroek</h1>
+              <p class="lead">CoachOS wordt gestart.</p>
+            </div>
+          </div>
+          <div class="startup-status" id="startup-status">
+            Even geduld…
+          </div>
+        </section>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <aside class="install-card" id="install-card" aria-live="polite" hidden>
+        <button
+          class="install-close"
+          id="install-close"
+          type="button"
+          aria-label="Installatiekaart sluiten"
+        >
+          ×
+        </button>
+        <img src="icons/icon-96.png" alt="" width="64" height="64">
+        <div class="install-copy">
+          <p class="eyebrow">CoachOS als app</p>
+          <h2>Altijd klaar langs het veld</h2>
+          <p>Open fullscreen en werk ook zonder internetverbinding.</p>
+        </div>
+        <button class="primary-button" id="install-button" type="button" hidden>
+          CoachOS installeren
+        </button>
+        <div class="ios-install-steps" id="ios-install-steps" hidden>
+          <span>Safari</span>
+          <span aria-hidden="true">↓</span>
+          <span>Deel</span>
+          <span aria-hidden="true">↓</span>
+          <strong>Zet op beginscherm</strong>
+        </div>
+      </aside>
+    </div>
+
+    <noscript>
+      <p class="noscript">CoachOS heeft JavaScript nodig om te werken.</p>
+    </noscript>
+
+    <script>
+      // Zorg dat een opstartprobleem nooit als een leeg scherm eindigt.
+      window.CoachOSReady = false;
+      window.addEventListener("error", function () {
+        var status = document.getElementById("startup-status");
+        if (!status) return;
+        status.className = "startup-status startup-error";
+        status.innerHTML = "<strong>CoachOS kon niet starten.</strong><br>Controleer of index.html, data.js en app.js in dezelfde map staan en open de pagina in Chrome, Edge of Safari.";
+      });
+      window.setTimeout(function () {
+        var status = document.getElementById("startup-status");
+        if (window.CoachOSReady || !status) return;
+        status.className = "startup-status startup-error";
+        status.innerHTML = "<strong>CoachOS reageert niet.</strong><br>Ververs de pagina of open index.html in Chrome, Edge of Safari.";
+      }, 1500);
+    </script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
