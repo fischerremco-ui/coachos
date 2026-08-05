@@ -2082,6 +2082,284 @@ h3 {
   overflow-wrap: anywhere;
 }
 
+/* Spelers en registraties */
+.player-primary-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.player-list,
+.statistics-list {
+  display: grid;
+  gap: 12px;
+}
+
+.player-list > h2 {
+  margin: 8px 0 2px;
+  font-size: 1.08rem;
+}
+
+.inactive-player-list {
+  margin-top: 28px;
+}
+
+.section-intro {
+  margin: -5px 0 3px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.player-card {
+  padding: 17px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.player-card-inactive {
+  background: #f1f3f5;
+}
+
+.player-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-avatar {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--white);
+  background: var(--navy-900);
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.player-card h3,
+.statistics-card h2 {
+  margin: 0;
+  color: var(--navy-900);
+  font-size: 1rem;
+}
+
+.player-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.player-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.player-card-actions button {
+  min-height: 46px;
+  padding: 9px 8px;
+  font-size: 0.76rem;
+}
+
+.player-card-actions .danger-button {
+  grid-column: 1 / -1;
+}
+
+.players-empty {
+  margin-top: 8px;
+}
+
+.attendance-section h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.attendance-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.attendance-heading .eyebrow {
+  margin-bottom: 4px;
+}
+
+.attendance-heading > span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.attendance-context,
+.availability-notice {
+  color: var(--navy-700);
+  background: var(--blue-100);
+  border-radius: 10px;
+}
+
+.attendance-context {
+  margin: 0 0 14px !important;
+  padding: 12px;
+  font-size: 0.78rem;
+}
+
+.attendance-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.attendance-quick-actions button {
+  min-height: 46px;
+  padding: 9px 7px;
+  font-size: 0.73rem;
+}
+
+.attendance-player-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-player {
+  padding: 13px;
+  background: #f7f8fa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.attendance-player-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.8fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.attendance-player-heading label {
+  color: var(--navy-900);
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+
+.attendance-player-heading select {
+  min-height: 46px;
+  padding: 9px 30px 9px 10px;
+  font-size: 0.8rem;
+}
+
+.note-toggle {
+  min-height: 40px;
+  margin-top: 5px;
+  padding: 7px 0;
+  color: var(--red-700);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-align: left;
+}
+
+.attendance-note {
+  margin-top: 4px;
+}
+
+.attendance-note label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.attendance-note textarea {
+  min-height: 74px;
+}
+
+.attendance-save {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.compact-empty .secondary-button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.attendance-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.attendance-summary-wide {
+  grid-column: 1 / -1;
+}
+
+.availability-notice {
+  margin-bottom: 18px;
+  padding: 15px;
+}
+
+.availability-notice strong {
+  color: var(--navy-900);
+}
+
+.availability-notice p {
+  margin: 5px 0 0;
+  font-size: 0.8rem;
+}
+
+.statistics-card {
+  padding: 17px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.statistics-card dl {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0 0;
+}
+
+.statistics-card dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.statistics-card dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.statistics-card dd {
+  margin: 0;
+  color: var(--navy-900);
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+@media (min-width: 430px) {
+  .player-primary-actions,
+  .form-grid.two-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .noscript {
   margin: 20px;
   color: var(--white);

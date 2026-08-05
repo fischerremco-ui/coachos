@@ -13,7 +13,10 @@ const PRINCIPLES_STORAGE_KEY = "coachos-principles-v1";
 const KNOWLEDGE_STORAGE_KEY = "coachos-knowledge-v1";
 const SEASONS_STORAGE_KEY = "coachos-seasons-v1";
 const SEASON_WEEKS_STORAGE_KEY = "coachos-season-weeks-v1";
+const PLAYERS_STORAGE_KEY = "coachos-players-v1";
+const ATTENDANCE_STORAGE_KEY = "coachos-attendance-v1";
 const INSTALL_HINT_KEY = "coachos-install-hint-dismissed-v1";
+const TEAM_ID = "vsv-jo16-1";
 const MAX_PDF_BYTES = 2 * 1024 * 1024;
 const SEASON_WEEK_TYPES = [
   "Vrij",
@@ -32,6 +35,19 @@ const SEASON_WEEK_STATUSES = [
   "Afgerond",
   "Vervallen"
 ];
+const ATTENDANCE_STATUSES = [
+  "Aanwezig",
+  "Afwezig",
+  "Ziek",
+  "Geblesseerd",
+  "Vakantie",
+  "Te laat",
+  "Eerder weg",
+  "Onbekend"
+];
+const PRESENT_ATTENDANCE_STATUSES = ["Aanwezig", "Te laat", "Eerder weg"];
+const ABSENT_ATTENDANCE_STATUSES = ["Afwezig", "Ziek", "Geblesseerd", "Vakantie"];
+const PREFERRED_FOOT_OPTIONS = ["Rechts", "Links", "Tweebenig", "Onbekend"];
 const SOURCE_TYPES = [
   "PDF",
   "Artikel",
@@ -119,6 +135,10 @@ const routes = {
   home: { parent: null, render: renderHome },
   teams: { parent: "home", render: renderTeams },
   dashboard: { parent: "teams", render: renderDashboard },
+  spelers: { parent: "dashboard", render: renderPlayers },
+  "speler-nieuw": { parent: "spelers", render: renderPlayerForm },
+  "speler-bewerken": { parent: "spelers", render: renderPlayerForm },
+  aanwezigheidsstatistieken: { parent: "spelers", render: renderAttendanceStatistics },
   trainingen: { parent: "dashboard", render: renderTrainings },
   training: { parent: "trainingen", render: renderTrainingDetail },
   "training-nieuw": { parent: "trainingen", render: renderTrainingForm },
@@ -236,6 +256,7 @@ function useTrainingAsTemplate(id) {
 function deleteTraining(id, deleteReflections = false) {
   saveTrainings(getTrainings().filter((training) => training.id !== id));
   removeTrainingFromSeasonWeeks(id);
+  deleteAttendanceForEvent("training", id);
 
   if (deleteReflections) {
     saveReflections(
@@ -250,6 +271,163 @@ function getTraining(id) {
 
 function createUniqueId(prefix = "training") {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function normalizePlayer(player = {}) {
+  const firstName = String(player.firstName || "").trim();
+  const lastName = String(player.lastName || "").trim();
+
+  return {
+    id: player.id || createUniqueId("speler"),
+    teamId: player.teamId || TEAM_ID,
+    firstName,
+    lastName,
+    displayName: String(player.displayName || `${firstName} ${lastName}`).trim(),
+    shirtNumber: player.shirtNumber === 0 ? 0 : player.shirtNumber || "",
+    primaryPosition: String(player.primaryPosition || "").trim(),
+    secondaryPosition: String(player.secondaryPosition || "").trim(),
+    preferredFoot: PREFERRED_FOOT_OPTIONS.includes(player.preferredFoot)
+      ? player.preferredFoot
+      : "Onbekend",
+    isActive: player.isActive !== false,
+    createdAt: player.createdAt || "",
+    updatedAt: player.updatedAt || ""
+  };
+}
+
+function getPlayers() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PLAYERS_STORAGE_KEY)) || [];
+    return saved.map(normalizePlayer);
+  } catch (error) {
+    console.warn("Spelers konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function savePlayers(players) {
+  localStorage.setItem(
+    PLAYERS_STORAGE_KEY,
+    JSON.stringify(players.map(normalizePlayer))
+  );
+}
+
+function getPlayer(id) {
+  return getPlayers().find((player) => player.id === id) || null;
+}
+
+function sortPlayers(players) {
+  return [...players].sort((a, b) => (
+    a.lastName.localeCompare(b.lastName, "nl", { sensitivity: "base" })
+    || a.firstName.localeCompare(b.firstName, "nl", { sensitivity: "base" })
+    || a.displayName.localeCompare(b.displayName, "nl", { sensitivity: "base" })
+  ));
+}
+
+function getActivePlayers() {
+  return sortPlayers(getPlayers().filter((player) => player.teamId === TEAM_ID && player.isActive));
+}
+
+function savePlayer(player) {
+  savePlayers([...getPlayers(), normalizePlayer(player)]);
+}
+
+function updatePlayer(player) {
+  const normalized = normalizePlayer(player);
+  savePlayers(getPlayers().map((item) => item.id === normalized.id ? normalized : item));
+}
+
+function setPlayerActive(id, isActive) {
+  const player = getPlayer(id);
+  if (!player) return false;
+  updatePlayer({ ...player, isActive, updatedAt: new Date().toISOString() });
+  return true;
+}
+
+function deletePlayer(id) {
+  savePlayers(getPlayers().filter((player) => player.id !== id));
+  saveAttendanceRecords(getAttendanceRecords().filter((record) => record.playerId !== id));
+}
+
+function validatePlayer(player) {
+  const errors = [];
+  if (!player.firstName) errors.push("Vul een voornaam in.");
+  if (!player.lastName) errors.push("Vul een achternaam in.");
+  if (
+    player.shirtNumber !== ""
+    && (!Number.isInteger(Number(player.shirtNumber)) || Number(player.shirtNumber) < 0)
+  ) {
+    errors.push("Het rugnummer moet een positief heel getal zijn.");
+  }
+  return errors;
+}
+
+function attendanceKey(record) {
+  return `${record.playerId}:${record.eventType}:${record.eventId}`;
+}
+
+function normalizeAttendanceRecord(record = {}) {
+  return {
+    id: record.id || createUniqueId("aanwezigheid"),
+    teamId: record.teamId || TEAM_ID,
+    playerId: String(record.playerId || ""),
+    eventType: ["training", "seasonWeek"].includes(record.eventType)
+      ? record.eventType
+      : "training",
+    eventId: String(record.eventId || ""),
+    status: ATTENDANCE_STATUSES.includes(record.status) ? record.status : "Onbekend",
+    note: String(record.note || "").trim(),
+    createdAt: record.createdAt || "",
+    updatedAt: record.updatedAt || ""
+  };
+}
+
+function getAttendanceRecords() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(ATTENDANCE_STORAGE_KEY)) || [];
+    return saved.map(normalizeAttendanceRecord);
+  } catch (error) {
+    console.warn("Aanwezigheidsregistraties konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function saveAttendanceRecords(records) {
+  const unique = new Map();
+  records.map(normalizeAttendanceRecord).forEach((record) => {
+    unique.set(attendanceKey(record), record);
+  });
+  localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify([...unique.values()]));
+}
+
+function getAttendanceForEvent(eventType, eventId) {
+  return getAttendanceRecords().filter((record) => (
+    record.eventType === eventType && record.eventId === eventId
+  ));
+}
+
+function upsertAttendanceRecords(records) {
+  const merged = new Map(getAttendanceRecords().map((record) => [attendanceKey(record), record]));
+  records.map(normalizeAttendanceRecord).forEach((record) => {
+    const key = attendanceKey(record);
+    const current = merged.get(key);
+    merged.set(key, {
+      ...record,
+      id: current ? current.id : record.id,
+      createdAt: current ? current.createdAt : record.createdAt
+    });
+  });
+  saveAttendanceRecords([...merged.values()]);
+}
+
+function deleteAttendanceForEvent(eventType, eventId) {
+  saveAttendanceRecords(getAttendanceRecords().filter((record) => !(
+    record.eventType === eventType && record.eventId === eventId
+  )));
+}
+
+function playerHasAttendance(playerId) {
+  return getAttendanceRecords().some((record) => record.playerId === playerId);
 }
 
 function normalizeSeason(season = {}) {
@@ -375,6 +553,7 @@ function duplicateSeasonWeek(id) {
 
 function deleteSeasonWeek(id) {
   saveSeasonWeeks(getAllSeasonWeeks().filter((week) => week.id !== id));
+  deleteAttendanceForEvent("seasonWeek", id);
 }
 
 function linkTrainingToSeasonWeek(weekId, trainingId) {
@@ -980,14 +1159,16 @@ function validateTraining(training) {
 function exportData() {
   return {
     app: "CoachOS",
-    version: 4,
+    version: 5,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
     principles: getPrinciples(),
     knowledgeBase: getKnowledgeBase(),
     seasons: getSeasons(),
-    seasonWeeks: getAllSeasonWeeks()
+    seasonWeeks: getAllSeasonWeeks(),
+    players: getPlayers(),
+    attendance: getAttendanceRecords()
   };
 }
 
@@ -1173,12 +1354,61 @@ function validateImport(data) {
     return "De back-up bevat ongeldige of dubbele speelweken.";
   }
 
+  const hasPlayerData = Number(data.version) >= 5
+    || data.players !== undefined
+    || data.attendance !== undefined;
+  if (!hasPlayerData) return "";
+
+  if (!Array.isArray(data.players) || !Array.isArray(data.attendance)) {
+    return "De back-up mist geldige spelers- of aanwezigheidsgegevens.";
+  }
+
+  const playerIds = data.players.map((player) => player && player.id);
+  const players = data.players.map(normalizePlayer);
+  if (
+    playerIds.some((id) => typeof id !== "string" || !id)
+    || new Set(playerIds).size !== playerIds.length
+    || players.some((player) => player.teamId !== TEAM_ID || validatePlayer(player).length)
+  ) {
+    return "De back-up bevat ongeldige of dubbele spelers.";
+  }
+
+  const playerIdSet = new Set(playerIds);
+  const weekIdSet = new Set(weekIds);
+  const attendanceIds = data.attendance.map((record) => record && record.id);
+  const attendanceKeys = data.attendance.map((record) => record && attendanceKey(record));
+  const invalidAttendance = data.attendance.some((record) => (
+    !record
+    || typeof record.id !== "string"
+    || !record.id
+    || record.teamId !== TEAM_ID
+    || !playerIdSet.has(record.playerId)
+    || !["training", "seasonWeek"].includes(record.eventType)
+    || (record.eventType === "training" && !trainingIdSet.has(record.eventId))
+    || (record.eventType === "seasonWeek" && !weekIdSet.has(record.eventId))
+    || !ATTENDANCE_STATUSES.includes(record.status)
+    || typeof record.note !== "string"
+  ));
+  if (
+    invalidAttendance
+    || new Set(attendanceIds).size !== attendanceIds.length
+    || new Set(attendanceKeys).size !== attendanceKeys.length
+  ) {
+    return "De back-up bevat ongeldige of dubbele aanwezigheidsregistraties.";
+  }
+
   return "";
 }
 
 function mergeById(current, imported) {
   const merged = new Map(current.map((item) => [item.id, item]));
   imported.forEach((item) => merged.set(item.id, item));
+  return [...merged.values()];
+}
+
+function mergeAttendance(current, imported) {
+  const merged = new Map(current.map((record) => [attendanceKey(record), record]));
+  imported.forEach((record) => merged.set(attendanceKey(record), record));
   return [...merged.values()];
 }
 
@@ -1202,6 +1432,12 @@ function importData(data, mode) {
   const importedSeasonWeeks = hasSeasonData
     ? data.seasonWeeks.map(normalizeSeasonWeek)
     : [];
+  const hasPlayerData = Array.isArray(data.players)
+    && Array.isArray(data.attendance);
+  const importedPlayers = hasPlayerData ? data.players.map(normalizePlayer) : [];
+  const importedAttendance = hasPlayerData
+    ? data.attendance.map(normalizeAttendanceRecord)
+    : [];
 
   if (mode === "replace") {
     downloadBackup();
@@ -1212,6 +1448,10 @@ function importData(data, mode) {
     if (hasSeasonData) {
       saveSeasons(importedSeasons);
       saveSeasonWeeks(importedSeasonWeeks);
+    }
+    if (hasPlayerData) {
+      savePlayers(importedPlayers);
+      saveAttendanceRecords(importedAttendance);
     }
     saveTrainings(importedTrainings);
     saveReflections(data.reflections);
@@ -1232,6 +1472,10 @@ function importData(data, mode) {
   if (hasSeasonData) {
     saveSeasons(mergeById(getSeasons(), importedSeasons));
     saveSeasonWeeks(mergeById(getAllSeasonWeeks(), importedSeasonWeeks));
+  }
+  if (hasPlayerData) {
+    savePlayers(mergeById(getPlayers(), importedPlayers));
+    saveAttendanceRecords(mergeAttendance(getAttendanceRecords(), importedAttendance));
   }
   saveTrainings(mergeById(getTrainings(), importedTrainings));
   saveReflections(mergeById(getReflections(), data.reflections));
@@ -1525,6 +1769,7 @@ function renderDashboardScheduleItem(label, week) {
 function renderDashboard() {
   const trainingCount = getTrainings().length;
   const principleCount = getPrinciples().length;
+  const playerCount = getActivePlayers().length;
   const season = getTeamSeason();
   const weeks = season ? getSeasonWeeks(season.id) : [];
   const nextWeek = getNextSeasonWeek(weeks);
@@ -1550,10 +1795,10 @@ function renderDashboard() {
           <span class="dashboard-title">Wedstrijden</span>
           <span class="dashboard-state">Binnenkort</span>
         </button>
-        <button class="dashboard-button" type="button" data-upcoming="Spelers">
+        <button class="dashboard-button active" type="button" data-route="spelers">
           <span class="dashboard-icon" aria-hidden="true">S</span>
           <span class="dashboard-title">Spelers</span>
-          <span class="dashboard-state">Binnenkort</span>
+          <span class="dashboard-state">${playerCount} ${playerCount === 1 ? "actieve speler" : "actieve spelers"}</span>
         </button>
         <button class="dashboard-button active" type="button" data-route="playbook">
           <span class="dashboard-icon" aria-hidden="true">P</span>
@@ -1582,6 +1827,303 @@ function renderDashboard() {
             : "Nog geen trainingen gepland voor deze speelweek."}
         </p>
       </section>
+    </section>
+  `;
+}
+
+function renderPlayerCard(player) {
+  const positions = [player.primaryPosition, player.secondaryPosition].filter(Boolean).join(" · ");
+  const metadata = [
+    player.shirtNumber !== "" ? `Rugnummer ${player.shirtNumber}` : "",
+    positions,
+    player.preferredFoot !== "Onbekend" ? player.preferredFoot : ""
+  ].filter(Boolean).join(" · ");
+
+  return `
+    <article class="player-card ${player.isActive ? "" : "player-card-inactive"}">
+      <div class="player-card-main">
+        <span class="player-avatar" aria-hidden="true">${escapeHtml((player.displayName || "?").charAt(0).toUpperCase())}</span>
+        <div>
+          <h3>${escapeHtml(player.displayName)}</h3>
+          <p>${escapeHtml(metadata || (player.isActive ? "Actieve speler" : "Niet actief"))}</p>
+        </div>
+      </div>
+      <div class="player-card-actions">
+        <button class="secondary-button" type="button" data-edit-player="${escapeHtml(player.id)}">Bewerken</button>
+        <button class="secondary-button" type="button" data-toggle-player="${escapeHtml(player.id)}" data-player-active="${player.isActive}">
+          ${player.isActive ? "Deactiveren" : "Heractiveren"}
+        </button>
+        <button class="danger-button" type="button" data-delete-player="${escapeHtml(player.id)}">Verwijderen</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderPlayers() {
+  const players = sortPlayers(getPlayers().filter((player) => player.teamId === TEAM_ID));
+  const activePlayers = players.filter((player) => player.isActive);
+  const inactivePlayers = players.filter((player) => !player.isActive);
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="players-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">JO16-1</p>
+        <h1 id="players-title">Spelers</h1>
+        <p class="lead">Beheer de spelerslijst en registreer aanwezigheid en beschikbaarheid.</p>
+      </header>
+
+      <div class="list-primary-action player-primary-actions">
+        <button class="primary-button" type="button" data-create-player>+ Nieuwe speler</button>
+        <button class="secondary-button" type="button" data-route="aanwezigheidsstatistieken">Statistieken</button>
+      </div>
+
+      ${activePlayers.length ? `
+        <section class="player-list" aria-labelledby="active-players-title">
+          <h2 id="active-players-title">Actieve spelers</h2>
+          ${activePlayers.map(renderPlayerCard).join("")}
+        </section>
+      ` : `
+        <div class="empty-history players-empty">
+          <strong>Nog geen spelers toegevoegd</strong>
+          Voeg de eerste speler toe om aanwezigheid te kunnen registreren.
+        </div>
+      `}
+
+      ${inactivePlayers.length ? `
+        <section class="player-list inactive-player-list" aria-labelledby="inactive-players-title">
+          <h2 id="inactive-players-title">Niet-actieve spelers</h2>
+          <p class="section-intro">Historie blijft bewaard zolang een speler niet definitief wordt verwijderd.</p>
+          ${inactivePlayers.map(renderPlayerCard).join("")}
+        </section>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderPlayerForm(id) {
+  const existing = id ? getPlayer(id) : null;
+  if (id && !existing) {
+    goTo("spelers");
+    return;
+  }
+
+  const player = existing || normalizePlayer();
+  app.innerHTML = `
+    <section class="screen editor-screen" aria-labelledby="player-form-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">${existing ? "Speler bewerken" : "Nieuwe speler"}</p>
+        <h1 id="player-form-title">${existing ? escapeHtml(player.displayName) : "Speler toevoegen"}</h1>
+      </header>
+
+      <form class="training-form player-form" id="player-form" data-player-id="${escapeHtml(player.id)}" data-created-at="${escapeHtml(player.createdAt)}">
+        <div class="form-errors" id="player-form-errors" role="alert" hidden></div>
+        <section class="form-section">
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="player-first-name">Voornaam <span aria-hidden="true">*</span></label>
+              <input id="player-first-name" name="firstName" value="${escapeHtml(player.firstName)}" autocomplete="given-name" required>
+            </div>
+            <div class="field">
+              <label for="player-last-name">Achternaam <span aria-hidden="true">*</span></label>
+              <input id="player-last-name" name="lastName" value="${escapeHtml(player.lastName)}" autocomplete="family-name" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="player-display-name">Weergavenaam</label>
+            <input id="player-display-name" name="displayName" value="${escapeHtml(player.displayName)}" placeholder="Wordt automatisch voor- en achternaam">
+            <small>Gebruik dit alleen wanneer de speler anders in de app moet worden genoemd.</small>
+          </div>
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="player-shirt-number">Rugnummer</label>
+              <input id="player-shirt-number" name="shirtNumber" type="number" min="0" step="1" inputmode="numeric" value="${escapeHtml(player.shirtNumber)}">
+            </div>
+            <div class="field">
+              <label for="player-foot">Voorkeursbeen</label>
+              <select id="player-foot" name="preferredFoot">
+                ${PREFERRED_FOOT_OPTIONS.map((option) => `<option value="${option}" ${player.preferredFoot === option ? "selected" : ""}>${option}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="player-primary-position">Primaire positie</label>
+              <input id="player-primary-position" name="primaryPosition" value="${escapeHtml(player.primaryPosition)}" placeholder="Bijvoorbeeld: rechtsback">
+            </div>
+            <div class="field">
+              <label for="player-secondary-position">Secundaire positie</label>
+              <input id="player-secondary-position" name="secondaryPosition" value="${escapeHtml(player.secondaryPosition)}" placeholder="Optioneel">
+            </div>
+          </div>
+        </section>
+
+        <div class="form-sticky-actions">
+          <button class="secondary-button" type="button" data-cancel-form data-cancel-route="spelers">Annuleren</button>
+          <button class="primary-button" type="submit">Speler opslaan</button>
+        </div>
+      </form>
+    </section>
+  `;
+}
+
+function calculatePlayerAttendanceStats(playerId, records = getAttendanceRecords()) {
+  const playerRecords = records.filter((record) => record.playerId === playerId);
+  const trainingRecords = playerRecords.filter((record) => record.eventType === "training");
+  const seasonWeekRecords = playerRecords.filter((record) => record.eventType === "seasonWeek");
+  const percentage = (eventRecords) => {
+    const known = eventRecords.filter((record) => (
+      PRESENT_ATTENDANCE_STATUSES.includes(record.status)
+      || ABSENT_ATTENDANCE_STATUSES.includes(record.status)
+    ));
+    if (!known.length) return null;
+    const present = known.filter((record) => PRESENT_ATTENDANCE_STATUSES.includes(record.status));
+    return Math.round((present.length / known.length) * 100);
+  };
+
+  return {
+    registeredTrainings: new Set(trainingRecords.map((record) => record.eventId)).size,
+    trainingPercentage: percentage(trainingRecords),
+    registeredSeasonWeeks: new Set(seasonWeekRecords.map((record) => record.eventId)).size,
+    seasonWeekPercentage: percentage(seasonWeekRecords)
+  };
+}
+
+function formatPercentage(value) {
+  return value === null ? "—" : `${value}%`;
+}
+
+function getTeamAttendanceStats(players, records) {
+  const playerStats = players.map((player) => calculatePlayerAttendanceStats(player.id, records));
+  const knownPercentages = playerStats
+    .map((stats) => stats.trainingPercentage)
+    .filter((value) => value !== null);
+  const averagePercentage = knownPercentages.length
+    ? Math.round(knownPercentages.reduce((sum, value) => sum + value, 0) / knownPercentages.length)
+    : null;
+  const knownTrainingRecords = records.filter((record) => (
+    record.eventType === "training"
+    && players.some((player) => player.id === record.playerId)
+    && (PRESENT_ATTENDANCE_STATUSES.includes(record.status) || ABSENT_ATTENDANCE_STATUSES.includes(record.status))
+  ));
+  const registeredTrainingIds = [...new Set(knownTrainingRecords.map((record) => record.eventId))];
+  const turnout = registeredTrainingIds.length
+    ? knownTrainingRecords.filter((record) => PRESENT_ATTENDANCE_STATUSES.includes(record.status)).length
+      / registeredTrainingIds.length
+    : null;
+
+  return { averagePercentage, turnout };
+}
+
+function renderAttendanceStatistics() {
+  const players = getActivePlayers();
+  const records = getAttendanceRecords();
+  const teamStats = getTeamAttendanceStats(players, records);
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="attendance-statistics-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">JO16-1 · Spelers</p>
+        <h1 id="attendance-statistics-title">Statistieken</h1>
+        <p class="lead">Trainingsaanwezigheid en speelweekbeschikbaarheid op basis van opgeslagen registraties.</p>
+      </header>
+
+      <div class="attendance-summary-grid">
+        <div class="fact-card"><span class="detail-label">Actieve spelers</span><strong class="fact-value">${players.length}</strong></div>
+        <div class="fact-card"><span class="detail-label">Gem. trainingsaanwezigheid</span><strong class="fact-value">${formatPercentage(teamStats.averagePercentage)}</strong></div>
+        <div class="fact-card attendance-summary-wide"><span class="detail-label">Gem. opkomst per geregistreerde training</span><strong class="fact-value">${teamStats.turnout === null ? "—" : teamStats.turnout.toLocaleString("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong></div>
+      </div>
+
+      <aside class="availability-notice">
+        <strong>Over speelweekbeschikbaarheid</strong>
+        <p>Deze registratie zegt niets over selectie, basisplaats, invalbeurt, speelminuten of daadwerkelijke wedstrijddeelname.</p>
+      </aside>
+
+      ${players.length ? `
+        <div class="statistics-list">
+          ${players.map((player) => {
+            const stats = calculatePlayerAttendanceStats(player.id, records);
+            return `
+              <article class="statistics-card">
+                <h2>${escapeHtml(player.displayName)}</h2>
+                <dl>
+                  <div><dt>Geregistreerde trainingen</dt><dd>${stats.registeredTrainings}</dd></div>
+                  <div><dt>Trainingsaanwezigheid</dt><dd>${formatPercentage(stats.trainingPercentage)}</dd></div>
+                  <div><dt>Speelweken met geregistreerde beschikbaarheid</dt><dd>${stats.registeredSeasonWeeks}</dd></div>
+                  <div><dt>Speelweekbeschikbaarheid</dt><dd>${formatPercentage(stats.seasonWeekPercentage)}</dd></div>
+                </dl>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      ` : `
+        <div class="empty-history players-empty">
+          <strong>Nog geen actieve spelers</strong>
+          Voeg eerst spelers toe om statistieken op te bouwen.
+        </div>
+      `}
+    </section>
+  `;
+}
+
+function renderAttendanceSection({ eventType, eventId, title }) {
+  const players = getActivePlayers();
+  const current = new Map(
+    getAttendanceForEvent(eventType, eventId).map((record) => [record.playerId, record])
+  );
+
+  if (!players.length) {
+    return `
+      <section class="content-card attendance-section">
+        <h2>${escapeHtml(title)}</h2>
+        <div class="empty-history compact-empty">
+          <strong>Nog geen actieve spelers</strong>
+          Voeg eerst spelers toe om deze registratie te gebruiken.
+          <button class="secondary-button" type="button" data-route="spelers">Naar spelers</button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="content-card attendance-section">
+      <div class="attendance-heading">
+        <div><p class="eyebrow">JO16-1</p><h2>${escapeHtml(title)}</h2></div>
+        <span>${players.length} ${players.length === 1 ? "speler" : "spelers"}</span>
+      </div>
+      ${eventType === "seasonWeek" ? `
+        <p class="attendance-context">Beschikbaarheid voor deze speelweek zegt niets over selectie, basisplaats, invalbeurt, speelminuten of daadwerkelijke wedstrijddeelname.</p>
+      ` : ""}
+      <div class="attendance-quick-actions">
+        <button class="secondary-button" type="button" data-attendance-all="Aanwezig">Iedereen aanwezig</button>
+        <button class="secondary-button" type="button" data-attendance-all="Onbekend">Iedereen onbekend</button>
+      </div>
+      <form id="attendance-form" data-event-type="${eventType}" data-event-id="${escapeHtml(eventId)}">
+        <div class="attendance-player-list">
+          ${players.map((player) => {
+            const record = current.get(player.id);
+            const note = record ? record.note : "";
+            const status = record ? record.status : "Onbekend";
+            return `
+              <div class="attendance-player" data-attendance-player="${escapeHtml(player.id)}">
+                <div class="attendance-player-heading">
+                  <label for="attendance-${escapeHtml(player.id)}">${escapeHtml(player.displayName)}</label>
+                  <select id="attendance-${escapeHtml(player.id)}" name="status" data-attendance-status>
+                    ${ATTENDANCE_STATUSES.map((option) => `<option value="${option}" ${status === option ? "selected" : ""}>${option}</option>`).join("")}
+                  </select>
+                </div>
+                <button class="note-toggle" type="button" data-toggle-attendance-note aria-expanded="${note ? "true" : "false"}">
+                  ${note ? "Notitie verbergen" : "Notitie toevoegen"}
+                </button>
+                <div class="attendance-note" ${note ? "" : "hidden"}>
+                  <label for="attendance-note-${escapeHtml(player.id)}">Notitie bij ${escapeHtml(player.displayName)}</label>
+                  <textarea id="attendance-note-${escapeHtml(player.id)}" name="note" rows="2" placeholder="Optionele korte notitie">${escapeHtml(note)}</textarea>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+        <button class="primary-button attendance-save" type="submit">Registratie opslaan</button>
+      </form>
     </section>
   `;
 }
@@ -1738,6 +2280,12 @@ function renderSeasonWeekDetail(id) {
           </dl>
           ${week.note ? `<p class="season-note">${escapeHtml(week.note)}</p>` : ""}
         </section>
+
+        ${renderAttendanceSection({
+          eventType: "seasonWeek",
+          eventId: week.id,
+          title: "Speelweekbeschikbaarheid"
+        })}
 
         <section class="content-card">
           <h2>Gekoppelde trainingen</h2>
@@ -2257,7 +2805,7 @@ function renderTrainings() {
       <section class="backup-card" aria-labelledby="backup-title">
         <p class="eyebrow">Veilig bewaren</p>
         <h2 id="backup-title">Back-up</h2>
-        <p>Download trainingen, reflecties, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
+        <p>Download trainingen, reflecties, spelers, registraties, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
         <div class="backup-actions">
           <button class="secondary-button" type="button" data-export-backup>Back-up downloaden</button>
           <button class="secondary-button" type="button" data-import-backup>Back-up importeren</button>
@@ -2840,6 +3388,11 @@ function renderTrainingDetail(id) {
             <div class="part-detail-card-list">${parts}</div>
           </section>
         ` : ""}
+        ${renderAttendanceSection({
+          eventType: "training",
+          eventId: training.id,
+          title: "Aanwezigheid"
+        })}
       </div>
 
       <div class="detail-actions">
@@ -3037,6 +3590,12 @@ function handleClick(event) {
   const duplicateSeasonWeekButton = event.target.closest("[data-duplicate-season-week]");
   const deleteSeasonWeekButton = event.target.closest("[data-delete-season-week]");
   const unlinkTrainingButton = event.target.closest("[data-unlink-training]");
+  const createPlayerButton = event.target.closest("[data-create-player]");
+  const editPlayerButton = event.target.closest("[data-edit-player]");
+  const togglePlayerButton = event.target.closest("[data-toggle-player]");
+  const deletePlayerButton = event.target.closest("[data-delete-player]");
+  const attendanceAllButton = event.target.closest("[data-attendance-all]");
+  const attendanceNoteButton = event.target.closest("[data-toggle-attendance-note]");
 
   if (routeButton) goTo(routeButton.dataset.route);
   if (trainingButton) goTo("training", trainingButton.dataset.training);
@@ -3047,6 +3606,8 @@ function handleClick(event) {
   if (createButton) goTo("training-nieuw");
   if (createPrincipleButton) goTo("spelprincipe-nieuw");
   if (createSeasonWeekButton) goTo("speelweek-nieuw");
+  if (createPlayerButton) goTo("speler-nieuw");
+  if (editPlayerButton) goTo("speler-bewerken", editPlayerButton.dataset.editPlayer);
   if (editSeasonWeekButton) {
     goTo("speelweek-bewerken", editSeasonWeekButton.dataset.editSeasonWeek);
   }
@@ -3179,9 +3740,10 @@ function handleClick(event) {
   if (deleteButton) {
     const training = getTraining(deleteButton.dataset.deleteTraining);
     if (!training) return;
+    const attendanceCount = getAttendanceForEvent("training", training.id).length;
 
     const confirmed = window.confirm(
-      `Weet je zeker dat je ${training.code} — ${training.title} wilt verwijderen?`
+      `Weet je zeker dat je ${training.code} — ${training.title} wilt verwijderen?${attendanceCount ? " De gekoppelde aanwezigheidsregistratie wordt ook verwijderd." : ""}`
     );
 
     if (confirmed) {
@@ -3210,9 +3772,10 @@ function handleClick(event) {
   if (deleteSeasonWeekButton) {
     const week = getSeasonWeek(deleteSeasonWeekButton.dataset.deleteSeasonWeek);
     if (!week) return;
+    const availabilityCount = getAttendanceForEvent("seasonWeek", week.id).length;
 
     const confirmed = window.confirm(
-      `Weet je zeker dat je de speelweek ${formatSeasonDateRange(week.dateFrom, week.dateTo)} wilt verwijderen? Gekoppelde trainingen en reflecties blijven bestaan.`
+      `Weet je zeker dat je de speelweek ${formatSeasonDateRange(week.dateFrom, week.dateTo)} wilt verwijderen? Gekoppelde trainingen en reflecties blijven bestaan.${availabilityCount ? " De speelweekbeschikbaarheid wordt verwijderd." : ""}`
     );
 
     if (confirmed) {
@@ -3220,6 +3783,59 @@ function handleClick(event) {
       showToast("Speelweek verwijderd");
       goTo("seizoen");
     }
+  }
+
+  if (togglePlayerButton) {
+    const isCurrentlyActive = togglePlayerButton.dataset.playerActive === "true";
+    if (setPlayerActive(togglePlayerButton.dataset.togglePlayer, !isCurrentlyActive)) {
+      showToast(isCurrentlyActive ? "Speler gedeactiveerd" : "Speler geheractiveerd");
+      renderPlayers();
+    }
+  }
+
+  if (deletePlayerButton) {
+    const player = getPlayer(deletePlayerButton.dataset.deletePlayer);
+    if (!player) return;
+
+    if (playerHasAttendance(player.id) && player.isActive) {
+      const deactivate = window.confirm(
+        `${player.displayName} heeft opgeslagen historie. Deactiveren bewaart die historie. Wil je de speler deactiveren?`
+      );
+      if (deactivate) {
+        setPlayerActive(player.id, false);
+        showToast("Speler gedeactiveerd");
+        renderPlayers();
+        return;
+      }
+    }
+
+    const confirmed = window.confirm(
+      playerHasAttendance(player.id)
+        ? `Wil je ${player.displayName} definitief verwijderen? Alle gekoppelde aanwezigheids- en beschikbaarheidsregistraties worden ook verwijderd.`
+        : `Weet je zeker dat je ${player.displayName} definitief wilt verwijderen?`
+    );
+    if (confirmed) {
+      deletePlayer(player.id);
+      showToast("Speler verwijderd");
+      renderPlayers();
+    }
+  }
+
+  if (attendanceAllButton) {
+    const section = attendanceAllButton.closest(".attendance-section");
+    section.querySelectorAll("[data-attendance-status]").forEach((select) => {
+      select.value = attendanceAllButton.dataset.attendanceAll;
+    });
+    formDirty = true;
+  }
+
+  if (attendanceNoteButton) {
+    const playerRow = attendanceNoteButton.closest("[data-attendance-player]");
+    const note = playerRow.querySelector(".attendance-note");
+    note.hidden = !note.hidden;
+    attendanceNoteButton.setAttribute("aria-expanded", String(!note.hidden));
+    attendanceNoteButton.textContent = note.hidden ? "Notitie toevoegen" : "Notitie verbergen";
+    if (!note.hidden) note.querySelector("textarea").focus();
   }
 
   if (unlinkTrainingButton) {
@@ -3262,6 +3878,16 @@ async function handleSubmit(event) {
     return;
   }
 
+  if (event.target.id === "player-form") {
+    savePlayerForm(event);
+    return;
+  }
+
+  if (event.target.id === "attendance-form") {
+    saveAttendanceForm(event);
+    return;
+  }
+
   if (event.target.id === "season-training-link-form") {
     event.preventDefault();
     const form = event.target;
@@ -3299,6 +3925,79 @@ async function handleSubmit(event) {
 
   showToast("Reflectie opgeslagen");
   goTo("training", trainingId);
+}
+
+function savePlayerForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const existing = getPlayer(form.dataset.playerId);
+  const now = new Date().toISOString();
+  const firstName = form.elements.firstName.value.trim();
+  const lastName = form.elements.lastName.value.trim();
+  const player = normalizePlayer({
+    id: form.dataset.playerId,
+    teamId: TEAM_ID,
+    firstName,
+    lastName,
+    displayName: form.elements.displayName.value.trim() || `${firstName} ${lastName}`.trim(),
+    shirtNumber: form.elements.shirtNumber.value === ""
+      ? ""
+      : Number(form.elements.shirtNumber.value),
+    primaryPosition: form.elements.primaryPosition.value.trim(),
+    secondaryPosition: form.elements.secondaryPosition.value.trim(),
+    preferredFoot: form.elements.preferredFoot.value,
+    isActive: existing ? existing.isActive : true,
+    createdAt: form.dataset.createdAt || now,
+    updatedAt: now
+  });
+  const errors = validatePlayer(player);
+  if (errors.length) {
+    showFormErrors(errors, "player-form-errors");
+    return;
+  }
+
+  try {
+    if (existing) updatePlayer(player);
+    else savePlayer(player);
+  } catch (error) {
+    console.warn("De speler kon niet worden opgeslagen.", error);
+    showFormErrors(["De speler kon niet lokaal worden opgeslagen."], "player-form-errors");
+    return;
+  }
+
+  formDirty = false;
+  showToast("Speler opgeslagen");
+  goTo("spelers");
+}
+
+function saveAttendanceForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const now = new Date().toISOString();
+  const records = [...form.querySelectorAll("[data-attendance-player]")].map((row) => ({
+    id: createUniqueId("aanwezigheid"),
+    teamId: TEAM_ID,
+    playerId: row.dataset.attendancePlayer,
+    eventType: form.dataset.eventType,
+    eventId: form.dataset.eventId,
+    status: row.querySelector("[data-attendance-status]").value,
+    note: row.querySelector('[name="note"]').value.trim(),
+    createdAt: now,
+    updatedAt: now
+  }));
+
+  try {
+    upsertAttendanceRecords(records);
+  } catch (error) {
+    console.warn("De registratie kon niet worden opgeslagen.", error);
+    showToast("De registratie kon niet lokaal worden opgeslagen");
+    return;
+  }
+
+  formDirty = false;
+  showToast(form.dataset.eventType === "training"
+    ? "Aanwezigheid opgeslagen"
+    : "Speelweekbeschikbaarheid opgeslagen");
 }
 
 function savePrincipleForm(event) {
@@ -3596,6 +4295,11 @@ function handleInput(event) {
 
   if (event.target.closest("#season-week-form")) {
     formDirty = true;
+    return;
+  }
+
+  if (event.target.closest("#player-form, #attendance-form")) {
+    formDirty = true;
   }
 }
 
@@ -3627,6 +4331,11 @@ function handleChange(event) {
   }
 
   if (event.target.closest("#season-week-form")) {
+    formDirty = true;
+    return;
+  }
+
+  if (event.target.closest("#player-form, #attendance-form")) {
     formDirty = true;
   }
 }

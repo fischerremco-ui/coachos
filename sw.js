@@ -1,4 +1,4 @@
-const CACHE_VERSION = "coachos-v3";
+const CACHE_VERSION = "coachos-v5";
 const APP_SHELL = [
   "./",
   "./index.html",

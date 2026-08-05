@@ -2,8 +2,8 @@
 
 CoachOS is een mobile-first webapp voor een jeugdvoetbaltrainer van VSV Velserbroek.
 De app bevat het team JO16-1, vijf voorbeeldtrainingen, eigen trainingsprogramma’s,
-reflecties, een beheerbaar Playbook, een lokale historie per training en een
-seizoensplanning voor 2026–2027.
+reflecties, een beheerbaar Playbook, een lokale historie per training, een
+seizoensplanning voor 2026–2027 en lokaal spelers- en aanwezigheidsbeheer.
 
 ## Lokaal draaien
 
@@ -84,6 +84,12 @@ dit repository-subpad blijven werken.
 - Voeg speelweken handmatig toe en bewerk, dupliceer of verwijder ze wanneer de
   planning verandert.
 - Open een speelweek om bestaande trainingen te koppelen of te ontkoppelen.
+- Open `Spelers` om spelers toe te voegen, te bewerken, te deactiveren,
+  heractiveren of definitief te verwijderen.
+- Registreer op een trainingsdetail de `Aanwezigheid` en op een speelweekdetail
+  de `Speelweekbeschikbaarheid`.
+- Open `Statistieken` vanuit Spelers voor trainingsaanwezigheid en
+  speelweekbeschikbaarheid per actieve speler.
 
 CoachOS bewaart een gewijzigd trainingsformulier automatisch als concept. Bij
 terugkomst kun je doorgaan of het concept expliciet weggooien. Bij het verlaten
@@ -135,10 +141,39 @@ Wedstrijdbeheer, automatische PDF-import en automatische trainingsadviezen maken
 geen deel uit van deze versie. Reflecties in een speelweek worden afgeleid van de
 gekoppelde trainingen.
 
+## Spelers en registraties
+
+De spelerslijst start leeg. Per speler bewaart CoachOS de naam en optioneel een
+rugnummer, primaire en secundaire positie en voorkeursbeen. Niet-actieve spelers
+verdwijnen uit nieuwe registraties, terwijl hun historie bewaard blijft. Bij een
+speler met historie stelt CoachOS daarom eerst deactiveren voor. Definitief
+verwijderen wist ook de gekoppelde registraties.
+
+Op een training heet de registratie `Aanwezigheid`. Op een kalenderitem heet deze
+`Speelweekbeschikbaarheid`; een speelweek is nadrukkelijk nog geen wedstrijd. De
+beschikbaarheidsregistratie bevat geen informatie over selectie, basisplaats,
+invalbeurt, speelminuten of daadwerkelijke wedstrijddeelname.
+
+De statussen zijn `Aanwezig`, `Afwezig`, `Ziek`, `Geblesseerd`, `Vakantie`,
+`Te laat`, `Eerder weg` en `Onbekend`. Voor percentages gelden `Aanwezig`,
+`Te laat` en `Eerder weg` als aanwezig. `Afwezig`, `Ziek`, `Geblesseerd` en
+`Vakantie` tellen mee als bekende niet-aanwezigheid. `Onbekend` telt nooit mee in
+de noemer. Daardoor tellen vrije weekenden, vakanties, feestdagen, lege
+kalenderitems en speelweken met uitsluitend `Onbekend` niet mee voor het
+speelweekbeschikbaarheidspercentage.
+
+De statistieken tonen per actieve speler het aantal geregistreerde trainingen,
+het trainingsaanwezigheidspercentage, het aantal speelweken met een opgeslagen
+registratie en het speelweekbeschikbaarheidspercentage. Daarnaast staan er drie
+compacte teamcijfers: actieve spelers, gemiddelde trainingsaanwezigheid en
+gemiddelde opkomst per geregistreerde training. Er worden geen wedstrijd- of
+ontwikkelstatistieken bijgehouden.
+
 ## Opslag en back-ups
 
-Trainingen, concepten, reflecties, spelprincipes, bronnen, PDF-bestanden, seizoenen
-en speelweken worden opgeslagen in `localStorage`. Ze blijven op hetzelfde apparaat
+Trainingen, concepten, reflecties, spelers, aanwezigheids- en
+beschikbaarheidsregistraties, spelprincipes, bronnen, PDF-bestanden, seizoenen en
+speelweken worden opgeslagen in `localStorage`. Ze blijven op hetzelfde apparaat
 en in dezelfde browser beschikbaar. Er wordt niets naar een externe database
 verstuurd.
 
@@ -154,15 +189,16 @@ CoachOS toont een duidelijke melding wanneer er onvoldoende ruimte beschikbaar i
 Onderaan het trainingsoverzicht staan twee back-upacties:
 
 - `Back-up downloaden` maakt één JSON-bestand met trainingen, reflecties,
-  spelprincipes, bronnen, lokale PDF-bestanden, seizoenen, speelweken en
-  trainingkoppelingen.
+  spelers, aanwezigheids- en beschikbaarheidsregistraties, spelprincipes, bronnen,
+  lokale PDF-bestanden, seizoenen, speelweken en trainingkoppelingen.
 - `Back-up importeren` kan gegevens samenvoegen of volledig vervangen.
 
 Bij volledig vervangen downloadt CoachOS eerst automatisch een back-up van de
 huidige gegevens. Alleen geldige CoachOS-back-ups worden geaccepteerd. Back-ups uit
-versie 2 zonder Playbookgegevens en versie 3 zonder seizoensgegevens blijven
-bruikbaar. Bij import wissen zij geen bestaande kennisbank- of seizoensgegevens.
-Het actuele back-upformaat is versie 4.
+versie 2 zonder Playbookgegevens, versie 3 zonder seizoensgegevens en versie 4
+zonder spelersgegevens blijven bruikbaar. Bij import wissen oudere back-ups geen
+bestaande kennisbank-, seizoens-, spelers- of registratiegegevens. Het actuele
+back-upformaat is versie 5.
 
 ## Installeren als app
 
@@ -204,8 +240,8 @@ app-shell:
 - alle app-iconen
 
 CoachOS gebruikt daarna een cache-first strategie. Trainingen, reflecties,
-concepten, Playbookgegevens en de seizoensplanning blijven daarnaast in
-`localStorage` staan. Lokale PDF-bestanden kunnen hierdoor eveneens offline worden geopend. Als een
+concepten, spelers, registraties, Playbookgegevens en de seizoensplanning blijven
+daarnaast in `localStorage` staan. Lokale PDF-bestanden kunnen hierdoor eveneens offline worden geopend. Als een
 niet-gecachete pagina niet kan worden geladen, verschijnt de nette
 CoachOS-offlinemelding.
 
@@ -217,15 +253,16 @@ internet kan nog geen bestanden uit de cache halen.
 De cacheversie staat bovenaan `sw.js`:
 
 ```js
-const CACHE_VERSION = "coachos-v3";
+const CACHE_VERSION = "coachos-v5";
 ```
 
-Verhoog deze waarde bij een release, bijvoorbeeld naar `coachos-v4`. Bij activering
+Verhoog deze waarde bij een release, bijvoorbeeld naar `coachos-v6`. Bij activering
 verwijdert de nieuwe service worker automatisch oudere CoachOS-caches. Ververs de
 app daarna één keer om de nieuwe bestanden te laden.
 
 Het vernieuwen of verwijderen van caches wist `localStorage` niet. Trainingen,
-reflecties, concepten, Playbookgegevens en seizoensgegevens blijven dus behouden. Let op: opslag
+reflecties, concepten, spelers, registraties, Playbookgegevens en seizoensgegevens
+blijven dus behouden. Let op: opslag
 hoort bij het webadres. Gebruik de bestaande back-upfunctie om gegevens van een
 lokale `file://`-versie naar de gepubliceerde HTTPS-versie over te zetten.
 
