@@ -23,6 +23,8 @@ const TEAM_EVALUATION_STORAGE_KEY = "coachos-team-evaluations-v1";
 const INSTALL_HINT_KEY = "coachos-install-hint-dismissed-v1";
 const ATTACHMENT_MIGRATION_KEY = "coachos-file-migration-v1";
 const LAST_BACKUP_STORAGE_KEY = "coachos-last-backup-v1";
+const LIBRARY_EXERCISES_STORAGE_KEY = "coachos-library-exercises-v1";
+const LIBRARY_EXERCISES_SEEDED_KEY = "coachos-library-exercises-seeded-v1";
 const FILE_DB_NAME = "coachos-files";
 const FILE_DB_VERSION = 1;
 const FILE_STORE = "attachments";
@@ -79,6 +81,13 @@ const PART_TYPES = [
   "Partijvorm",
   "Afsluiting",
   "Overig"
+];
+const EXERCISE_PHASES = [
+  "Aanvallen",
+  "Omschakelen na balverlies",
+  "Verdedigen",
+  "Omschakelen na balwinst",
+  "Dode spelmomenten"
 ];
 const TEMPLATE_DEFINITIONS = {
   empty: {
@@ -143,6 +152,13 @@ const trainingListState = {
   block: "all",
   sort: "updated"
 };
+const exerciseLibraryState = {
+  query: "",
+  phase: "all"
+};
+const libraryPickerState = {
+  query: ""
+};
 
 const routes = {
   home: { parent: null, render: renderHome },
@@ -166,6 +182,12 @@ const routes = {
   "spelprincipe-bewerken": { parent: "spelprincipe", render: renderPrincipleForm },
   "bron-nieuw": { parent: "spelprincipe", render: renderSourceForm },
   "bron-bewerken": { parent: "spelprincipe", render: renderSourceForm },
+  oefenbibliotheek: { parent: "dashboard", render: renderExerciseLibrary },
+  oefenvorm: { parent: "oefenbibliotheek", render: renderExerciseDetail },
+  "oefenvorm-nieuw": { parent: "oefenbibliotheek", render: renderExerciseForm },
+  "oefenvorm-bewerken": { parent: "oefenvorm", render: renderExerciseForm },
+  "oefenvorm-snel": { parent: "oefenbibliotheek", render: renderExerciseQuickAdd },
+  "oefenvorm-toevoegen": { parent: "oefenbibliotheek", render: renderExerciseAddToTraining },
   seizoen: { parent: "dashboard", render: renderSeasonOverview },
   blokken: { parent: "seizoen", render: renderPlannerBlocks },
   blok: { parent: "blokken", render: renderPlannerBlockDetail },
@@ -1348,6 +1370,90 @@ function updatePrinciple(principle) {
   );
 }
 
+function normalizeLibraryExercise(exercise = {}) {
+  const toStringArray = (value, limit = Infinity) => (
+    Array.isArray(value)
+      ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, limit)
+      : []
+  );
+
+  return {
+    id: exercise.id || createUniqueId("oefenvorm"),
+    title: String(exercise.title || "").trim(),
+    principleIds: Array.isArray(exercise.principleIds)
+      ? exercise.principleIds.filter((id) => typeof id === "string" && id)
+      : [],
+    phase: EXERCISE_PHASES.includes(exercise.phase) ? exercise.phase : "",
+    organisation: String(exercise.organisation || "").trim(),
+    rules: String(exercise.rules || "").trim(),
+    coachingPoints: toStringArray(exercise.coachingPoints, 3),
+    variations: {
+      easier: String((exercise.variations && exercise.variations.easier) || "").trim(),
+      harder: String((exercise.variations && exercise.variations.harder) || "").trim()
+    },
+    lowAttendance: String(exercise.lowAttendance || "").trim(),
+    successCriteria: toStringArray(exercise.successCriteria, 3),
+    sourceUrl: String(exercise.sourceUrl || "").trim(),
+    tags: toStringArray(exercise.tags),
+    usageCount: Number.isInteger(exercise.usageCount) && exercise.usageCount >= 0
+      ? exercise.usageCount
+      : 0,
+    lastUsedDate: normalizeDateKey(exercise.lastUsedDate) || null,
+    createdAt: exercise.createdAt || new Date().toISOString(),
+    updatedAt: exercise.updatedAt || new Date().toISOString()
+  };
+}
+
+function getLibraryExercises() {
+  try {
+    const saved = localStorage.getItem(LIBRARY_EXERCISES_STORAGE_KEY);
+    const exercises = saved ? JSON.parse(saved) : [];
+    return exercises.map(normalizeLibraryExercise);
+  } catch (error) {
+    console.warn("Oefenvormen konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function saveLibraryExercises(exercises) {
+  return writeStorage(LIBRARY_EXERCISES_STORAGE_KEY, exercises.map(normalizeLibraryExercise));
+}
+
+function getLibraryExercise(id) {
+  return getLibraryExercises().find((exercise) => exercise.id === id);
+}
+
+function saveLibraryExercise(exercise) {
+  return saveLibraryExercises([...getLibraryExercises(), normalizeLibraryExercise(exercise)]);
+}
+
+function updateLibraryExercise(exercise) {
+  const normalized = normalizeLibraryExercise(exercise);
+  return saveLibraryExercises(
+    getLibraryExercises().map((item) => item.id === normalized.id ? normalized : item)
+  );
+}
+
+function deleteLibraryExercise(id) {
+  return saveLibraryExercises(getLibraryExercises().filter((exercise) => exercise.id !== id));
+}
+
+function bumpLibraryExerciseUsage(id) {
+  const exercise = getLibraryExercise(id);
+  if (!exercise) return true;
+  return updateLibraryExercise({
+    ...exercise,
+    usageCount: exercise.usageCount + 1,
+    lastUsedDate: getLocalDateKey(),
+    updatedAt: new Date().toISOString()
+  });
+}
+
+function seedLibraryExercisesIfEmpty() {
+  if (localStorage.getItem(LIBRARY_EXERCISES_SEEDED_KEY)) return;
+  writeStorage(LIBRARY_EXERCISES_SEEDED_KEY, true);
+}
+
 function openFileDb() {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) {
@@ -2094,7 +2200,7 @@ async function exportData(options = {}) {
   const includeAttachments = options.includeAttachments !== false;
   return {
     app: "CoachOS",
-    version: 7,
+    version: 8,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
@@ -2105,7 +2211,8 @@ async function exportData(options = {}) {
     weekCards: getWeekCards(),
     players: getPlayers(),
     attendance: getAttendanceRecords(),
-    matchMinutes: getMatchMinutes()
+    matchMinutes: getMatchMinutes(),
+    libraryExercises: getLibraryExercises()
   };
 }
 
@@ -2433,6 +2540,22 @@ function validateImport(data) {
     return "De back-up bevat ongeldige of dubbele speelminuten.";
   }
 
+  const hasLibraryExerciseData = Number(data.version) >= 8
+    || data.libraryExercises !== undefined;
+  if (!hasLibraryExerciseData) return "";
+  if (!Array.isArray(data.libraryExercises)) {
+    return "De back-up mist geldige oefenvormen.";
+  }
+  const libraryExerciseIds = data.libraryExercises.map((exercise) => exercise && exercise.id);
+  const libraryExercises = data.libraryExercises.map(normalizeLibraryExercise);
+  if (
+    libraryExerciseIds.some((id) => typeof id !== "string" || !id)
+    || new Set(libraryExerciseIds).size !== libraryExerciseIds.length
+    || libraryExercises.some((exercise) => validateLibraryExercise(exercise).length)
+  ) {
+    return "De back-up bevat ongeldige of dubbele oefenvormen.";
+  }
+
   return "";
 }
 
@@ -2526,6 +2649,10 @@ async function importData(data, mode) {
   const importedMatchMinutes = hasMatchMinutesData
     ? data.matchMinutes.map(normalizeMatchMinutes)
     : [];
+  const hasLibraryExerciseData = Array.isArray(data.libraryExercises);
+  const importedLibraryExercises = hasLibraryExerciseData
+    ? data.libraryExercises.map(normalizeLibraryExercise)
+    : [];
   let currentAttachmentIds = [];
 
   if (mode === "replace") {
@@ -2565,6 +2692,7 @@ async function importData(data, mode) {
     }
     if (hasWeekCardData && !saveWeekCards(importedWeekCards)) return false;
     if (hasMatchMinutesData && !saveMatchMinutes(importedMatchMinutes)) return false;
+    if (hasLibraryExerciseData && !saveLibraryExercises(importedLibraryExercises)) return false;
     if (!saveTrainings(importedTrainings)) return false;
     if (!saveReflections(data.reflections)) return false;
     migrateWeekCards();
@@ -2602,6 +2730,9 @@ async function importData(data, mode) {
   }
   if (hasMatchMinutesData && !saveMatchMinutes(
     mergeMatchMinutes(getMatchMinutes(), importedMatchMinutes)
+  )) return false;
+  if (hasLibraryExerciseData && !saveLibraryExercises(
+    mergeById(getLibraryExercises(), importedLibraryExercises)
   )) return false;
   if (!saveTrainings(mergeById(getTrainings(), importedTrainings))) return false;
   if (!saveReflections(mergeById(getReflections(), data.reflections))) return false;
@@ -2718,7 +2849,8 @@ function getParentIdForRoute(route) {
     "spelprincipe-bewerken",
     "speelweek-bewerken",
     "speelminuten",
-    "speler-bewerken"
+    "speler-bewerken",
+    "oefenvorm-bewerken"
   ].includes(route.name)) {
     return route.id || "";
   }
@@ -2956,6 +3088,62 @@ function renderDashboardLoadSummary() {
   `;
 }
 
+function renderLibraryUsageSummary() {
+  const exercises = getLibraryExercises();
+  if (!exercises.length) return "";
+
+  const topUsed = [...exercises]
+    .filter((exercise) => exercise.usageCount > 0)
+    .sort((a, b) => b.usageCount - a.usageCount || a.title.localeCompare(b.title, "nl"))
+    .slice(0, 3);
+
+  const fourWeeksAgo = new Date();
+  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+  const fourWeeksAgoKey = getLocalDateKey(fourWeeksAgo);
+  const stale = exercises
+    .filter((exercise) => (
+      exercise.usageCount > 3
+      && exercise.lastUsedDate
+      && exercise.lastUsedDate < fourWeeksAgoKey
+    ))
+    .sort((a, b) => a.lastUsedDate.localeCompare(b.lastUsedDate))
+    .slice(0, 2);
+
+  if (!topUsed.length && !stale.length) return "";
+
+  const renderItem = (exercise, meta) => `
+    <button class="library-usage-item" type="button" data-exercise="${escapeHtml(exercise.id)}">
+      <span>${escapeHtml(exercise.title)}</span>
+      <strong>${escapeHtml(meta)}</strong>
+    </button>
+  `;
+
+  return `
+    <div class="dashboard-load-card library-usage-card">
+      <span class="dashboard-load-heading">
+        <span>
+          <span class="eyebrow">Oefenbibliotheek</span>
+          <strong>Gebruik dit seizoen</strong>
+        </span>
+      </span>
+      <span class="dashboard-load-columns">
+        <span class="dashboard-load-group">
+          <b>Vaakst gebruikt</b>
+          ${topUsed.length
+            ? topUsed.map((exercise) => renderItem(exercise, `${exercise.usageCount}×`)).join("")
+            : `<span class="load-empty">Nog geen gebruik geregistreerd</span>`}
+        </span>
+        <span class="dashboard-load-group">
+          <b>Al een tijdje niet gebruikt</b>
+          ${stale.length
+            ? stale.map((exercise) => renderItem(exercise, formatShortDate(exercise.lastUsedDate))).join("")
+            : `<span class="load-empty">Niets opvallends</span>`}
+        </span>
+      </span>
+    </div>
+  `;
+}
+
 function getTonightTraining(todayKey = getLocalDateKey()) {
   const upcoming = getTrainings()
     .filter((training) => training.date && training.date >= todayKey)
@@ -3175,6 +3363,7 @@ function renderDashboard() {
   const trainingCount = getTrainings().length;
   const principleCount = getPrinciples().length;
   const playerCount = getActivePlayers().length;
+  const libraryExerciseCount = getLibraryExercises().length;
   const season = getTeamSeason();
   const weeks = season ? getSeasonWeeks(season.id) : [];
   const nextWeek = getNextSeasonWeek(weeks);
@@ -3224,6 +3413,11 @@ function renderDashboard() {
           <span class="dashboard-title">Playbook</span>
           <span class="dashboard-state">${principleCount} ${principleCount === 1 ? "spelprincipe" : "spelprincipes"}</span>
         </button>
+        <button class="dashboard-button active" type="button" data-route="oefenbibliotheek">
+          <span class="dashboard-icon" aria-hidden="true">O</span>
+          <span class="dashboard-title">Oefenbibliotheek</span>
+          <span class="dashboard-state">${libraryExerciseCount} ${libraryExerciseCount === 1 ? "oefenvorm" : "oefenvormen"}</span>
+        </button>
         <button class="dashboard-button active dashboard-button-wide" type="button" data-route="seizoen">
           <span class="dashboard-icon" aria-hidden="true">26</span>
           <span class="dashboard-title">Seizoen 2026–2027</span>
@@ -3247,6 +3441,7 @@ function renderDashboard() {
         </p>
 
         ${renderDashboardLoadSummary()}
+        ${renderLibraryUsageSummary()}
       </section>
 
       ${renderDashboardWeekCard(nextPlannerCard)}
@@ -4620,6 +4815,665 @@ function renderSeasonWeekForm(id) {
   `;
 }
 
+function createEmptyLibraryExercise(overrides = {}) {
+  return {
+    id: "",
+    title: "",
+    principleIds: [],
+    phase: "",
+    organisation: "",
+    rules: "",
+    coachingPoints: [],
+    variations: { easier: "", harder: "" },
+    lowAttendance: "",
+    successCriteria: [],
+    sourceUrl: "",
+    tags: [],
+    usageCount: 0,
+    lastUsedDate: null,
+    createdAt: "",
+    updatedAt: "",
+    ...overrides
+  };
+}
+
+function renderExercisePrincipleLabels(exercise) {
+  const principles = getPrinciples();
+  const titles = exercise.principleIds
+    .map((id) => principles.find((principle) => principle.id === id))
+    .filter(Boolean)
+    .map((principle) => principle.title);
+
+  if (!titles.length) return "";
+  return `
+    <span class="exercise-tag-row">
+      ${titles.map((title) => `<span class="exercise-tag">${escapeHtml(title)}</span>`).join("")}
+    </span>
+  `;
+}
+
+function getVisibleLibraryExercises() {
+  const query = exerciseLibraryState.query.trim().toLocaleLowerCase("nl");
+  const principles = getPrinciples();
+  const principleTitle = (id) => {
+    const principle = principles.find((item) => item.id === id);
+    return principle ? principle.title : "";
+  };
+
+  const exercises = getLibraryExercises().filter((exercise) => {
+    const matchesQuery = !query || [
+      exercise.title,
+      ...exercise.tags,
+      ...exercise.principleIds.map(principleTitle)
+    ].some((value) => value.toLocaleLowerCase("nl").includes(query));
+    const matchesPhase = exerciseLibraryState.phase === "all"
+      || exercise.phase === exerciseLibraryState.phase;
+
+    return matchesQuery && matchesPhase;
+  });
+
+  return exercises.sort((a, b) => {
+    if (a.lastUsedDate && b.lastUsedDate) return b.lastUsedDate.localeCompare(a.lastUsedDate);
+    if (a.lastUsedDate) return -1;
+    if (b.lastUsedDate) return 1;
+    return a.title.localeCompare(b.title, "nl");
+  });
+}
+
+function updateExerciseLibraryResults() {
+  const container = document.querySelector("#exercise-list-results");
+  const summary = document.querySelector("#exercise-result-summary");
+  if (!container || !summary) return;
+
+  const exercises = getVisibleLibraryExercises();
+  summary.textContent = `${exercises.length} ${exercises.length === 1 ? "oefenvorm" : "oefenvormen"}`;
+
+  if (!exercises.length) {
+    container.innerHTML = `
+      <div class="empty-history">
+        <strong>Geen oefenvormen gevonden</strong>
+        Pas je zoekopdracht of filter aan, of voeg een nieuwe oefenvorm toe.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="exercise-list">
+      ${exercises.map((exercise) => `
+        <article class="exercise-card-shell">
+          <button class="exercise-card" type="button" data-exercise="${escapeHtml(exercise.id)}">
+            <span class="exercise-card-copy">
+              <span class="exercise-card-title">${escapeHtml(exercise.title)}</span>
+              ${exercise.phase ? `<span class="exercise-card-phase">${escapeHtml(exercise.phase)}</span>` : ""}
+              ${renderExercisePrincipleLabels(exercise)}
+              <span class="exercise-card-meta">${exercise.usageCount} ${exercise.usageCount === 1 ? "keer" : "keer"} gebruikt dit seizoen</span>
+            </span>
+            <span class="arrow" aria-hidden="true">→</span>
+          </button>
+          <button class="card-action" type="button" data-add-exercise-to-training="${escapeHtml(exercise.id)}">
+            Toevoegen aan training
+          </button>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function updateLibraryPickerResults() {
+  const container = document.querySelector("#library-picker-results");
+  if (!container) return;
+
+  const query = libraryPickerState.query.trim().toLocaleLowerCase("nl");
+  const principles = getPrinciples();
+  const principleTitle = (id) => {
+    const principle = principles.find((item) => item.id === id);
+    return principle ? principle.title : "";
+  };
+  const exercises = getLibraryExercises().filter((exercise) => (
+    !query || [exercise.title, ...exercise.tags, ...exercise.principleIds.map(principleTitle)]
+      .some((value) => value.toLocaleLowerCase("nl").includes(query))
+  ));
+
+  if (!exercises.length) {
+    container.innerHTML = `<p class="field-hint">Geen oefenvormen gevonden.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <ul class="clean-list library-picker-list">
+      ${exercises.map((exercise) => `
+        <li class="library-picker-item">
+          <span class="library-picker-item-copy">
+            <strong>${escapeHtml(exercise.title)}</strong>
+            ${renderExercisePrincipleLabels(exercise)}
+          </span>
+          <button class="secondary-button" type="button" data-insert-library-exercise="${escapeHtml(exercise.id)}">
+            Toevoegen
+          </button>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+}
+
+function renderExerciseLibrary() {
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="exercise-library-title">
+      <header class="screen-header">
+        <p class="eyebrow">JO16-1</p>
+        <h1 id="exercise-library-title">Oefenbibliotheek</h1>
+        <p class="lead">Herbruikbare oefenvormen, gekoppeld aan je spelprincipes.</p>
+      </header>
+
+      <div class="exercise-library-actions">
+        <button class="primary-button" type="button" data-route="oefenvorm-nieuw">
+          <span aria-hidden="true">＋</span>
+          Nieuwe oefenvorm
+        </button>
+        <button class="secondary-button" type="button" data-route="oefenvorm-snel">
+          Snel toevoegen via link
+        </button>
+      </div>
+
+      <section class="training-tools" aria-label="Oefenvormen zoeken en filteren">
+        <div class="field">
+          <label for="exercise-search">Zoeken</label>
+          <input
+            id="exercise-search"
+            type="search"
+            value="${escapeHtml(exerciseLibraryState.query)}"
+            placeholder="Titel, principe of tag"
+            data-exercise-search
+          >
+        </div>
+        <div class="exercise-phase-filters" role="group" aria-label="Filter op spelfase">
+          <button
+            type="button"
+            class="filter-chip"
+            data-exercise-phase-filter="all"
+            aria-pressed="${exerciseLibraryState.phase === "all"}"
+          >Alle</button>
+          ${EXERCISE_PHASES.map((phase) => `
+            <button
+              type="button"
+              class="filter-chip"
+              data-exercise-phase-filter="${escapeHtml(phase)}"
+              aria-pressed="${exerciseLibraryState.phase === phase}"
+            >${escapeHtml(phase)}</button>
+          `).join("")}
+        </div>
+      </section>
+
+      <div class="training-result-summary" id="exercise-result-summary"></div>
+      <div id="exercise-list-results"></div>
+    </section>
+  `;
+
+  updateExerciseLibraryResults();
+}
+
+function renderExerciseDetail(id) {
+  const exercise = getLibraryExercise(id);
+  if (!exercise) {
+    goTo("oefenbibliotheek");
+    return;
+  }
+
+  app.innerHTML = `
+    <article class="screen" aria-labelledby="exercise-title">
+      <header class="detail-hero principle-hero">
+        <span class="detail-code">${exercise.phase ? escapeHtml(exercise.phase) : "Oefenvorm"}</span>
+        <h1 id="exercise-title">${escapeHtml(exercise.title)}</h1>
+        ${renderExercisePrincipleLabels(exercise)}
+      </header>
+
+      <div class="detail-actions">
+        <button class="secondary-button" type="button" data-add-exercise-to-training="${escapeHtml(exercise.id)}">
+          Toevoegen aan training
+        </button>
+        ${exercise.sourceUrl ? `
+          <button class="secondary-button" type="button" data-open-exercise-source="${escapeHtml(exercise.id)}">
+            Bron bekijken
+          </button>
+        ` : ""}
+        <button class="secondary-button" type="button" data-edit-exercise="${escapeHtml(exercise.id)}">
+          Bewerken
+        </button>
+        <button class="danger-button" type="button" data-delete-exercise="${escapeHtml(exercise.id)}">
+          Oefenvorm verwijderen
+        </button>
+      </div>
+
+      ${exercise.successCriteria.length ? `
+        <section class="exercise-success-block" aria-labelledby="exercise-success-title">
+          <p class="eyebrow">Kern van de vorm</p>
+          <h2 id="exercise-success-title">Waaraan zie ik dat het lukt</h2>
+          <ul>${exercise.successCriteria.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </section>
+      ` : ""}
+
+      ${exercise.organisation ? `
+        <div class="detail-field"><span class="detail-label">Organisatie</span><p>${escapeHtml(exercise.organisation)}</p></div>
+      ` : ""}
+      ${exercise.rules ? `
+        <div class="detail-field"><span class="detail-label">Spelregels</span><p>${escapeHtml(exercise.rules)}</p></div>
+      ` : ""}
+      ${exercise.coachingPoints.length ? `
+        <div class="detail-field">
+          <span class="detail-label">Coachingpunten</span>
+          <ul>${exercise.coachingPoints.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </div>
+      ` : ""}
+      ${(exercise.variations.easier || exercise.variations.harder) ? `
+        <div class="detail-field">
+          <span class="detail-label">Variaties</span>
+          ${exercise.variations.easier ? `<p><strong>Makkelijker —</strong> ${escapeHtml(exercise.variations.easier)}</p>` : ""}
+          ${exercise.variations.harder ? `<p><strong>Moeilijker —</strong> ${escapeHtml(exercise.variations.harder)}</p>` : ""}
+        </div>
+      ` : ""}
+      ${exercise.lowAttendance ? `
+        <div class="detail-field"><span class="detail-label">Lage opkomst (6–10 spelers)</span><p>${escapeHtml(exercise.lowAttendance)}</p></div>
+      ` : ""}
+      ${exercise.tags.length ? `
+        <div class="detail-field">
+          <span class="detail-label">Tags</span>
+          <span class="exercise-tag-row">${exercise.tags.map((tag) => `<span class="exercise-tag">${escapeHtml(tag)}</span>`).join("")}</span>
+        </div>
+      ` : ""}
+
+      <p class="exercise-usage-note">
+        ${exercise.usageCount} ${exercise.usageCount === 1 ? "keer" : "keer"} gebruikt dit seizoen${exercise.lastUsedDate ? ` · laatst op ${escapeHtml(formatShortDate(exercise.lastUsedDate))}` : ""}
+      </p>
+    </article>
+  `;
+}
+
+function buildExerciseFormFieldsHtml(exercise) {
+  const principles = getPrinciples();
+
+  return `
+    <section class="form-card">
+      <h2>Oefenvorm</h2>
+      <div class="field">
+        <label for="exercise-title-input">Titel</label>
+        <input
+          id="exercise-title-input"
+          name="title"
+          value="${escapeHtml(exercise.title)}"
+          placeholder="Bijv. 4 tegen 2 rondo met kopdoel"
+          required
+        >
+      </div>
+      <div class="field">
+        <label for="exercise-phase-input">Spelfase</label>
+        <select id="exercise-phase-input" name="phase">
+          ${EXERCISE_PHASES.map((phase) => `
+            <option value="${escapeHtml(phase)}" ${exercise.phase === phase ? "selected" : ""}>${escapeHtml(phase)}</option>
+          `).join("")}
+          <option value="" ${!exercise.phase ? "selected" : ""}>Meerdere</option>
+        </select>
+      </div>
+      ${principles.length ? `
+        <div class="field">
+          <label>Principes</label>
+          <div class="checkbox-group">
+            ${principles.map((principle) => `
+              <label class="checkbox-option">
+                <input
+                  type="checkbox"
+                  name="principleIds"
+                  value="${escapeHtml(principle.id)}"
+                  ${exercise.principleIds.includes(principle.id) ? "checked" : ""}
+                >
+                ${escapeHtml(principle.title)}
+              </label>
+            `).join("")}
+          </div>
+        </div>
+      ` : ""}
+    </section>
+
+    <section class="form-card">
+      <h2>Uitvoering</h2>
+      <div class="field">
+        <label for="exercise-organisation">Organisatie</label>
+        <textarea
+          id="exercise-organisation"
+          name="organisation"
+          placeholder="Afmetingen, aantallen en materiaal"
+        >${escapeHtml(exercise.organisation)}</textarea>
+      </div>
+      <div class="field">
+        <label for="exercise-rules">Spelregels</label>
+        <textarea
+          id="exercise-rules"
+          name="rules"
+          placeholder="Spelregels, inclusief eventuele bonusregel"
+        >${escapeHtml(exercise.rules)}</textarea>
+      </div>
+      <div class="field">
+        <label>Coachingpunten</label>
+        <input name="coachingPoint1" aria-label="Coachingpunt 1" value="${escapeHtml(exercise.coachingPoints[0] || "")}" placeholder="Coachingpunt 1">
+        <input name="coachingPoint2" aria-label="Coachingpunt 2" value="${escapeHtml(exercise.coachingPoints[1] || "")}" placeholder="Coachingpunt 2">
+        <input name="coachingPoint3" aria-label="Coachingpunt 3" value="${escapeHtml(exercise.coachingPoints[2] || "")}" placeholder="Coachingpunt 3">
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>Differentiatie</h2>
+      <div class="field">
+        <label for="exercise-easier">Makkelijker</label>
+        <textarea id="exercise-easier" name="variationsEasier" placeholder="Hoe maak je de vorm makkelijker?">${escapeHtml(exercise.variations.easier)}</textarea>
+      </div>
+      <div class="field">
+        <label for="exercise-harder">Moeilijker</label>
+        <textarea id="exercise-harder" name="variationsHarder" placeholder="Hoe maak je de vorm moeilijker?">${escapeHtml(exercise.variations.harder)}</textarea>
+      </div>
+      <div class="field">
+        <label for="exercise-low-attendance">Lage opkomst (6–10 spelers)</label>
+        <textarea id="exercise-low-attendance" name="lowAttendance" placeholder="Aangepaste variant bij weinig spelers">${escapeHtml(exercise.lowAttendance)}</textarea>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>Waaraan zie ik dat het lukt</h2>
+      <p class="field-hint">Vul minimaal twee zichtbare signalen in.</p>
+      <div class="field">
+        <input name="successCriterion1" aria-label="Succesindicator 1" value="${escapeHtml(exercise.successCriteria[0] || "")}" placeholder="Signaal 1">
+      </div>
+      <div class="field">
+        <input name="successCriterion2" aria-label="Succesindicator 2" value="${escapeHtml(exercise.successCriteria[1] || "")}" placeholder="Signaal 2">
+      </div>
+      <div class="field">
+        <input name="successCriterion3" aria-label="Succesindicator 3" value="${escapeHtml(exercise.successCriteria[2] || "")}" placeholder="Signaal 3 (optioneel)">
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>Bron en labels</h2>
+      <div class="field">
+        <label for="exercise-source-url">Bron-URL</label>
+        <input
+          id="exercise-source-url"
+          name="sourceUrl"
+          type="url"
+          inputmode="url"
+          value="${escapeHtml(exercise.sourceUrl)}"
+          placeholder="https://youtube.com/... of https://instagram.com/..."
+        >
+      </div>
+      <div class="field">
+        <label for="exercise-tags">Tags</label>
+        <input
+          id="exercise-tags"
+          name="tags"
+          value="${escapeHtml(exercise.tags.join(", "))}"
+          placeholder="Kommagescheiden, bijv. rondo, passing"
+        >
+      </div>
+    </section>
+  `;
+}
+
+function renderExerciseForm(id) {
+  const existing = id ? getLibraryExercise(id) : null;
+  if (id && !existing) {
+    goTo("oefenbibliotheek");
+    return;
+  }
+
+  const exercise = existing || createEmptyLibraryExercise();
+  const isEditing = Boolean(existing);
+  formDirty = false;
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="exercise-form-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">${isEditing ? "Oefenvorm aanpassen" : "Nieuwe oefenvorm"}</p>
+        <h1 id="exercise-form-title">${isEditing ? "Oefenvorm bewerken" : "Oefenvorm toevoegen"}</h1>
+        <p class="lead">Leg vast hoe de vorm werkt en waaraan je ziet dat het lukt.</p>
+      </header>
+
+      <form
+        class="training-form"
+        id="exercise-form"
+        data-exercise-id="${isEditing ? escapeHtml(exercise.id) : ""}"
+        data-created-at="${escapeHtml(exercise.createdAt)}"
+        data-usage-count="${exercise.usageCount}"
+        data-last-used-date="${escapeHtml(exercise.lastUsedDate || "")}"
+        novalidate
+      >
+        <div class="form-errors" id="exercise-form-errors" role="alert" aria-live="polite" hidden></div>
+
+        ${buildExerciseFormFieldsHtml(exercise)}
+
+        <div class="form-sticky-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            data-cancel-form
+            data-cancel-route="${isEditing ? "oefenvorm" : "oefenbibliotheek"}"
+            data-cancel-id="${isEditing ? escapeHtml(exercise.id) : ""}"
+          >
+            Annuleren
+          </button>
+          <button class="primary-button" type="submit">Oefenvorm opslaan</button>
+        </div>
+      </form>
+    </section>
+  `;
+}
+
+function renderExerciseQuickAdd(id) {
+  if (!id) {
+    app.innerHTML = `
+      <section class="screen" aria-labelledby="exercise-quick-title">
+        <header class="screen-header screen-header-compact">
+          <p class="eyebrow">Vanaf de bank</p>
+          <h1 id="exercise-quick-title">Snel toevoegen via link</h1>
+          <p class="lead">Plak de link die je net zag; de rest vul je nu of later aan.</p>
+        </header>
+
+        <form class="training-form" id="exercise-quick-add-step1" novalidate>
+          <div class="form-errors" id="exercise-quick-step1-errors" role="alert" aria-live="polite" hidden></div>
+          <div class="field">
+            <label for="exercise-quick-url">Link</label>
+            <input
+              id="exercise-quick-url"
+              name="url"
+              type="url"
+              inputmode="url"
+              placeholder="https://youtube.com/... of https://instagram.com/..."
+            >
+          </div>
+          <div class="form-sticky-actions">
+            <button class="secondary-button" type="button" data-cancel-form data-cancel-route="oefenbibliotheek">
+              Annuleren
+            </button>
+            <button class="primary-button" type="submit">Volgende</button>
+          </div>
+        </form>
+      </section>
+    `;
+    return;
+  }
+
+  formDirty = false;
+  const exercise = createEmptyLibraryExercise({ sourceUrl: decodeURIComponent(id) });
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="exercise-quick-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">Vanaf de bank</p>
+        <h1 id="exercise-quick-title">Oefenvorm afmaken</h1>
+        <p class="lead">De link staat vast; vul aan wat je nu al weet.</p>
+      </header>
+
+      <form
+        class="training-form"
+        id="exercise-form"
+        data-exercise-id=""
+        data-created-at=""
+        data-usage-count="0"
+        data-last-used-date=""
+        novalidate
+      >
+        <div class="form-errors" id="exercise-form-errors" role="alert" aria-live="polite" hidden></div>
+        ${buildExerciseFormFieldsHtml(exercise)}
+        <div class="form-sticky-actions">
+          <button class="secondary-button" type="button" data-cancel-form data-cancel-route="oefenbibliotheek">
+            Annuleren
+          </button>
+          <button class="primary-button" type="submit">Oefenvorm opslaan</button>
+        </div>
+      </form>
+    </section>
+  `;
+}
+
+function readExerciseForm(form) {
+  const value = (name) => form.elements[name].value.trim();
+  const principleIds = [...form.querySelectorAll('input[name="principleIds"]:checked')]
+    .map((input) => input.value);
+  const coachingPoints = [value("coachingPoint1"), value("coachingPoint2"), value("coachingPoint3")]
+    .filter(Boolean);
+  const successCriteria = [value("successCriterion1"), value("successCriterion2"), value("successCriterion3")]
+    .filter(Boolean);
+  const tags = value("tags").split(",").map((tag) => tag.trim()).filter(Boolean);
+
+  return {
+    id: form.dataset.exerciseId || "",
+    title: value("title"),
+    principleIds,
+    phase: value("phase"),
+    organisation: value("organisation"),
+    rules: value("rules"),
+    coachingPoints,
+    variations: {
+      easier: value("variationsEasier"),
+      harder: value("variationsHarder")
+    },
+    lowAttendance: value("lowAttendance"),
+    successCriteria,
+    sourceUrl: value("sourceUrl"),
+    tags,
+    usageCount: Number(form.dataset.usageCount) || 0,
+    lastUsedDate: form.dataset.lastUsedDate || null,
+    createdAt: form.dataset.createdAt || "",
+    updatedAt: ""
+  };
+}
+
+function validateLibraryExercise(exercise) {
+  const errors = [];
+  if (!exercise.title.trim()) errors.push("Vul een titel voor de oefenvorm in.");
+  if (exercise.sourceUrl && !isValidSourceUrl(exercise.sourceUrl)) {
+    errors.push("De bron-URL is niet geldig.");
+  }
+  return errors;
+}
+
+function saveExerciseForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const existingId = form.dataset.exerciseId;
+  const now = new Date().toISOString();
+  const exercise = {
+    ...readExerciseForm(form),
+    id: existingId || createUniqueId("oefenvorm"),
+    createdAt: form.dataset.createdAt || now,
+    updatedAt: now
+  };
+  const errors = validateLibraryExercise(exercise);
+
+  if (errors.length) {
+    showFormErrors(errors, "exercise-form-errors");
+    return;
+  }
+
+  const saved = existingId ? updateLibraryExercise(exercise) : saveLibraryExercise(exercise);
+  if (!saved) {
+    showFormErrors(["De oefenvorm kon niet lokaal worden opgeslagen."], "exercise-form-errors");
+    return;
+  }
+
+  formDirty = false;
+  showToast("Oefenvorm opgeslagen");
+  goTo("oefenvorm", exercise.id);
+}
+
+function handleExerciseQuickAddStep1(event) {
+  event.preventDefault();
+  const url = event.target.elements.url.value.trim();
+
+  if (!url) {
+    showFormErrors(["Plak eerst een link."], "exercise-quick-step1-errors");
+    return;
+  }
+
+  formDirty = false;
+  goTo("oefenvorm-snel", encodeURIComponent(url));
+}
+
+function renderExerciseAddToTraining(id) {
+  const exercise = getLibraryExercise(id);
+  if (!exercise) {
+    goTo("oefenbibliotheek");
+    return;
+  }
+
+  const todayKey = getLocalDateKey();
+  const openTrainings = getTrainings()
+    .filter((training) => !training.date || training.date >= todayKey)
+    .sort((a, b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99"));
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="exercise-add-training-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">${escapeHtml(exercise.title)}</p>
+        <h1 id="exercise-add-training-title">Toevoegen aan training</h1>
+        <p class="lead">Kies een openstaande training of begin een nieuwe.</p>
+      </header>
+
+      <button class="training-card" type="button" data-choose-exercise-new-training="${escapeHtml(exercise.id)}">
+        <span class="training-card-copy">
+          <span class="training-code">Nieuw</span>
+          <span class="training-title">Nieuwe training</span>
+          <span class="training-theme">Start een training met deze oefenvorm als eerste onderdeel</span>
+        </span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      ${openTrainings.length ? `
+        <div class="training-list">
+          ${openTrainings.map((training) => `
+            <button
+              class="training-card"
+              type="button"
+              data-choose-exercise-training="${escapeHtml(training.id)}"
+              data-exercise-id="${escapeHtml(exercise.id)}"
+            >
+              <span class="training-card-copy">
+                <span class="training-code">${escapeHtml(training.code)}</span>
+                <span class="training-title">${escapeHtml(training.title)}</span>
+                <span class="training-theme">${escapeHtml(training.theme || "Geen thema")}</span>
+                ${training.date ? `<span class="training-meta">${escapeHtml(formatShortDate(training.date))}</span>` : ""}
+              </span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </button>
+          `).join("")}
+        </div>
+      ` : `
+        <div class="empty-history">
+          <strong>Geen openstaande trainingen</strong>
+          Kies “Nieuwe training” om deze oefenvorm meteen te gebruiken.
+        </div>
+      `}
+    </section>
+  `;
+}
+
 function renderPlaybook() {
   const principles = getPrinciples();
   const cards = principles.map((principle) => {
@@ -5005,7 +5859,7 @@ function renderTrainings() {
       <section class="backup-card" aria-labelledby="backup-title">
         <p class="eyebrow">Veilig bewaren</p>
         <h2 id="backup-title">Back-up</h2>
-        <p>Download trainingen, reflecties, spelers, registraties, speelminuten, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
+        <p>Download trainingen, reflecties, spelers, registraties, speelminuten, het Playbook, de oefenbibliotheek en de seizoensplanning, of zet een eerdere back-up terug.</p>
         <div class="backup-actions">
           <button class="secondary-button" type="button" data-export-backup>Back-up downloaden</button>
           <button class="secondary-button" type="button" data-export-backup-without-files>Back-up zonder bijlagen</button>
@@ -5113,26 +5967,40 @@ function parsePlannerTrainingContext(id) {
   }
 }
 
+function parseLibraryExerciseContext(id) {
+  if (!id || !id.startsWith("exercise:")) return null;
+  const exercise = getLibraryExercise(id.slice("exercise:".length));
+  return exercise ? { exercise } : null;
+}
+
 function renderTrainingForm(id) {
   const plannerContext = parseRoute().name === "training-nieuw"
     ? parsePlannerTrainingContext(id)
     : null;
-  const existing = !plannerContext && id ? getTraining(id) : null;
+  const libraryContext = !plannerContext && parseRoute().name === "training-nieuw"
+    ? parseLibraryExerciseContext(id)
+    : null;
+  const existing = !plannerContext && !libraryContext && id ? getTraining(id) : null;
 
-  if (id && !existing && !plannerContext) {
+  if (id && !existing && !plannerContext && !libraryContext) {
     goTo("trainingen");
     return;
   }
 
   let training = existing
     || (plannerContext ? buildTrainingFromWeekCard(plannerContext.card, plannerContext.day) : null)
+    || (libraryContext
+      ? { ...createEmptyTraining(), parts: [convertLibraryExerciseToPart(libraryContext.exercise)] }
+      : null)
     || createEmptyTraining();
   const isEditing = Boolean(existing);
   const draftKey = isEditing
     ? existing.id
     : plannerContext
       ? `planner:${weekCardStableKey(plannerContext.card)}:${plannerContext.day}`
-      : "";
+      : libraryContext
+        ? `exercise:${libraryContext.exercise.id}`
+        : "";
   const draft = getDraft();
   const draftMatches = draft
     && (draft.trainingId || "") === draftKey;
@@ -5184,7 +6052,15 @@ function renderTrainingForm(id) {
           </section>
         ` : ""}
 
-        ${!isEditing && !plannerContext ? `
+        ${libraryContext ? `
+          <section class="planner-form-context">
+            <p class="eyebrow">Concept uit oefenbibliotheek</p>
+            <h2>${escapeHtml(libraryContext.exercise.title)}</h2>
+            <p>De oefenvorm staat als eerste onderdeel klaar. Vul duur, type en de rest van de training aan.</p>
+          </section>
+        ` : ""}
+
+        ${!isEditing && !plannerContext && !libraryContext ? `
           <section class="template-picker" aria-labelledby="template-title">
             <div>
               <p class="eyebrow">Sneller starten</p>
@@ -5310,9 +6186,26 @@ function renderTrainingForm(id) {
           <ol class="clean-list exercise-list exercise-editor-list" id="exercise-editor-list">
             ${training.parts.map(renderExerciseEditor).join("")}
           </ol>
-          <button class="secondary-button add-part-button" type="button" data-add-exercise>
-            ＋ Onderdeel toevoegen
-          </button>
+          <div class="training-onderdeel-actions">
+            <button class="secondary-button add-part-button" type="button" data-add-exercise>
+              ＋ Onderdeel toevoegen
+            </button>
+            <button class="secondary-button" type="button" data-toggle-library-picker>
+              Voeg uit bibliotheek toe
+            </button>
+          </div>
+          <div class="library-picker-panel" id="library-picker-panel" hidden>
+            <div class="field">
+              <label for="library-picker-search">Zoeken in bibliotheek</label>
+              <input
+                id="library-picker-search"
+                type="search"
+                placeholder="Titel, principe of tag"
+                data-library-picker-search
+              >
+            </div>
+            <div id="library-picker-results"></div>
+          </div>
         </section>
 
         <p class="form-note">Wijzigingen worden tijdens het typen als concept op dit apparaat bewaard.</p>
@@ -5353,9 +6246,41 @@ function createEmptyPart() {
   };
 }
 
+function convertLibraryExerciseToPart(exercise) {
+  const rulesLines = [
+    exercise.rules,
+    ...exercise.successCriteria.map((item) => `Succes: ${item}`)
+  ].filter(Boolean);
+  const variationLines = [
+    exercise.variations.easier ? `Makkelijker: ${exercise.variations.easier}` : "",
+    exercise.variations.harder ? `Moeilijker: ${exercise.variations.harder}` : "",
+    exercise.lowAttendance ? `Lage opkomst: ${exercise.lowAttendance}` : ""
+  ].filter(Boolean);
+
+  return {
+    id: createUniqueId("onderdeel"),
+    sourceExerciseId: exercise.id,
+    name: exercise.title,
+    type: "Overig",
+    duration: 0,
+    organization: exercise.organisation,
+    flow: "",
+    attackingCoaching: exercise.coachingPoints.join("\n"),
+    defendingCoaching: "",
+    transitionCoaching: "",
+    rulesScoring: rulesLines.join("\n"),
+    variations: variationLines.join("\n"),
+    materials: ""
+  };
+}
+
 function renderExerciseEditor(part = createEmptyPart()) {
   return `
-    <li class="exercise-editor-row" data-part-id="${escapeHtml(part.id)}">
+    <li
+      class="exercise-editor-row"
+      data-part-id="${escapeHtml(part.id)}"
+      ${part.sourceExerciseId ? `data-source-exercise="${escapeHtml(part.sourceExerciseId)}"` : ""}
+    >
       <div class="exercise-fields">
         <div class="part-heading">
           <strong>Onderdeel</strong>
@@ -5895,6 +6820,16 @@ async function handleClick(event) {
   const setMatchMinutesButton = event.target.closest("[data-set-match-minutes]");
   const addObservationButton = event.target.closest("[data-add-observation]");
   const addHeightButton = event.target.closest("[data-add-height-measurement]");
+  const exerciseButton = event.target.closest("[data-exercise]");
+  const addExerciseToTrainingButton = event.target.closest("[data-add-exercise-to-training]");
+  const editExerciseButton = event.target.closest("[data-edit-exercise]");
+  const deleteExerciseButton = event.target.closest("[data-delete-exercise]");
+  const openExerciseSourceButton = event.target.closest("[data-open-exercise-source]");
+  const exercisePhaseFilterButton = event.target.closest("[data-exercise-phase-filter]");
+  const chooseExerciseTrainingButton = event.target.closest("[data-choose-exercise-training]");
+  const chooseExerciseNewTrainingButton = event.target.closest("[data-choose-exercise-new-training]");
+  const toggleLibraryPickerButton = event.target.closest("[data-toggle-library-picker]");
+  const insertLibraryExerciseButton = event.target.closest("[data-insert-library-exercise]");
 
   if (routeButton) goTo(routeButton.dataset.route);
   if (playerButton) goTo("speler", playerButton.dataset.player);
@@ -5938,6 +6873,69 @@ async function handleClick(event) {
   }
   if (openSourceButton) await openKnowledgeSource(openSourceButton.dataset.openSource);
   if (editButton) goTo("training-bewerken", editButton.dataset.editTraining);
+
+  if (exerciseButton) goTo("oefenvorm", exerciseButton.dataset.exercise);
+  if (addExerciseToTrainingButton) {
+    goTo("oefenvorm-toevoegen", addExerciseToTrainingButton.dataset.addExerciseToTraining);
+  }
+  if (editExerciseButton) goTo("oefenvorm-bewerken", editExerciseButton.dataset.editExercise);
+  if (deleteExerciseButton) {
+    const exercise = getLibraryExercise(deleteExerciseButton.dataset.deleteExercise);
+    if (exercise) {
+      const confirmed = window.confirm(
+        `Weet je zeker dat je “${exercise.title}” wilt verwijderen?`
+      );
+      if (confirmed && deleteLibraryExercise(exercise.id)) {
+        showToast("Oefenvorm verwijderd");
+        goTo("oefenbibliotheek");
+      }
+    }
+  }
+  if (openExerciseSourceButton) {
+    const exercise = getLibraryExercise(openExerciseSourceButton.dataset.openExerciseSource);
+    if (exercise && exercise.sourceUrl) {
+      const opened = window.open(exercise.sourceUrl, "_blank", "noopener,noreferrer");
+      if (opened) opened.opener = null;
+    }
+  }
+  if (exercisePhaseFilterButton) {
+    exerciseLibraryState.phase = exercisePhaseFilterButton.dataset.exercisePhaseFilter;
+    renderExerciseLibrary();
+  }
+  if (chooseExerciseNewTrainingButton) {
+    goTo("training-nieuw", `exercise:${chooseExerciseNewTrainingButton.dataset.chooseExerciseNewTraining}`);
+  }
+  if (chooseExerciseTrainingButton) {
+    const training = getTraining(chooseExerciseTrainingButton.dataset.chooseExerciseTraining);
+    const exercise = getLibraryExercise(chooseExerciseTrainingButton.dataset.exerciseId);
+    if (training && exercise) {
+      const updated = {
+        ...training,
+        parts: [...training.parts, convertLibraryExerciseToPart(exercise)]
+      };
+      if (updateTraining(updated) && bumpLibraryExerciseUsage(exercise.id)) {
+        showToast("Oefenvorm toegevoegd aan training");
+        goTo("training-bewerken", training.id);
+      }
+    }
+  }
+  if (toggleLibraryPickerButton) {
+    const panel = document.querySelector("#library-picker-panel");
+    if (panel) {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) updateLibraryPickerResults();
+    }
+  }
+  if (insertLibraryExerciseButton) {
+    const exercise = getLibraryExercise(insertLibraryExerciseButton.dataset.insertLibraryExercise);
+    if (exercise) {
+      document.querySelector("#exercise-editor-list")
+        .insertAdjacentHTML("beforeend", renderExerciseEditor(convertLibraryExerciseToPart(exercise)));
+      updateMoveButtons();
+      markTrainingFormDirty();
+      showToast("Oefenvorm toegevoegd aan de training");
+    }
+  }
 
   if (setMatchMinutesButton) {
     if (!focusedMinutesInput || !focusedMinutesInput.isConnected) {
@@ -6272,6 +7270,16 @@ async function handleSubmit(event) {
 
   if (event.target.id === "principle-form") {
     savePrincipleForm(event);
+    return;
+  }
+
+  if (event.target.id === "exercise-form") {
+    saveExerciseForm(event);
+    return;
+  }
+
+  if (event.target.id === "exercise-quick-add-step1") {
+    handleExerciseQuickAddStep1(event);
     return;
   }
 
@@ -6758,6 +7766,8 @@ function saveTrainingForm(event) {
   const form = event.target;
   const existingId = form.dataset.trainingId;
   const now = new Date().toISOString();
+  const usedExerciseIds = [...form.querySelectorAll(".exercise-editor-row[data-source-exercise]")]
+    .map((row) => row.dataset.sourceExercise);
   const training = {
     ...readTrainingForm(form),
     id: existingId || createUniqueId("training"),
@@ -6773,6 +7783,8 @@ function saveTrainingForm(event) {
 
   const trainingSaved = existingId ? updateTraining(training) : saveTraining(training);
   if (!trainingSaved) return;
+
+  usedExerciseIds.forEach((exerciseId) => bumpLibraryExerciseUsage(exerciseId));
 
   let plannerLinkSaved = true;
   if (training.plannerWeekKey && training.plannerDay) {
@@ -6869,12 +7881,29 @@ function handleInput(event) {
     return;
   }
 
+  if (event.target.matches("[data-exercise-search]")) {
+    exerciseLibraryState.query = event.target.value;
+    updateExerciseLibraryResults();
+    return;
+  }
+
+  if (event.target.matches("[data-library-picker-search]")) {
+    libraryPickerState.query = event.target.value;
+    updateLibraryPickerResults();
+    return;
+  }
+
   if (event.target.closest("#training-form")) {
     markTrainingFormDirty();
     return;
   }
 
   if (event.target.closest("#season-week-form")) {
+    formDirty = true;
+    return;
+  }
+
+  if (event.target.closest("#exercise-form, #exercise-quick-add-step1")) {
     formDirty = true;
     return;
   }
@@ -7021,6 +8050,7 @@ window.addEventListener("online", () => {
 
 migrateWeekCards();
 migrateLegacyAttachments();
+seedLibraryExercisesIfEmpty();
 setupInstallExperience();
 registerServiceWorker();
 
