@@ -3193,7 +3193,7 @@ function renderDashboard() {
 
       <button class="tonight-dashboard-button" type="button" data-route="vanavond">
         <span class="tonight-dashboard-icon" aria-hidden="true">▶</span>
-        <span>
+        <span class="tonight-dashboard-copy">
           <small>${tonight.training
             ? tonight.within24Hours ? "Binnen 24 uur" : `Eerstvolgende · ${escapeHtml(formatShortDate(tonight.training.date))}`
             : "Snel naar het veld"}</small>

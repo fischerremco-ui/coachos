@@ -437,6 +437,65 @@ h3 {
   color: rgba(255, 255, 255, 0.64);
 }
 
+.tonight-dashboard-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 62px;
+  margin-top: 14px;
+  padding: 16px 18px;
+  gap: 14px;
+  text-align: left;
+  background: var(--white);
+  border: 0;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.tonight-dashboard-icon {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--red-700);
+  background: #fff0f2;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+.tonight-dashboard-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.tonight-dashboard-copy small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tonight-dashboard-copy strong {
+  display: block;
+  margin: 3px 0 2px;
+  color: var(--navy-900);
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.tonight-dashboard-copy span {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
