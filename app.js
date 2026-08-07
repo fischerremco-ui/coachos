@@ -16,6 +16,7 @@ const SEASON_WEEKS_STORAGE_KEY = "coachos-season-weeks-v1";
 const WEEK_CARDS_STORAGE_KEY = "coachos-week-cards-v1";
 const PLAYERS_STORAGE_KEY = "coachos-players-v1";
 const ATTENDANCE_STORAGE_KEY = "coachos-attendance-v1";
+const MATCH_MINUTES_STORAGE_KEY = "coachos-match-minutes-v1";
 const INSTALL_HINT_KEY = "coachos-install-hint-dismissed-v1";
 const ATTACHMENT_MIGRATION_KEY = "coachos-file-migration-v1";
 const LAST_BACKUP_STORAGE_KEY = "coachos-last-backup-v1";
@@ -54,6 +55,7 @@ const ATTENDANCE_STATUSES = [
 const PRESENT_ATTENDANCE_STATUSES = ["Aanwezig", "Te laat", "Eerder weg"];
 const ABSENT_ATTENDANCE_STATUSES = ["Afwezig", "Ziek", "Geblesseerd", "Vakantie"];
 const PREFERRED_FOOT_OPTIONS = ["Rechts", "Links", "Tweebenig", "Onbekend"];
+const MATCH_MINUTES_WEEK_TYPES = ["Competitiewedstrijd", "Beker", "Bekerpoule"];
 const SOURCE_TYPES = [
   "PDF",
   "Artikel",
@@ -131,6 +133,7 @@ let formDirty = false;
 let currentHash = window.location.hash || "#home";
 let ignoreNextHashChange = false;
 let deferredInstallPrompt = null;
+let focusedMinutesInput = null;
 const trainingListState = {
   query: "",
   block: "all",
@@ -141,9 +144,11 @@ const routes = {
   home: { parent: null, render: renderHome },
   teams: { parent: "home", render: renderTeams },
   dashboard: { parent: "teams", render: renderDashboard },
+  belasting: { parent: "dashboard", render: renderSquadLoad },
   spelers: { parent: "dashboard", render: renderPlayers },
+  speler: { parent: "spelers", render: renderPlayerDetail },
   "speler-nieuw": { parent: "spelers", render: renderPlayerForm },
-  "speler-bewerken": { parent: "spelers", render: renderPlayerForm },
+  "speler-bewerken": { parent: "speler", render: renderPlayerForm },
   aanwezigheidsstatistieken: { parent: "spelers", render: renderAttendanceStatistics },
   trainingen: { parent: "dashboard", render: renderTrainings },
   training: { parent: "trainingen", render: renderTrainingDetail },
@@ -159,6 +164,7 @@ const routes = {
   seizoen: { parent: "dashboard", render: renderSeasonOverview },
   weekkaart: { parent: "seizoen", render: renderWeekCardDetail },
   speelweek: { parent: "seizoen", render: renderSeasonWeekDetail },
+  speelminuten: { parent: "speelweek", render: renderMatchMinutes },
   "speelweek-nieuw": { parent: "seizoen", render: renderSeasonWeekForm },
   "speelweek-bewerken": { parent: "speelweek", render: renderSeasonWeekForm }
 };
@@ -296,9 +302,44 @@ function createUniqueId(prefix = "training") {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function normalizeDateKey(value) {
+  const date = String(value || "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
+  const parsed = new Date(`${date}T12:00:00`);
+  return !Number.isNaN(parsed.getTime()) && getLocalDateKey(parsed) === date
+    ? date
+    : "";
+}
+
+function normalizePlayerObservation(observation = {}) {
+  return {
+    id: observation.id || createUniqueId("observatie"),
+    date: normalizeDateKey(observation.date),
+    text: String(observation.text || "").trim(),
+    blockId: String(observation.blockId || "").trim()
+  };
+}
+
+function normalizeHeightMeasurement(measurement = {}) {
+  return {
+    date: normalizeDateKey(measurement.date),
+    centimeters: Number(measurement.centimeters) || 0
+  };
+}
+
 function normalizePlayer(player = {}) {
   const firstName = String(player.firstName || "").trim();
   const lastName = String(player.lastName || "").trim();
+  const observations = Array.isArray(player.observations)
+    ? player.observations.map(normalizePlayerObservation).filter((item) => item.text)
+    : [];
+  const heightMeasurements = Array.isArray(player.heightMeasurements)
+    ? player.heightMeasurements
+      .map(normalizeHeightMeasurement)
+      .filter((item) => item.date && item.centimeters > 0)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-4)
+    : [];
 
   return {
     id: player.id || createUniqueId("speler"),
@@ -312,6 +353,11 @@ function normalizePlayer(player = {}) {
     preferredFoot: PREFERRED_FOOT_OPTIONS.includes(player.preferredFoot)
       ? player.preferredFoot
       : "Onbekend",
+    quality: String(player.quality || "").trim(),
+    developmentPoint: String(player.developmentPoint || "").trim(),
+    developmentReviewDate: normalizeDateKey(player.developmentReviewDate),
+    observations,
+    heightMeasurements,
     isActive: player.isActive !== false,
     createdAt: player.createdAt || "",
     updatedAt: player.updatedAt || ""
@@ -365,7 +411,12 @@ function setPlayerActive(id, isActive) {
 
 function deletePlayer(id) {
   if (!savePlayers(getPlayers().filter((player) => player.id !== id))) return false;
-  return saveAttendanceRecords(getAttendanceRecords().filter((record) => record.playerId !== id));
+  if (!saveAttendanceRecords(
+    getAttendanceRecords().filter((record) => record.playerId !== id)
+  )) return false;
+  return saveMatchMinutes(
+    getMatchMinutes().filter((record) => record.playerId !== id)
+  );
 }
 
 function validatePlayer(player) {
@@ -379,6 +430,112 @@ function validatePlayer(player) {
     errors.push("Het rugnummer moet een positief heel getal zijn.");
   }
   return errors;
+}
+
+function matchMinutesKey(record) {
+  return `${record.seasonWeekId}:${record.playerId}`;
+}
+
+function normalizeMatchMinutes(record = {}) {
+  const minutes = Number(record.minutes);
+  return {
+    id: record.id || createUniqueId("speelminuten"),
+    seasonWeekId: String(record.seasonWeekId || ""),
+    playerId: String(record.playerId || ""),
+    minutes: Number.isInteger(minutes) && minutes >= 0 && minutes <= 120
+      ? minutes
+      : 0,
+    startingEleven: record.startingEleven === true,
+    note: String(record.note || "").trim(),
+    createdAt: record.createdAt || "",
+    updatedAt: record.updatedAt || ""
+  };
+}
+
+function getMatchMinutes() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MATCH_MINUTES_STORAGE_KEY)) || [];
+    return saved.map(normalizeMatchMinutes);
+  } catch (error) {
+    console.warn("Speelminuten konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function saveMatchMinutes(records) {
+  const unique = new Map();
+  records.map(normalizeMatchMinutes).forEach((record) => {
+    unique.set(matchMinutesKey(record), record);
+  });
+  return writeStorage(MATCH_MINUTES_STORAGE_KEY, [...unique.values()]);
+}
+
+function getMatchMinutesForWeek(seasonWeekId) {
+  return getMatchMinutes().filter((record) => record.seasonWeekId === seasonWeekId);
+}
+
+function replaceMatchMinutesForWeek(seasonWeekId, records) {
+  const retained = getMatchMinutes()
+    .filter((record) => record.seasonWeekId !== seasonWeekId);
+  return saveMatchMinutes([...retained, ...records]);
+}
+
+function getRecentMatchWeekIds(weeks = 3) {
+  const requestedWeeks = Math.max(0, Math.floor(Number(weeks) || 0));
+  if (!requestedWeeks) return [];
+
+  const todayKey = getLocalDateKey();
+  const periodStart = parseLocalDate(todayKey);
+  periodStart.setDate(periodStart.getDate() - (requestedWeeks * 7));
+  const periodStartKey = getLocalDateKey(periodStart);
+  const recordedWeekIds = new Set(
+    getMatchMinutes().map((record) => record.seasonWeekId)
+  );
+  return getAllSeasonWeeks()
+    .filter((week) => (
+      recordedWeekIds.has(week.id)
+      && MATCH_MINUTES_WEEK_TYPES.includes(week.type)
+      && week.dateFrom <= todayKey
+      && week.dateTo >= periodStartKey
+    ))
+    .sort((a, b) => b.dateFrom.localeCompare(a.dateFrom))
+    .slice(0, requestedWeeks)
+    .map((week) => week.id);
+}
+
+function getPlayerLoad(playerId, weeks = 3) {
+  const relevantWeekIds = new Set(getRecentMatchWeekIds(weeks));
+  return getMatchMinutes()
+    .filter((record) => (
+      record.playerId === playerId
+      && relevantWeekIds.has(record.seasonWeekId)
+    ))
+    .reduce((total, record) => total + record.minutes, 0);
+}
+
+function getSquadLoad(weeks = 3) {
+  const relevantWeekIds = new Set(getRecentMatchWeekIds(weeks));
+  const totals = new Map();
+  getMatchMinutes().forEach((record) => {
+    if (!relevantWeekIds.has(record.seasonWeekId)) return;
+    totals.set(record.playerId, (totals.get(record.playerId) || 0) + record.minutes);
+  });
+
+  return getActivePlayers()
+    .map((player) => ({
+      playerId: player.id,
+      name: player.displayName,
+      minutes: totals.get(player.id) || 0
+    }))
+    .sort((a, b) => (
+      b.minutes - a.minutes
+      || a.name.localeCompare(b.name, "nl", { sensitivity: "base" })
+    ));
+}
+
+function playerHasHistory(playerId) {
+  return playerHasAttendance(playerId)
+    || getMatchMinutes().some((record) => record.playerId === playerId);
 }
 
 function attendanceKey(record) {
@@ -565,7 +722,10 @@ function duplicateSeasonWeek(id) {
 
 function deleteSeasonWeek(id) {
   if (!saveSeasonWeeks(getAllSeasonWeeks().filter((week) => week.id !== id))) return false;
-  return deleteAttendanceForEvent("seasonWeek", id);
+  if (!deleteAttendanceForEvent("seasonWeek", id)) return false;
+  return saveMatchMinutes(
+    getMatchMinutes().filter((record) => record.seasonWeekId !== id)
+  );
 }
 
 function linkTrainingToSeasonWeek(weekId, trainingId) {
@@ -1740,7 +1900,7 @@ async function exportData(options = {}) {
   const includeAttachments = options.includeAttachments !== false;
   return {
     app: "CoachOS",
-    version: 6,
+    version: 7,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
@@ -1750,7 +1910,8 @@ async function exportData(options = {}) {
     seasonWeeks: getAllSeasonWeeks(),
     weekCards: getWeekCards(),
     players: getPlayers(),
-    attendance: getAttendanceRecords()
+    attendance: getAttendanceRecords(),
+    matchMinutes: getMatchMinutes()
   };
 }
 
@@ -2045,6 +2206,39 @@ function validateImport(data) {
     return "De back-up bevat ongeldige of dubbele weekkaarten.";
   }
 
+  const hasMatchMinutesData = Number(data.version) >= 7
+    || data.matchMinutes !== undefined;
+  if (!hasMatchMinutesData) return "";
+  if (!Array.isArray(data.matchMinutes)) {
+    return "De back-up mist geldige speelminuten.";
+  }
+  const matchMinuteIds = data.matchMinutes.map((record) => record && record.id);
+  const matchMinuteKeys = data.matchMinutes.map((record) => record && matchMinutesKey(record));
+  const seasonWeekById = new Map(data.seasonWeeks.map((week) => [week.id, week]));
+  const invalidMatchMinutes = data.matchMinutes.some((record) => {
+    const week = record && seasonWeekById.get(record.seasonWeekId);
+    return !record
+      || typeof record.id !== "string"
+      || !record.id
+      || !week
+      || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)
+      || !playerIdSet.has(record.playerId)
+      || !Number.isInteger(record.minutes)
+      || record.minutes < 0
+      || record.minutes > 120
+      || typeof record.startingEleven !== "boolean"
+      || typeof record.note !== "string"
+      || typeof record.createdAt !== "string"
+      || typeof record.updatedAt !== "string";
+  });
+  if (
+    invalidMatchMinutes
+    || new Set(matchMinuteIds).size !== matchMinuteIds.length
+    || new Set(matchMinuteKeys).size !== matchMinuteKeys.length
+  ) {
+    return "De back-up bevat ongeldige of dubbele speelminuten.";
+  }
+
   return "";
 }
 
@@ -2063,6 +2257,15 @@ function mergeAttendance(current, imported) {
 function mergeWeekCards(current, imported) {
   const merged = new Map(current.map((card) => [weekCardStableKey(card), card]));
   imported.forEach((card) => merged.set(weekCardStableKey(card), normalizeWeekCard(card)));
+  return [...merged.values()];
+}
+
+function mergeMatchMinutes(current, imported) {
+  const merged = new Map(current.map((record) => [matchMinutesKey(record), record]));
+  imported.forEach((record) => merged.set(
+    matchMinutesKey(record),
+    normalizeMatchMinutes(record)
+  ));
   return [...merged.values()];
 }
 
@@ -2125,6 +2328,10 @@ async function importData(data, mode) {
   const importedWeekCards = hasWeekCardData
     ? data.weekCards.map(normalizeWeekCard)
     : [];
+  const hasMatchMinutesData = Array.isArray(data.matchMinutes);
+  const importedMatchMinutes = hasMatchMinutesData
+    ? data.matchMinutes.map(normalizeMatchMinutes)
+    : [];
   let currentAttachmentIds = [];
 
   if (mode === "replace") {
@@ -2163,6 +2370,7 @@ async function importData(data, mode) {
       if (!saveAttendanceRecords(importedAttendance)) return false;
     }
     if (hasWeekCardData && !saveWeekCards(importedWeekCards)) return false;
+    if (hasMatchMinutesData && !saveMatchMinutes(importedMatchMinutes)) return false;
     if (!saveTrainings(importedTrainings)) return false;
     if (!saveReflections(data.reflections)) return false;
     migrateWeekCards();
@@ -2198,6 +2406,9 @@ async function importData(data, mode) {
     if (!saveWeekCards(mergeWeekCards(getWeekCards(), importedWeekCards))) return false;
     migrateWeekCards();
   }
+  if (hasMatchMinutesData && !saveMatchMinutes(
+    mergeMatchMinutes(getMatchMinutes(), importedMatchMinutes)
+  )) return false;
   if (!saveTrainings(mergeById(getTrainings(), importedTrainings))) return false;
   if (!saveReflections(mergeById(getReflections(), data.reflections))) return false;
   return true;
@@ -2311,7 +2522,9 @@ function getParentIdForRoute(route) {
     "training-bewerken",
     "reflectie",
     "spelprincipe-bewerken",
-    "speelweek-bewerken"
+    "speelweek-bewerken",
+    "speelminuten",
+    "speler-bewerken"
   ].includes(route.name)) {
     return route.id || "";
   }
@@ -2497,6 +2710,58 @@ function getNextRelevantWeekCard(cards, todayKey = getLocalDateKey()) {
   return cards.find((card) => card.dateTo >= todayKey) || null;
 }
 
+function getCurrentDevelopmentBlock(todayKey = getLocalDateKey()) {
+  const season = getTeamSeason();
+  const cards = season ? getWeekCards(season.id) : [];
+  const current = cards.find((card) => (
+    card.dateFrom <= todayKey && card.dateTo >= todayKey
+  ));
+  const next = cards.find((card) => card.dateFrom > todayKey);
+  const relevant = current || next || cards[cards.length - 1];
+  return relevant ? relevant.competitionBlock : "";
+}
+
+function renderLoadMiniList(items) {
+  if (!items.length) return `<span class="load-empty">Nog geen actieve spelers</span>`;
+  return `
+    <span class="load-mini-list" role="list">
+      ${items.map((item) => `
+        <span role="listitem"><span>${escapeHtml(item.name)}</span><strong>${item.minutes} min</strong></span>
+      `).join("")}
+    </span>
+  `;
+}
+
+function renderDashboardLoadSummary() {
+  const load = getSquadLoad(3);
+  const registeredWeeks = getRecentMatchWeekIds(3).length;
+  const highest = registeredWeeks ? load.slice(0, 3) : [];
+  const lowest = registeredWeeks ? load.slice(-3).reverse() : [];
+
+  return `
+    <button class="dashboard-load-card" type="button" data-route="belasting">
+      <span class="dashboard-load-heading">
+        <span>
+          <span class="eyebrow">Speelminuten</span>
+          <strong>Belasting laatste drie weken</strong>
+        </span>
+        <small>${registeredWeeks} ${registeredWeeks === 1 ? "speelweek" : "speelweken"} geregistreerd</small>
+      </span>
+      <span class="dashboard-load-columns">
+        <span class="dashboard-load-group">
+          <b>Meeste minuten</b>
+          ${renderLoadMiniList(highest)}
+        </span>
+        <span class="dashboard-load-group">
+          <b>Minste minuten</b>
+          ${renderLoadMiniList(lowest)}
+        </span>
+      </span>
+      <span class="dashboard-load-link">Volledig overzicht →</span>
+    </button>
+  `;
+}
+
 function renderDashboardWeekCard(card) {
   if (!card) {
     return `
@@ -2638,6 +2903,8 @@ function renderDashboard() {
             ? `${linkedTrainingCount} ${linkedTrainingCount === 1 ? "training" : "trainingen"} gepland voor deze speelweek.`
             : "Nog geen trainingen gepland voor deze speelweek."}
         </p>
+
+        ${renderDashboardLoadSummary()}
       </section>
 
       ${renderDashboardWeekCard(nextPlannerCard)}
@@ -2650,6 +2917,43 @@ function renderDashboard() {
   `;
 
   updateDashboardStorageStatus();
+}
+
+function renderSquadLoad() {
+  const load = getSquadLoad(3);
+  const registeredWeeks = getRecentMatchWeekIds(3).length;
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="squad-load-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">Speelminuten</p>
+        <h1 id="squad-load-title">Belasting laatste drie weken</h1>
+        <p class="lead">Ondersteunt de keuze tussen herstel en een extra trainingsprikkel op maandag.</p>
+      </header>
+
+      <section class="load-overview-summary">
+        <span>Venster</span>
+        <strong>${registeredWeeks} van maximaal 3 geregistreerde speelweken</strong>
+      </section>
+
+      ${load.length ? `
+        <div class="squad-load-list">
+          ${load.map((item, index) => `
+            <button class="squad-load-row" type="button" data-player="${escapeHtml(item.playerId)}">
+              <span class="squad-load-rank">${index + 1}</span>
+              <span>${escapeHtml(item.name)}</span>
+              <strong>${item.minutes} min</strong>
+            </button>
+          `).join("")}
+        </div>
+      ` : `
+        <div class="empty-history players-empty">
+          <strong>Nog geen actieve spelers</strong>
+          Voeg spelers toe en registreer speelminuten om de belasting te vergelijken.
+        </div>
+      `}
+    </section>
+  `;
 }
 
 function renderPlayerCard(player) {
@@ -2670,11 +2974,146 @@ function renderPlayerCard(player) {
         </div>
       </div>
       <div class="player-card-actions">
+        <button class="primary-button player-profile-button" type="button" data-player="${escapeHtml(player.id)}">Profiel openen</button>
         <button class="secondary-button" type="button" data-edit-player="${escapeHtml(player.id)}">Bewerken</button>
         <button class="secondary-button" type="button" data-toggle-player="${escapeHtml(player.id)}" data-player-active="${player.isActive}">
           ${player.isActive ? "Deactiveren" : "Heractiveren"}
         </button>
         <button class="danger-button" type="button" data-delete-player="${escapeHtml(player.id)}">Verwijderen</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderPlayerDetail(id) {
+  const player = getPlayer(id);
+  if (!player) {
+    goTo("spelers");
+    return;
+  }
+
+  const positions = [player.primaryPosition, player.secondaryPosition]
+    .filter(Boolean).join(" · ");
+  const observations = [...player.observations]
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  const measurements = player.heightMeasurements
+    .map((measurement, index, items) => ({
+      ...measurement,
+      difference: index ? measurement.centimeters - items[index - 1].centimeters : null
+    }))
+    .reverse();
+  const currentBlock = getCurrentDevelopmentBlock();
+
+  app.innerHTML = `
+    <article class="screen player-profile" aria-labelledby="player-profile-title">
+      <header class="detail-hero player-profile-hero">
+        <span class="player-avatar" aria-hidden="true">${escapeHtml((player.displayName || "?").charAt(0).toUpperCase())}</span>
+        <div>
+          <p class="eyebrow">Spelersprofiel</p>
+          <h1 id="player-profile-title">${escapeHtml(player.displayName)}</h1>
+          <p>${escapeHtml(positions || (player.isActive ? "Actieve speler" : "Niet actief"))}</p>
+        </div>
+      </header>
+
+      <section class="player-development-grid">
+        <div>
+          <span>Kwaliteit</span>
+          <strong>${escapeHtml(player.quality || "Nog niet vastgelegd")}</strong>
+        </div>
+        <div>
+          <span>Ontwikkelpunt</span>
+          <strong>${escapeHtml(player.developmentPoint || "Nog niet vastgelegd")}</strong>
+          ${player.developmentReviewDate ? `<small>Evalueren op ${escapeHtml(formatShortDate(player.developmentReviewDate))}</small>` : ""}
+        </div>
+      </section>
+
+      <section class="content-card player-profile-section">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Ontwikkeling</p>
+            <h2>Observaties</h2>
+          </div>
+          <button class="secondary-button compact-button" type="button" data-add-observation>Observatie toevoegen</button>
+        </div>
+
+        <form class="inline-profile-form" id="observation-form" data-player-id="${escapeHtml(player.id)}" hidden>
+          <p>Datum: ${escapeHtml(formatShortDate(getLocalDateKey()))} · Blok: ${escapeHtml(currentBlock || "Geen actief trainingsblok")}</p>
+          <div class="field">
+            <label for="observation-text">Observatie</label>
+            <textarea id="observation-text" name="text" rows="3" placeholder="Noteer één concrete, waarneembare observatie." required></textarea>
+          </div>
+          <button class="primary-button" type="submit">Observatie opslaan</button>
+        </form>
+
+        ${observations.length ? `
+          <div class="observation-list">
+            ${observations.map((observation) => `
+              <article>
+                <span>${escapeHtml(formatShortDate(observation.date))}${observation.blockId ? ` · ${escapeHtml(observation.blockId)}` : ""}</span>
+                <p>${escapeHtml(observation.text)}</p>
+              </article>
+            `).join("")}
+          </div>
+        ` : `
+          <div class="empty-history compact-empty">
+            <strong>Nog geen observaties</strong>
+            Voeg een korte, concrete observatie toe vanuit training of speelweek.
+          </div>
+        `}
+      </section>
+
+      <section class="content-card player-profile-section">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Belasting</p>
+            <h2>Lengtemetingen</h2>
+          </div>
+          ${player.heightMeasurements.length < 4 ? `
+            <button class="secondary-button compact-button" type="button" data-add-height-measurement>Meting toevoegen</button>
+          ` : ""}
+        </div>
+
+        ${player.heightMeasurements.length < 4 ? `
+          <form class="inline-profile-form height-form" id="height-measurement-form" data-player-id="${escapeHtml(player.id)}" hidden>
+            <div class="form-grid two-columns">
+              <div class="field">
+                <label for="height-date">Datum</label>
+                <input id="height-date" name="date" type="date" value="${escapeHtml(getLocalDateKey())}" required>
+              </div>
+              <div class="field">
+                <label for="height-centimeters">Lengte in cm</label>
+                <input id="height-centimeters" name="centimeters" type="number" min="1" max="250" step="0.1" inputmode="decimal" required>
+              </div>
+            </div>
+            <button class="primary-button" type="submit">Meting opslaan</button>
+          </form>
+        ` : `<p class="measurement-limit">Maximaal vier metingen per seizoen opgeslagen.</p>`}
+
+        ${measurements.length ? `
+          <div class="measurement-list">
+            ${measurements.map((measurement) => `
+              <article>
+                <span>${escapeHtml(formatShortDate(measurement.date))}</span>
+                <strong>${measurement.centimeters.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} cm</strong>
+                <small>${measurement.difference === null
+                  ? "Eerste meting"
+                  : `${measurement.difference >= 0 ? "+" : ""}${measurement.difference.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} cm sinds vorige meting`}</small>
+                ${measurement.difference > 3 ? `
+                  <p class="growth-notice">Sterke groei — stem belasting af (minder sprint- en springvolume).</p>
+                ` : ""}
+              </article>
+            `).join("")}
+          </div>
+        ` : `
+          <div class="empty-history compact-empty">
+            <strong>Nog geen lengtemetingen</strong>
+            Je kunt maximaal vier metingen per seizoen vastleggen.
+          </div>
+        `}
+      </section>
+
+      <div class="detail-actions">
+        <button class="primary-button" type="button" data-edit-player="${escapeHtml(player.id)}">Profiel bewerken</button>
       </div>
     </article>
   `;
@@ -2776,10 +3215,22 @@ function renderPlayerForm(id) {
               <input id="player-secondary-position" name="secondaryPosition" value="${escapeHtml(player.secondaryPosition)}" placeholder="Optioneel">
             </div>
           </div>
+          <div class="field">
+            <label for="player-quality">Kwaliteit</label>
+            <input id="player-quality" name="quality" value="${escapeHtml(player.quality)}" placeholder="Eén herkenbare kwaliteit">
+          </div>
+          <div class="field">
+            <label for="player-development-point">Ontwikkelpunt</label>
+            <input id="player-development-point" name="developmentPoint" value="${escapeHtml(player.developmentPoint)}" placeholder="Eén concreet ontwikkelpunt">
+          </div>
+          <div class="field">
+            <label for="player-development-review-date">Evaluatiedatum</label>
+            <input id="player-development-review-date" name="developmentReviewDate" type="date" value="${escapeHtml(player.developmentReviewDate)}">
+          </div>
         </section>
 
         <div class="form-sticky-actions">
-          <button class="secondary-button" type="button" data-cancel-form data-cancel-route="spelers">Annuleren</button>
+          <button class="secondary-button" type="button" data-cancel-form data-cancel-route="${existing ? "speler" : "spelers"}" data-cancel-id="${existing ? escapeHtml(player.id) : ""}">Annuleren</button>
           <button class="primary-button" type="submit">Speler opslaan</button>
         </div>
       </form>
@@ -3274,6 +3725,89 @@ function renderSeasonWeekReflections(trainings) {
   `;
 }
 
+function renderMatchMinutes(id) {
+  const week = getSeasonWeek(id);
+  if (!week || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)) {
+    goTo("seizoen");
+    return;
+  }
+
+  const players = getActivePlayers();
+  const currentRecords = new Map(
+    getMatchMinutesForWeek(week.id).map((record) => [record.playerId, record])
+  );
+  focusedMinutesInput = null;
+  formDirty = false;
+
+  app.innerHTML = `
+    <section class="screen editor-screen" aria-labelledby="match-minutes-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">${escapeHtml(week.type)} · ${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
+        <h1 id="match-minutes-title">Speelminuten</h1>
+        <p class="lead">Registreer de wedstrijdbelasting als basis voor herstel en extra prikkels.</p>
+      </header>
+
+      ${players.length ? `
+        <form class="match-minutes-form" id="match-minutes-form" data-season-week-id="${escapeHtml(week.id)}">
+          <div class="form-errors" id="match-minutes-form-errors" role="alert" hidden></div>
+
+          <div class="minutes-quick-actions" aria-label="Snel speelminuten invullen">
+            <span>Snel invullen voor geselecteerde speler</span>
+            <div>
+              ${[0, 45, 60, 90].map((minutes) => `
+                <button type="button" data-set-match-minutes="${minutes}">${minutes}</button>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="match-minutes-list">
+            ${players.map((player) => {
+              const record = currentRecords.get(player.id);
+              return `
+                <div class="match-minutes-player" data-match-minutes-player="${escapeHtml(player.id)}">
+                  <label for="minutes-${escapeHtml(player.id)}">${escapeHtml(player.displayName)}</label>
+                  <div class="match-minutes-controls">
+                    <div class="minutes-input-wrap">
+                      <input
+                        id="minutes-${escapeHtml(player.id)}"
+                        name="minutes"
+                        type="number"
+                        min="0"
+                        max="120"
+                        step="1"
+                        inputmode="numeric"
+                        value="${record ? record.minutes : ""}"
+                        data-match-minutes-input
+                        data-record-id="${record ? escapeHtml(record.id) : ""}"
+                        data-created-at="${record ? escapeHtml(record.createdAt) : ""}"
+                      >
+                      <span>min</span>
+                    </div>
+                    <label class="starting-eleven-toggle">
+                      <input name="startingEleven" type="checkbox" ${record && record.startingEleven ? "checked" : ""}>
+                      <span>Basiself</span>
+                    </label>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+
+          <div class="form-sticky-actions match-minutes-actions">
+            <button class="secondary-button" type="button" data-cancel-form data-cancel-route="speelweek" data-cancel-id="${escapeHtml(week.id)}">Annuleren</button>
+            <button class="primary-button" type="submit">Speelminuten opslaan</button>
+          </div>
+        </form>
+      ` : `
+        <div class="empty-history players-empty">
+          <strong>Nog geen actieve spelers</strong>
+          Voeg eerst spelers toe voordat je speelminuten registreert.
+        </div>
+      `}
+    </section>
+  `;
+}
+
 function renderSeasonWeekDetail(id) {
   const week = getSeasonWeek(id);
   if (!week) {
@@ -3298,6 +3832,7 @@ function renderSeasonWeekDetail(id) {
       </button>
     </article>
   `).join("");
+  const matchMinutes = getMatchMinutesForWeek(week.id);
 
   app.innerHTML = `
     <article class="screen" aria-labelledby="season-week-title">
@@ -3323,6 +3858,21 @@ function renderSeasonWeekDetail(id) {
           </dl>
           ${week.note ? `<p class="season-note">${escapeHtml(week.note)}</p>` : ""}
         </section>
+
+        ${MATCH_MINUTES_WEEK_TYPES.includes(week.type) ? `
+          <section class="content-card match-minutes-entry-card">
+            <div>
+              <p class="eyebrow">Wedstrijdbelasting</p>
+              <h2>Speelminuten</h2>
+              <p>${matchMinutes.length
+                ? `${matchMinutes.length} ${matchMinutes.length === 1 ? "speler" : "spelers"} geregistreerd.`
+                : "Nog geen speelminuten geregistreerd."}</p>
+            </div>
+            <button class="primary-button" type="button" data-match-minutes="${escapeHtml(week.id)}">
+              ${matchMinutes.length ? "Speelminuten bewerken" : "Speelminuten invoeren"}
+            </button>
+          </section>
+        ` : ""}
 
         ${renderAttendanceSection({
           eventType: "seasonWeek",
@@ -3848,7 +4398,7 @@ function renderTrainings() {
       <section class="backup-card" aria-labelledby="backup-title">
         <p class="eyebrow">Veilig bewaren</p>
         <h2 id="backup-title">Back-up</h2>
-        <p>Download trainingen, reflecties, spelers, registraties, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
+        <p>Download trainingen, reflecties, spelers, registraties, speelminuten, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
         <div class="backup-actions">
           <button class="secondary-button" type="button" data-export-backup>Back-up downloaden</button>
           <button class="secondary-button" type="button" data-export-backup-without-files>Back-up zonder bijlagen</button>
@@ -4674,6 +5224,7 @@ function formatFileSize(bytes) {
 
 async function handleClick(event) {
   const routeButton = event.target.closest("[data-route]");
+  const playerButton = event.target.closest("[data-player]");
   const trainingButton = event.target.closest("[data-training]");
   const seasonWeekButton = event.target.closest("[data-season-week]");
   const weekCardButton = event.target.closest("[data-week-card]");
@@ -4716,8 +5267,13 @@ async function handleClick(event) {
   const attendanceAllButton = event.target.closest("[data-attendance-all]");
   const attendanceNoteButton = event.target.closest("[data-toggle-attendance-note]");
   const alignPlannerWeekButton = event.target.closest("[data-align-planner-week]");
+  const matchMinutesButton = event.target.closest("[data-match-minutes]");
+  const setMatchMinutesButton = event.target.closest("[data-set-match-minutes]");
+  const addObservationButton = event.target.closest("[data-add-observation]");
+  const addHeightButton = event.target.closest("[data-add-height-measurement]");
 
   if (routeButton) goTo(routeButton.dataset.route);
+  if (playerButton) goTo("speler", playerButton.dataset.player);
   if (trainingButton) goTo("training", trainingButton.dataset.training);
   if (seasonWeekButton) goTo("speelweek", seasonWeekButton.dataset.seasonWeek);
   if (weekCardButton) goTo("weekkaart", weekCardButton.dataset.weekCard);
@@ -4728,6 +5284,7 @@ async function handleClick(event) {
   if (createPrincipleButton) goTo("spelprincipe-nieuw");
   if (createSeasonWeekButton) goTo("speelweek-nieuw");
   if (createPlayerButton) goTo("speler-nieuw");
+  if (matchMinutesButton) goTo("speelminuten", matchMinutesButton.dataset.matchMinutes);
   if (createPlannerTrainingButton) {
     const card = getWeekCard(createPlannerTrainingButton.dataset.weekCardId);
     const day = createPlannerTrainingButton.dataset.plannerDay;
@@ -4757,6 +5314,32 @@ async function handleClick(event) {
   }
   if (openSourceButton) await openKnowledgeSource(openSourceButton.dataset.openSource);
   if (editButton) goTo("training-bewerken", editButton.dataset.editTraining);
+
+  if (setMatchMinutesButton) {
+    if (!focusedMinutesInput || !focusedMinutesInput.isConnected) {
+      showToast("Tik eerst op het minutenveld van een speler");
+    } else {
+      focusedMinutesInput.value = setMatchMinutesButton.dataset.setMatchMinutes;
+      focusedMinutesInput.focus();
+      formDirty = true;
+    }
+  }
+
+  if (addObservationButton) {
+    const form = document.querySelector("#observation-form");
+    if (form) {
+      form.hidden = false;
+      form.querySelector("textarea").focus();
+    }
+  }
+
+  if (addHeightButton) {
+    const form = document.querySelector("#height-measurement-form");
+    if (form) {
+      form.hidden = false;
+      form.querySelector('[name="centimeters"]').focus();
+    }
+  }
 
   if (alignPlannerWeekButton) {
     const card = getWeekCard(alignPlannerWeekButton.dataset.alignPlannerWeek);
@@ -4929,9 +5512,10 @@ async function handleClick(event) {
     const week = getSeasonWeek(deleteSeasonWeekButton.dataset.deleteSeasonWeek);
     if (!week) return;
     const availabilityCount = getAttendanceForEvent("seasonWeek", week.id).length;
+    const minutesCount = getMatchMinutesForWeek(week.id).length;
 
     const confirmed = window.confirm(
-      `Weet je zeker dat je de speelweek ${formatSeasonDateRange(week.dateFrom, week.dateTo)} wilt verwijderen? Gekoppelde trainingen en reflecties blijven bestaan.${availabilityCount ? " De speelweekbeschikbaarheid wordt verwijderd." : ""}`
+      `Weet je zeker dat je de speelweek ${formatSeasonDateRange(week.dateFrom, week.dateTo)} wilt verwijderen? Gekoppelde trainingen en reflecties blijven bestaan.${availabilityCount ? " De speelweekbeschikbaarheid wordt verwijderd." : ""}${minutesCount ? " De geregistreerde speelminuten worden verwijderd." : ""}`
     );
 
     if (confirmed) {
@@ -4954,7 +5538,7 @@ async function handleClick(event) {
     const player = getPlayer(deletePlayerButton.dataset.deletePlayer);
     if (!player) return;
 
-    if (playerHasAttendance(player.id) && player.isActive) {
+    if (playerHasHistory(player.id) && player.isActive) {
       const deactivate = window.confirm(
         `${player.displayName} heeft opgeslagen historie. Deactiveren bewaart die historie. Wil je de speler deactiveren?`
       );
@@ -4968,8 +5552,8 @@ async function handleClick(event) {
     }
 
     const confirmed = window.confirm(
-      playerHasAttendance(player.id)
-        ? `Wil je ${player.displayName} definitief verwijderen? Alle gekoppelde aanwezigheids- en beschikbaarheidsregistraties worden ook verwijderd.`
+      playerHasHistory(player.id)
+        ? `Wil je ${player.displayName} definitief verwijderen? Alle gekoppelde aanwezigheids-, beschikbaarheids- en speelminutenregistraties worden ook verwijderd.`
         : `Weet je zeker dat je ${player.displayName} definitief wilt verwijderen?`
     );
     if (confirmed) {
@@ -5071,6 +5655,21 @@ async function handleSubmit(event) {
     return;
   }
 
+  if (event.target.id === "observation-form") {
+    saveObservationForm(event);
+    return;
+  }
+
+  if (event.target.id === "height-measurement-form") {
+    saveHeightMeasurementForm(event);
+    return;
+  }
+
+  if (event.target.id === "match-minutes-form") {
+    saveMatchMinutesForm(event);
+    return;
+  }
+
   if (event.target.id === "attendance-form") {
     saveAttendanceForm(event);
     return;
@@ -5135,6 +5734,11 @@ function savePlayerForm(event) {
     primaryPosition: form.elements.primaryPosition.value.trim(),
     secondaryPosition: form.elements.secondaryPosition.value.trim(),
     preferredFoot: form.elements.preferredFoot.value,
+    quality: form.elements.quality.value.trim(),
+    developmentPoint: form.elements.developmentPoint.value.trim(),
+    developmentReviewDate: form.elements.developmentReviewDate.value,
+    observations: existing ? existing.observations : [],
+    heightMeasurements: existing ? existing.heightMeasurements : [],
     isActive: existing ? existing.isActive : true,
     createdAt: form.dataset.createdAt || now,
     updatedAt: now
@@ -5153,7 +5757,126 @@ function savePlayerForm(event) {
 
   formDirty = false;
   showToast("Speler opgeslagen");
-  goTo("spelers");
+  goTo("speler", player.id);
+}
+
+function saveObservationForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const player = getPlayer(form.dataset.playerId);
+  const text = form.elements.text.value.trim();
+  if (!player || !text) {
+    showToast("Vul een observatie in");
+    return;
+  }
+
+  const observation = normalizePlayerObservation({
+    id: createUniqueId("observatie"),
+    date: getLocalDateKey(),
+    text,
+    blockId: getCurrentDevelopmentBlock()
+  });
+  if (!updatePlayer({
+    ...player,
+    observations: [...player.observations, observation],
+    updatedAt: new Date().toISOString()
+  })) return;
+
+  formDirty = false;
+  showToast("Observatie opgeslagen");
+  renderPlayerDetail(player.id);
+}
+
+function saveHeightMeasurementForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const player = getPlayer(form.dataset.playerId);
+  if (!player) return;
+
+  const date = form.elements.date.value;
+  const centimeters = Number(form.elements.centimeters.value);
+  const existingDate = player.heightMeasurements.some((item) => item.date === date);
+  if (!date || !Number.isFinite(centimeters) || centimeters <= 0 || centimeters > 250) {
+    showToast("Vul een geldige datum en lengte in");
+    return;
+  }
+  if (!existingDate && player.heightMeasurements.length >= 4) {
+    showToast("Je kunt maximaal vier lengtemetingen per seizoen opslaan");
+    return;
+  }
+
+  const measurements = [
+    ...player.heightMeasurements.filter((item) => item.date !== date),
+    normalizeHeightMeasurement({ date, centimeters })
+  ].sort((a, b) => a.date.localeCompare(b.date));
+  if (!updatePlayer({
+    ...player,
+    heightMeasurements: measurements,
+    updatedAt: new Date().toISOString()
+  })) return;
+
+  formDirty = false;
+  showToast(existingDate ? "Lengtemeting bijgewerkt" : "Lengtemeting opgeslagen");
+  renderPlayerDetail(player.id);
+}
+
+function saveMatchMinutesForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const seasonWeekId = form.dataset.seasonWeekId;
+  const week = getSeasonWeek(seasonWeekId);
+  if (!week || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)) return;
+
+  const now = new Date().toISOString();
+  const activePlayerIds = new Set(getActivePlayers().map((player) => player.id));
+  const retainedInactiveRecords = getMatchMinutesForWeek(seasonWeekId)
+    .filter((record) => !activePlayerIds.has(record.playerId));
+  const records = [];
+  const errors = [];
+
+  form.querySelectorAll("[data-match-minutes-player]").forEach((row) => {
+    const input = row.querySelector("[data-match-minutes-input]");
+    const startingEleven = row.querySelector('[name="startingEleven"]').checked;
+    const rawValue = input.value.trim();
+    if (!rawValue && !startingEleven) return;
+    if (!rawValue) {
+      const player = getPlayer(row.dataset.matchMinutesPlayer);
+      errors.push(`Vul speelminuten in voor ${player ? player.displayName : "de geselecteerde speler"}.`);
+      return;
+    }
+
+    const minutes = Number(rawValue);
+    const player = getPlayer(row.dataset.matchMinutesPlayer);
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 120) {
+      errors.push(`Vul voor ${player ? player.displayName : "iedere speler"} hele minuten tussen 0 en 120 in.`);
+      return;
+    }
+
+    records.push(normalizeMatchMinutes({
+      id: input.dataset.recordId || createUniqueId("speelminuten"),
+      seasonWeekId,
+      playerId: row.dataset.matchMinutesPlayer,
+      minutes,
+      startingEleven,
+      note: "",
+      createdAt: input.dataset.createdAt || now,
+      updatedAt: now
+    }));
+  });
+
+  if (errors.length) {
+    showFormErrors(errors, "match-minutes-form-errors");
+    return;
+  }
+  if (!replaceMatchMinutesForWeek(
+    seasonWeekId,
+    [...retainedInactiveRecords, ...records]
+  )) return;
+
+  focusedMinutesInput = null;
+  formDirty = false;
+  showToast("Speelminuten opgeslagen");
+  goTo("speelweek", seasonWeekId);
 }
 
 function saveAttendanceForm(event) {
@@ -5495,7 +6218,7 @@ function handleInput(event) {
     return;
   }
 
-  if (event.target.closest("#player-form, #attendance-form")) {
+  if (event.target.closest("#player-form, #attendance-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
     formDirty = true;
   }
 }
@@ -5532,8 +6255,14 @@ function handleChange(event) {
     return;
   }
 
-  if (event.target.closest("#player-form, #attendance-form")) {
+  if (event.target.closest("#player-form, #attendance-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
     formDirty = true;
+  }
+}
+
+function handleFocusIn(event) {
+  if (event.target.matches("[data-match-minutes-input]")) {
+    focusedMinutesInput = event.target;
   }
 }
 
@@ -5613,6 +6342,7 @@ app.addEventListener("click", handleClick);
 app.addEventListener("submit", handleSubmit);
 app.addEventListener("input", handleInput);
 app.addEventListener("change", handleChange);
+app.addEventListener("focusin", handleFocusIn);
 window.addEventListener("hashchange", handleHashChange);
 window.addEventListener("beforeunload", (event) => {
   if (!formDirty) return;

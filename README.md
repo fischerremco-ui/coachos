@@ -188,6 +188,13 @@ verdwijnen uit nieuwe registraties, terwijl hun historie bewaard blijft. Bij een
 speler met historie stelt CoachOS daarom eerst deactiveren voor. Definitief
 verwijderen wist ook de gekoppelde registraties.
 
+Het spelersprofiel bevat daarnaast één kwaliteit, één ontwikkelpunt met
+evaluatiedatum, losse gedateerde observaties en maximaal vier lengtemetingen per
+seizoen. Observaties krijgen automatisch de datum en het actuele trainingsblok.
+Bij iedere lengtemeting staat het verschil met de vorige meting. Bij meer dan
+3 cm groei toont CoachOS uitsluitend een neutrale aanwijzing om het sprint- en
+springvolume af te stemmen.
+
 Op een training heet de registratie `Aanwezigheid`. Op een kalenderitem heet deze
 `Speelweekbeschikbaarheid`; een speelweek is nadrukkelijk nog geen wedstrijd. De
 beschikbaarheidsregistratie bevat geen informatie over selectie, basisplaats,
@@ -205,13 +212,22 @@ De statistieken tonen per actieve speler het aantal geregistreerde trainingen,
 het trainingsaanwezigheidspercentage, het aantal speelweken met een opgeslagen
 registratie en het speelweekbeschikbaarheidspercentage. Daarnaast staan er drie
 compacte teamcijfers: actieve spelers, gemiddelde trainingsaanwezigheid en
-gemiddelde opkomst per geregistreerde training. Er worden geen wedstrijd- of
-ontwikkelstatistieken bijgehouden.
+gemiddelde opkomst per geregistreerde training. Er worden geen uitslagen,
+medische gegevens of andere wedstrijdstatistieken bijgehouden.
+
+### Speelminuten en belasting
+
+Bij competitiewedstrijden, bekerwedstrijden en bekerpouleweken kunnen per actieve
+speler de speelminuten en een basiselfmarkering worden opgeslagen. De snelknoppen
+`0`, `45`, `60` en `90` vullen het laatst geselecteerde minutenveld. Het dashboard
+toont binnen het venster van de laatste drie kalenderweken de drie spelers met de
+meeste en de drie met de minste minuten. Het volledige overzicht ondersteunt de
+keuze tussen herstel en een extra trainingsprikkel op maandag.
 
 ## Opslag en back-ups
 
 Trainingen, concepten, reflecties, spelers, aanwezigheids- en
-beschikbaarheidsregistraties, spelprincipes, bronnen, seizoenen en speelweken worden
+beschikbaarheidsregistraties, speelminuten, spelprincipes, bronnen, seizoenen en speelweken worden
 opgeslagen in `localStorage`. PDF-bestanden staan als blobs in IndexedDB. Alles blijft
 op hetzelfde apparaat en in dezelfde browser beschikbaar. Er wordt niets naar een
 externe database verstuurd.
@@ -232,7 +248,7 @@ Onderaan het trainingsoverzicht staan drie back-upacties:
 
 - `Back-up downloaden` maakt één JSON-bestand met trainingen, reflecties,
   spelers, aanwezigheids- en beschikbaarheidsregistraties, spelprincipes, bronnen,
-  lokale PDF-bestanden, seizoenen, speelweken, trainingkoppelingen, weekkaarten en
+  speelminuten, lokale PDF-bestanden, seizoenen, speelweken, trainingkoppelingen, weekkaarten en
   eigen trainersnotities.
 - `Back-up zonder bijlagen` maakt een kleiner JSON-bestand wanneer exporteren met
   PDF-bestanden door onvoldoende geheugen niet lukt.
@@ -241,9 +257,10 @@ Onderaan het trainingsoverzicht staan drie back-upacties:
 Bij volledig vervangen downloadt CoachOS eerst automatisch een back-up van de
 huidige gegevens. Alleen geldige CoachOS-back-ups worden geaccepteerd. Back-ups uit
 versie 2 zonder Playbookgegevens, versie 3 zonder seizoensgegevens, versie 4
-zonder spelersgegevens en versie 5 zonder weekkaarten blijven bruikbaar. Bij
+zonder spelersgegevens, versie 5 zonder weekkaarten en versie 6 zonder speelminuten
+blijven bruikbaar. Bij
 import wissen oudere back-ups geen bestaande kennisbank-, seizoens-, spelers-,
-registratie- of weekkaartgegevens. Het actuele back-upformaat is versie 6.
+registratie-, weekkaart- of speelminutengegevens. Het actuele back-upformaat is versie 7.
 PDF-bijlagen worden alleen tijdens export als base64 in het zelfstandige JSON-bestand
 opgenomen en bij import weer als blobs in IndexedDB geplaatst.
 
@@ -304,10 +321,10 @@ internet kan nog geen bestanden uit de cache halen.
 De cacheversie staat bovenaan `sw.js`:
 
 ```js
-const CACHE_VERSION = "coachos-v7";
+const CACHE_VERSION = "coachos-v8";
 ```
 
-Verhoog deze waarde bij een volgende release, bijvoorbeeld naar `coachos-v8`. Bij activering
+Verhoog deze waarde bij een volgende release, bijvoorbeeld naar `coachos-v9`. Bij activering
 verwijdert de nieuwe service worker automatisch oudere CoachOS-caches. Ververs de
 app daarna één keer om de nieuwe bestanden te laden.
 
