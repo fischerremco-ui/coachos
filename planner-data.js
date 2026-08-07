@@ -1,4 +1,225 @@
 // Brondata uit VSV JO16 Seizoensplanner V4.
+const PLANNER_BLOCKS = [
+  {
+    id: 1,
+    name: "Opbouwen en de vrije man vinden",
+    competitionBlock: "Fundering",
+    weekNumbers: [35, 36, 37],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 2,
+    name: "Druk zetten en reageren na balverlies",
+    competitionBlock: "Fundering",
+    weekNumbers: [38, 39],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 3,
+    name: "Compact verdedigen en verbinden",
+    competitionBlock: "Verbinden",
+    weekNumbers: [40, 41, 42],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 4,
+    name: "Vooruit spelen en samenspel",
+    competitionBlock: "Verbinden",
+    weekNumbers: [43, 44, 45],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 5,
+    name: "Kansen creëren en omschakelen",
+    competitionBlock: "Verbinden",
+    weekNumbers: [46, 47],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 6,
+    name: "Volledige cyclus evalueren",
+    competitionBlock: "Verdiepen",
+    weekNumbers: [48, 49, 50],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 7,
+    name: "As verdedigen en lijncoördinatie",
+    competitionBlock: "Toepassen",
+    weekNumbers: [4, 5, 6],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 8,
+    name: "Rugdekking, kantelen en counter smoren",
+    competitionBlock: "Toepassen",
+    weekNumbers: [7, 8, 9],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 9,
+    name: "De 6 en hoog verdedigen",
+    competitionBlock: "Toepassen",
+    weekNumbers: [10, 11],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 10,
+    name: "Herstellen en uit de drukte spelen",
+    competitionBlock: "Toepassen",
+    weekNumbers: [12, 13],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 11,
+    name: "Derde man en spelhervattingen",
+    competitionBlock: "Zelfsturen",
+    weekNumbers: [14, 15, 16],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 12,
+    name: "Kansen creëren en uitbraak",
+    competitionBlock: "Zelfsturen",
+    weekNumbers: [17, 18],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 13,
+    name: "Vooruit spelen en ritme controleren",
+    competitionBlock: "Zelfsturen",
+    weekNumbers: [19, 20],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 14,
+    name: "Zelfsturen en tactisch aanpassen",
+    competitionBlock: "Zelfsturen",
+    weekNumbers: [21, 22],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  },
+  {
+    id: 15,
+    name: "Verantwoordelijkheid en evaluatie",
+    competitionBlock: "Zelfsturen",
+    weekNumbers: [23, 24],
+    coachWords: [],
+    desiredBehaviours: [],
+    fieldSetup: "",
+    differentiation: "",
+    maintenance: ""
+  }
+];
+
+const TEAM_EVALUATION_BEHAVIOURS = [
+  {
+    id: "attack-options",
+    phase: "Aanvallen",
+    text: "Rond de bal zijn minimaal twee speelrichtingen zichtbaar."
+  },
+  {
+    id: "attack-between-lines",
+    phase: "Aanvallen",
+    text: "6, 8 en 10 staan niet op één lijn en kunnen tussen/naast druk worden gevonden."
+  },
+  {
+    id: "attack-box-occupation",
+    phase: "Aanvallen",
+    text: "Bij kansen zijn verschillende zones in en rond de zestien bezet; restverdediging staat."
+  },
+  {
+    id: "loss-first-pressure",
+    phase: "Na balverlies",
+    text: "De dichtstbijzijnde speler geeft direct richting aan de druk."
+  },
+  {
+    id: "loss-support-axis",
+    phase: "Na balverlies",
+    text: "Steunspelers sluiten passlijnen en de 6 bewaakt de as."
+  },
+  {
+    id: "defend-outside-shift",
+    phase: "Verdedigen",
+    text: "De tegenstander wordt naar buiten gestuurd en de linies kantelen samen."
+  },
+  {
+    id: "defend-line-depth",
+    phase: "Verdedigen",
+    text: "De laatste lijn stapt bij baldruk en beschermt diepte zonder baldruk."
+  },
+  {
+    id: "win-scan-forward",
+    phase: "Na balwinst",
+    text: "De eerste ontvanger scant vooruit en herkent counterruimte."
+  },
+  {
+    id: "win-free-side",
+    phase: "Na balwinst",
+    text: "Wanneer vooruit niet kan, speelt het team uit de drukte naar de vrije kant."
+  },
+  {
+    id: "set-piece-organisation",
+    phase: "Dode momenten",
+    text: "Rollen, tweede bal en restverdediging zijn herkenbaar georganiseerd."
+  }
+];
+
 const PLANNER_WEEK_CARDS = [
   {
     "id": "weekkaart-vsv-jo16-1-2026-2027-2026-w33",

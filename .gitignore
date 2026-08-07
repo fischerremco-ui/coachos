@@ -31,6 +31,9 @@ persoonlijk/
 *.xls
 *.xlsx
 *.csv
+Oudergids*.png
+Spelersgids*.png
+VSV_JO16_WhatsApp_Posters/
 
 # Geheimen en lokale configuratie
 .env

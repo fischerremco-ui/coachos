@@ -17,6 +17,9 @@ const WEEK_CARDS_STORAGE_KEY = "coachos-week-cards-v1";
 const PLAYERS_STORAGE_KEY = "coachos-players-v1";
 const ATTENDANCE_STORAGE_KEY = "coachos-attendance-v1";
 const MATCH_MINUTES_STORAGE_KEY = "coachos-match-minutes-v1";
+const PLANNER_BLOCKS_STORAGE_KEY = "coachos-planner-blocks-v1";
+const BLOCK_FOCUS_STORAGE_KEY = "coachos-block-focus-v1";
+const TEAM_EVALUATION_STORAGE_KEY = "coachos-team-evaluations-v1";
 const INSTALL_HINT_KEY = "coachos-install-hint-dismissed-v1";
 const ATTACHMENT_MIGRATION_KEY = "coachos-file-migration-v1";
 const LAST_BACKUP_STORAGE_KEY = "coachos-last-backup-v1";
@@ -56,6 +59,7 @@ const PRESENT_ATTENDANCE_STATUSES = ["Aanwezig", "Te laat", "Eerder weg"];
 const ABSENT_ATTENDANCE_STATUSES = ["Afwezig", "Ziek", "Geblesseerd", "Vakantie"];
 const PREFERRED_FOOT_OPTIONS = ["Rechts", "Links", "Tweebenig", "Onbekend"];
 const MATCH_MINUTES_WEEK_TYPES = ["Competitiewedstrijd", "Beker", "Bekerpoule"];
+const TEAM_EVALUATION_WEEK_TYPES = [...MATCH_MINUTES_WEEK_TYPES, "Start nieuwe fase"];
 const SOURCE_TYPES = [
   "PDF",
   "Artikel",
@@ -144,6 +148,7 @@ const routes = {
   home: { parent: null, render: renderHome },
   teams: { parent: "home", render: renderTeams },
   dashboard: { parent: "teams", render: renderDashboard },
+  vanavond: { parent: "dashboard", render: renderTonight },
   belasting: { parent: "dashboard", render: renderSquadLoad },
   spelers: { parent: "dashboard", render: renderPlayers },
   speler: { parent: "spelers", render: renderPlayerDetail },
@@ -162,6 +167,10 @@ const routes = {
   "bron-nieuw": { parent: "spelprincipe", render: renderSourceForm },
   "bron-bewerken": { parent: "spelprincipe", render: renderSourceForm },
   seizoen: { parent: "dashboard", render: renderSeasonOverview },
+  blokken: { parent: "seizoen", render: renderPlannerBlocks },
+  blok: { parent: "blokken", render: renderPlannerBlockDetail },
+  teamevaluaties: { parent: "seizoen", render: renderTeamEvaluationComparison },
+  teamevaluatie: { parent: "speelweek", render: renderTeamEvaluation },
   weekkaart: { parent: "seizoen", render: renderWeekCardDetail },
   speelweek: { parent: "seizoen", render: renderSeasonWeekDetail },
   speelminuten: { parent: "speelweek", render: renderMatchMinutes },
@@ -723,8 +732,11 @@ function duplicateSeasonWeek(id) {
 function deleteSeasonWeek(id) {
   if (!saveSeasonWeeks(getAllSeasonWeeks().filter((week) => week.id !== id))) return false;
   if (!deleteAttendanceForEvent("seasonWeek", id)) return false;
-  return saveMatchMinutes(
+  if (!saveMatchMinutes(
     getMatchMinutes().filter((record) => record.seasonWeekId !== id)
+  )) return false;
+  return saveTeamEvaluations(
+    getTeamEvaluations().filter((evaluation) => evaluation.seasonWeekId !== id)
   );
 }
 
@@ -790,6 +802,173 @@ function normalizePlannerSession(session = {}, day = "") {
   };
 }
 
+function normalizePlannerBlock(block = {}) {
+  return {
+    id: Number(block.id) || 0,
+    name: String(block.name || "").trim(),
+    competitionBlock: String(block.competitionBlock || "").trim(),
+    weekNumbers: Array.isArray(block.weekNumbers)
+      ? [...new Set(block.weekNumbers.map(Number).filter(Number.isInteger))]
+      : [],
+    coachWords: Array.isArray(block.coachWords)
+      ? block.coachWords.filter(Boolean).map(String).slice(0, 5)
+      : [],
+    desiredBehaviours: Array.isArray(block.desiredBehaviours)
+      ? block.desiredBehaviours.filter(Boolean).map(String)
+      : [],
+    fieldSetup: String(block.fieldSetup || "").trim(),
+    differentiation: String(block.differentiation || "").trim(),
+    maintenance: String(block.maintenance || "").trim()
+  };
+}
+
+function getPlannerBlocks() {
+  let saved = [];
+  try {
+    saved = JSON.parse(localStorage.getItem(PLANNER_BLOCKS_STORAGE_KEY)) || [];
+    if (!Array.isArray(saved)) saved = [];
+  } catch (error) {
+    console.warn("Trainingsblokken konden niet worden gelezen.", error);
+  }
+
+  const savedById = new Map(saved.map((block) => [Number(block.id), block]));
+  return PLANNER_BLOCKS.map((source) => normalizePlannerBlock({
+    ...source,
+    ...(savedById.get(source.id) || {}),
+    id: source.id,
+    competitionBlock: source.competitionBlock,
+    weekNumbers: source.weekNumbers
+  }));
+}
+
+function savePlannerBlocks(blocks) {
+  return writeStorage(PLANNER_BLOCKS_STORAGE_KEY, blocks.map(normalizePlannerBlock));
+}
+
+function getPlannerBlock(id) {
+  return getPlannerBlocks().find((block) => block.id === Number(id)) || null;
+}
+
+function updatePlannerBlock(updatedBlock) {
+  const normalized = normalizePlannerBlock(updatedBlock);
+  return savePlannerBlocks(getPlannerBlocks().map((block) => (
+    block.id === normalized.id ? normalized : block
+  )));
+}
+
+function getPlannerBlockForWeekNumber(weekNumber) {
+  return getPlannerBlocks().find((block) => block.weekNumbers.includes(Number(weekNumber))) || null;
+}
+
+function getWeekCardCoachWords(card) {
+  if (Array.isArray(card.coachWords) && card.coachWords.length) return card.coachWords;
+  const block = getPlannerBlock(card.blockId);
+  return block ? block.coachWords : [];
+}
+
+function getWeekCardDesiredBehaviours(card) {
+  if (Array.isArray(card.desiredBehaviours) && card.desiredBehaviours.length) {
+    return card.desiredBehaviours;
+  }
+  const block = getPlannerBlock(card.blockId);
+  return block ? block.desiredBehaviours : [];
+}
+
+function normalizeBlockFocus(record = {}) {
+  return {
+    blockId: Number(record.blockId) || 0,
+    playerIds: Array.isArray(record.playerIds)
+      ? [...new Set(record.playerIds.filter((id) => typeof id === "string" && id))].slice(0, 5)
+      : []
+  };
+}
+
+function getBlockFocusRecords() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BLOCK_FOCUS_STORAGE_KEY)) || [];
+    return Array.isArray(saved) ? saved.map(normalizeBlockFocus) : [];
+  } catch (error) {
+    console.warn("Aandachtspelers konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function saveBlockFocusRecords(records) {
+  const unique = new Map();
+  records.map(normalizeBlockFocus).forEach((record) => unique.set(record.blockId, record));
+  return writeStorage(BLOCK_FOCUS_STORAGE_KEY, [...unique.values()]);
+}
+
+function getBlockFocus(blockId) {
+  return getBlockFocusRecords().find((record) => record.blockId === Number(blockId))
+    || normalizeBlockFocus({ blockId });
+}
+
+function updateBlockFocus(blockId, playerIds) {
+  const records = getBlockFocusRecords().filter((record) => record.blockId !== Number(blockId));
+  return saveBlockFocusRecords([...records, { blockId, playerIds }]);
+}
+
+function getPlayerBlockFocusCounts() {
+  const counts = new Map();
+  getBlockFocusRecords().forEach((record) => {
+    record.playerIds.forEach((playerId) => {
+      counts.set(playerId, (counts.get(playerId) || 0) + 1);
+    });
+  });
+  return counts;
+}
+
+function normalizeTeamEvaluation(record = {}) {
+  const validScores = ["NZ", "SZ", "MZ", "ZZ"];
+  const scores = {};
+  TEAM_EVALUATION_BEHAVIOURS.forEach((behaviour) => {
+    if (validScores.includes(record.scores && record.scores[behaviour.id])) {
+      scores[behaviour.id] = record.scores[behaviour.id];
+    }
+  });
+  return {
+    id: record.id || createUniqueId("teamevaluatie"),
+    seasonWeekId: String(record.seasonWeekId || ""),
+    date: normalizeDateKey(record.date),
+    scores,
+    strengths: String(record.strengths || "").trim(),
+    developmentPoint: String(record.developmentPoint || "").trim(),
+    createdAt: String(record.createdAt || ""),
+    updatedAt: String(record.updatedAt || "")
+  };
+}
+
+function getTeamEvaluations() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TEAM_EVALUATION_STORAGE_KEY)) || [];
+    return Array.isArray(saved) ? saved.map(normalizeTeamEvaluation) : [];
+  } catch (error) {
+    console.warn("Teamevaluaties konden niet worden gelezen.", error);
+    return [];
+  }
+}
+
+function saveTeamEvaluations(evaluations) {
+  const unique = new Map();
+  evaluations.map(normalizeTeamEvaluation).forEach((evaluation) => {
+    unique.set(evaluation.seasonWeekId, evaluation);
+  });
+  return writeStorage(TEAM_EVALUATION_STORAGE_KEY, [...unique.values()]);
+}
+
+function getTeamEvaluationForWeek(seasonWeekId) {
+  return getTeamEvaluations().find((evaluation) => evaluation.seasonWeekId === seasonWeekId) || null;
+}
+
+function upsertTeamEvaluation(evaluation) {
+  const normalized = normalizeTeamEvaluation(evaluation);
+  return saveTeamEvaluations([
+    ...getTeamEvaluations().filter((item) => item.seasonWeekId !== normalized.seasonWeekId),
+    normalized
+  ]);
+}
+
 function normalizeWeekCard(card = {}) {
   const sessions = {};
   ["monday", "wednesday", "thursday"].forEach((day) => {
@@ -806,6 +985,9 @@ function normalizeWeekCard(card = {}) {
     dateFrom: card.dateFrom || "",
     dateTo: card.dateTo || "",
     competitionBlock: card.competitionBlock || "",
+    blockId: Number(card.blockId)
+      || (getPlannerBlockForWeekNumber(card.weekNumber) || {}).id
+      || 0,
     matchContext: card.matchContext || "",
     mainPrinciple: card.mainPrinciple || "",
     supportingPrinciples: Array.isArray(card.supportingPrinciples)
@@ -1056,6 +1238,8 @@ function inferPlannerPartType(content) {
 function buildTrainingFromWeekCard(card, day) {
   const session = card.sessions[day];
   if (!session) return null;
+  const coachWords = getWeekCardCoachWords(card);
+  const desiredBehaviours = getWeekCardDesiredBehaviours(card);
   const dayLabel = PLANNER_DAY_LABELS[day];
   const codeSuffix = day === "monday" ? "MA" : day === "wednesday" ? "WO" : "DO";
   const contents = session.suggestedContent
@@ -1067,7 +1251,7 @@ function buildTrainingFromWeekCard(card, day) {
     name: content.replace(/[.]$/, ""),
     type: inferPlannerPartType(content),
     flow: content,
-    attackingCoaching: index === 0 ? card.coachWords.join("\n") : ""
+    attackingCoaching: index === 0 ? coachWords.join("\n") : ""
   }));
 
   if (day === "thursday" && card.setPiece) {
@@ -1076,7 +1260,7 @@ function buildTrainingFromWeekCard(card, day) {
       name: "Spelhervatting",
       type: "Overig",
       flow: card.setPiece,
-      attackingCoaching: card.coachWords.join("\n")
+      attackingCoaching: coachWords.join("\n")
     });
   }
 
@@ -1089,9 +1273,9 @@ function buildTrainingFromWeekCard(card, day) {
     block: card.competitionBlock,
     totalDuration: session.duration,
     mainGoal: session.objective,
-    desiredBehavior: card.desiredBehaviours.join("\n"),
+    desiredBehavior: desiredBehaviours.join("\n"),
     evaluationCriteria: card.matchCriteria.join("\n"),
-    coachWords: card.coachWords.join("\n"),
+    coachWords: coachWords.join("\n"),
     expectedLoad: session.load || card.expectedLoad,
     setPiece: day === "thursday" ? card.setPiece : "",
     plannerWeekKey: weekCardStableKey(card),
@@ -1795,9 +1979,19 @@ function createTrainingFromTemplate(templateKey) {
   };
 }
 
+function normalizeReflection(reflection = {}) {
+  return {
+    ...reflection,
+    standoutPlayerIds: Array.isArray(reflection.standoutPlayerIds)
+      ? [...new Set(reflection.standoutPlayerIds.filter((id) => typeof id === "string" && id))]
+      : []
+  };
+}
+
 function getReflections() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    return Array.isArray(saved) ? saved.map(normalizeReflection) : [];
   } catch (error) {
     console.warn("Reflecties konden niet worden gelezen.", error);
     return [];
@@ -1806,12 +2000,12 @@ function getReflections() {
 
 function saveReflection(reflection) {
   const reflections = getReflections();
-  reflections.push(reflection);
+  reflections.push(normalizeReflection(reflection));
   return saveReflections(reflections);
 }
 
 function saveReflections(reflections) {
-  return writeStorage(STORAGE_KEY, reflections);
+  return writeStorage(STORAGE_KEY, reflections.map(normalizeReflection));
 }
 
 function reflectionsFor(trainingId) {
@@ -2762,6 +2956,141 @@ function renderDashboardLoadSummary() {
   `;
 }
 
+function getTonightTraining(todayKey = getLocalDateKey()) {
+  const upcoming = getTrainings()
+    .filter((training) => training.date && training.date >= todayKey)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.code.localeCompare(b.code, "nl", { numeric: true }));
+  const training = upcoming[0] || null;
+  if (!training) return { training: null, within24Hours: false };
+
+  const tomorrow = parseLocalDate(todayKey);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return {
+    training,
+    within24Hours: training.date <= getLocalDateKey(tomorrow)
+  };
+}
+
+function getWeekCardForTraining(training) {
+  if (!training) return null;
+  if (training.plannerWeekKey) {
+    const linked = getWeekCards().find((card) => weekCardStableKey(card) === training.plannerWeekKey);
+    if (linked) return linked;
+  }
+  return getWeekCards().find((card) => (
+    training.date && training.date >= card.dateFrom && training.date <= card.dateTo
+  )) || null;
+}
+
+function splitTextLines(value, limit = Infinity) {
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
+function getTrainingBlockCoachWords(training) {
+  const card = getWeekCardForTraining(training);
+  const block = card ? getPlannerBlock(card.blockId) : null;
+  if (block && block.coachWords.length) return block.coachWords;
+  if (card) {
+    const inherited = getWeekCardCoachWords(card);
+    if (inherited.length) return inherited;
+  }
+  return splitTextLines(training && training.coachWords, 5);
+}
+
+function renderTonightPart(part, index) {
+  const coaching = [
+    ["Aanvallen", part.attackingCoaching],
+    ["Verdedigen", part.defendingCoaching],
+    ["Omschakelen", part.transitionCoaching]
+  ].filter(([, value]) => value);
+  return `
+    <details class="tonight-part" ${index === 0 ? "open" : ""}>
+      <summary>
+        <span>${index + 1}</span>
+        <strong>${escapeHtml(part.name)}</strong>
+        <b>${Number(part.duration) || 0} min</b>
+      </summary>
+      <div class="tonight-part-content">
+        ${part.organization ? `<div><span>Organisatie</span><p>${escapeHtml(part.organization)}</p></div>` : ""}
+        ${part.flow ? `<div><span>Verloop</span><p>${escapeHtml(part.flow)}</p></div>` : ""}
+        ${coaching.map(([label, value]) => `<div><span>${escapeHtml(label)}</span>${linesToSafeList(value)}</div>`).join("")}
+        ${part.rulesScoring ? `<div><span>Regels en puntentelling</span>${linesToSafeList(part.rulesScoring)}</div>` : ""}
+      </div>
+    </details>
+  `;
+}
+
+function renderTonight() {
+  const { training, within24Hours } = getTonightTraining();
+  if (!training) {
+    app.innerHTML = `
+      <section class="screen tonight-screen" aria-labelledby="tonight-title">
+        <header class="screen-header"><p class="eyebrow">Vanavond</p><h1 id="tonight-title">Geen training gepland</h1><p class="lead">Voeg eerst een toekomstige training toe.</p></header>
+        <button class="primary-button" type="button" data-route="trainingen">Naar trainingen</button>
+      </section>
+    `;
+    return;
+  }
+
+  const coachWords = getTrainingBlockCoachWords(training);
+  const players = getActivePlayers();
+  const attendance = new Map(
+    getAttendanceForEvent("training", training.id).map((record) => [record.playerId, record])
+  );
+
+  app.innerHTML = `
+    <section class="screen tonight-screen" aria-labelledby="tonight-title">
+      <header class="tonight-hero">
+        <p class="eyebrow">${within24Hours ? "Binnen 24 uur" : "Eerstvolgende training · " + escapeHtml(formatShortDate(training.date))}</p>
+        <h1 id="tonight-title">${escapeHtml(training.title)}</h1>
+        <p>${escapeHtml(training.theme || "Geen thema ingevuld")}</p>
+        <div class="tonight-goal"><span>Hoofddoel</span><strong>${escapeHtml(training.mainGoal || "Nog niet ingevuld")}</strong></div>
+      </header>
+
+      <section class="tonight-coach-words" aria-labelledby="tonight-words-title">
+        <p class="eyebrow">Bloktaal</p>
+        <h2 id="tonight-words-title">Coachwoorden</h2>
+        ${coachWords.length
+          ? `<div>${coachWords.map((word) => `<strong>${escapeHtml(word)}</strong>`).join("")}</div>`
+          : `<p>Nog geen coachwoorden voor dit blok vastgelegd.</p>`}
+      </section>
+
+      <section class="tonight-section" aria-labelledby="tonight-parts-title">
+        <div class="section-heading-row"><h2 id="tonight-parts-title">Onderdelen</h2><span>${training.totalDuration} min</span></div>
+        <div class="tonight-parts">${training.parts.map(renderTonightPart).join("")}</div>
+      </section>
+
+      <section class="tonight-section tonight-attendance" aria-labelledby="tonight-attendance-title">
+        <div class="section-heading-row"><h2 id="tonight-attendance-title">Aanwezigheid</h2><span>Direct opgeslagen</span></div>
+        <p class="section-intro">Eén tik wisselt tussen aanwezig en afwezig.</p>
+        ${players.length ? `
+          <div class="tonight-player-grid">
+            ${players.map((player) => {
+              const record = attendance.get(player.id);
+              const status = record && ["Aanwezig", "Afwezig"].includes(record.status)
+                ? record.status
+                : "Onbekend";
+              return `
+                <button class="tonight-player status-${status.toLocaleLowerCase("nl")}" type="button" data-tonight-attendance="${escapeHtml(player.id)}" data-training-id="${escapeHtml(training.id)}" aria-pressed="${status === "Aanwezig"}">
+                  <strong>${escapeHtml(player.displayName)}</strong><span>${status}</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
+        ` : `<div class="empty-history compact-empty"><strong>Nog geen actieve spelers</strong>Voeg spelers toe om aanwezigheid te registreren.</div>`}
+      </section>
+
+      <div class="tonight-reflection-action">
+        <button class="primary-button" type="button" data-reflect="${escapeHtml(training.id)}">Training afronden en reflecteren</button>
+      </div>
+    </section>
+  `;
+}
+
 function renderDashboardWeekCard(card) {
   if (!card) {
     return `
@@ -2852,6 +3181,7 @@ function renderDashboard() {
   const nextCompetition = getNextCompetitionRound(weeks);
   const linkedTrainingCount = nextWeek ? nextWeek.trainingIds.length : 0;
   const nextPlannerCard = getNextRelevantWeekCard(season ? getWeekCards(season.id) : []);
+  const tonight = getTonightTraining();
 
   app.innerHTML = `
     <section class="screen" aria-labelledby="dashboard-title">
@@ -2860,6 +3190,18 @@ function renderDashboard() {
         <h1 id="dashboard-title">JO16-1</h1>
         <p>VSV Velserbroek · Jeugdopleiding</p>
       </div>
+
+      <button class="tonight-dashboard-button" type="button" data-route="vanavond">
+        <span class="tonight-dashboard-icon" aria-hidden="true">▶</span>
+        <span>
+          <small>${tonight.training
+            ? tonight.within24Hours ? "Binnen 24 uur" : `Eerstvolgende · ${escapeHtml(formatShortDate(tonight.training.date))}`
+            : "Snel naar het veld"}</small>
+          <strong>Vanavond</strong>
+          <span>${tonight.training ? escapeHtml(tonight.training.title) : "Nog geen training gepland"}</span>
+        </span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
 
       <div class="dashboard-grid" aria-label="Teamonderdelen">
         <button class="dashboard-button active" type="button" data-route="trainingen">
@@ -3499,6 +3841,141 @@ function renderCalendarConflicts(conflicts) {
   `;
 }
 
+function formatPlannerBlockWeeks(block) {
+  return block.weekNumbers.map((week) => `W${week}`).join(" · ");
+}
+
+function renderPlannerBlocks() {
+  const blocks = getPlannerBlocks();
+  const players = new Map(getPlayers().map((player) => [player.id, player]));
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="planner-blocks-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">Tactische jaarlijn</p>
+        <h1 id="planner-blocks-title">Trainingsblokken</h1>
+        <p class="lead">Vijftien werkblokken onder de vijf competitiefases. Binnen één blok blijft de coachtaal gelijk.</p>
+      </header>
+
+      <div class="planner-block-list">
+        ${blocks.map((block) => {
+          const focus = getBlockFocus(block.id);
+          const selectedNames = focus.playerIds
+            .map((playerId) => players.get(playerId))
+            .filter(Boolean)
+            .map((player) => player.displayName);
+          return `
+            <button class="planner-block-card" type="button" data-planner-block="${block.id}">
+              <span class="planner-block-number">${block.id}</span>
+              <span class="planner-block-copy">
+                <span>${escapeHtml(block.competitionBlock)} · ${escapeHtml(formatPlannerBlockWeeks(block))}</span>
+                <strong>${escapeHtml(block.name)}</strong>
+                <small>${selectedNames.length
+                  ? `Aandacht: ${escapeHtml(selectedNames.join(", "))}`
+                  : "Nog geen aandachtspelers gekozen"}</small>
+              </span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderPlannerBlockDetail(id) {
+  const block = getPlannerBlock(id);
+  if (!block) {
+    goTo("blokken");
+    return;
+  }
+
+  const focus = getBlockFocus(block.id);
+  const counts = getPlayerBlockFocusCounts();
+  const players = getActivePlayers();
+  const weekCards = getWeekCards().filter((card) => card.blockId === block.id);
+
+  app.innerHTML = `
+    <article class="screen" aria-labelledby="planner-block-title">
+      <header class="detail-hero planner-block-hero">
+        <p class="eyebrow">${escapeHtml(block.competitionBlock)} · ${escapeHtml(formatPlannerBlockWeeks(block))}</p>
+        <h1 id="planner-block-title">${escapeHtml(block.name)}</h1>
+        <p>Blok ${block.id} van 15</p>
+      </header>
+
+      <form class="content-card planner-block-form" id="planner-block-form" data-block-id="${block.id}">
+        <div class="form-errors" id="planner-block-form-errors" role="alert" hidden></div>
+        <div class="field">
+          <label for="planner-block-name">Naam</label>
+          <input id="planner-block-name" name="name" value="${escapeHtml(block.name)}" required>
+        </div>
+        <div class="field">
+          <label for="planner-block-coach-words">Coachwoorden</label>
+          <textarea id="planner-block-coach-words" name="coachWords" rows="4" placeholder="Eén coachwoord per regel">${escapeHtml(block.coachWords.join("\n"))}</textarea>
+          <small>Maximaal vijf. Deze woorden gelden voor het hele blok.</small>
+        </div>
+        <div class="field">
+          <label for="planner-block-behaviours">Gewenst spelersgedrag</label>
+          <textarea id="planner-block-behaviours" name="desiredBehaviours" rows="4" placeholder="Eén zichtbaar gedrag per regel">${escapeHtml(block.desiredBehaviours.join("\n"))}</textarea>
+        </div>
+        <div class="field">
+          <label for="planner-block-field-setup">Veldopbouw</label>
+          <textarea id="planner-block-field-setup" name="fieldSetup" rows="3" placeholder="Eén vaste veldopbouw voor dit blok">${escapeHtml(block.fieldSetup)}</textarea>
+        </div>
+        <div class="field">
+          <label for="planner-block-differentiation">Differentiatie</label>
+          <textarea id="planner-block-differentiation" name="differentiation" rows="3" placeholder="Hoe differentieer je binnen dezelfde vorm?">${escapeHtml(block.differentiation)}</textarea>
+        </div>
+        <div class="field">
+          <label for="planner-block-maintenance">Onderhoudslijn</label>
+          <textarea id="planner-block-maintenance" name="maintenance" rows="3" placeholder="Welke eerdere lijn blijft terugkomen?">${escapeHtml(block.maintenance)}</textarea>
+        </div>
+        <button class="primary-button" type="submit">Blok opslaan</button>
+      </form>
+
+      <section class="content-card block-focus-section" aria-labelledby="block-focus-title">
+        <div class="section-heading-row">
+          <div><p class="eyebrow">Spelersontwikkeling</p><h2 id="block-focus-title">Aandachtspelers</h2></div>
+          <span>${focus.playerIds.length}/5</span>
+        </div>
+        <p class="section-intro">Kies vier of vijf spelers. Het aantal toont hoe vaak iemand dit seizoen al aandachtspeler was.</p>
+        ${players.length ? `
+          <form id="block-focus-form" data-block-id="${block.id}">
+            <div class="form-errors" id="block-focus-form-errors" role="alert" hidden></div>
+            <div class="block-focus-list">
+              ${players.map((player) => {
+                const count = counts.get(player.id) || 0;
+                const selected = focus.playerIds.includes(player.id);
+                return `
+                  <label class="block-focus-player ${count === 0 ? "never-selected" : ""}">
+                    <input type="checkbox" name="playerIds" value="${escapeHtml(player.id)}" ${selected ? "checked" : ""}>
+                    <span>
+                      <strong>${escapeHtml(player.displayName)}</strong>
+                      <small>${count === 0 ? "Nog nooit gekozen" : `${count}× aandachtspeler`}</small>
+                    </span>
+                  </label>
+                `;
+              }).join("")}
+            </div>
+            <button class="primary-button" type="submit">Aandachtspelers opslaan</button>
+          </form>
+        ` : `
+          <div class="empty-history compact-empty"><strong>Nog geen actieve spelers</strong>Voeg spelers toe om aandacht eerlijk te verdelen.</div>
+        `}
+      </section>
+
+      <section class="content-card" aria-labelledby="block-weeks-title">
+        <div class="section-heading-row"><h2 id="block-weeks-title">Weekkaarten</h2><span>${weekCards.length}</span></div>
+        <div class="block-week-links">
+          ${weekCards.map((card) => `
+            <button type="button" data-week-card="${escapeHtml(card.id)}"><span>W${card.weekNumber}</span><strong>${escapeHtml(card.mainPrinciple)}</strong></button>
+          `).join("")}
+        </div>
+      </section>
+    </article>
+  `;
+}
+
 function renderSeasonOverview() {
   const season = getTeamSeason();
   if (!season) {
@@ -3523,6 +4000,11 @@ function renderSeasonOverview() {
         <span aria-hidden="true">＋</span>
         Speelweek toevoegen
       </button>
+
+      <div class="season-module-actions">
+        <button class="secondary-button" type="button" data-route="blokken">Trainingsblokken</button>
+        <button class="secondary-button" type="button" data-route="teamevaluaties">Teamevaluaties vergelijken</button>
+      </div>
 
       <section class="season-overview-facts" aria-label="Seizoensstatus">
         <div>
@@ -3602,6 +4084,9 @@ function renderWeekCardDetail(id) {
   const calendarStatuses = [...new Set(calendarWeeks.map((week) => week.status).filter(Boolean))];
   const calendarTypes = [...new Set(calendarWeeks.map((week) => week.type).filter(Boolean))];
   const linkedTrainings = getWeekCardTrainingIds(card).map(getTraining).filter(Boolean);
+  const plannerBlock = getPlannerBlock(card.blockId);
+  const coachWords = getWeekCardCoachWords(card);
+  const desiredBehaviours = getWeekCardDesiredBehaviours(card);
   const phaseEntries = [
     ["Aanval", card.phaseCycle.attack],
     ["Omschakelen na balverlies", card.phaseCycle.lossTransition],
@@ -3631,10 +4116,12 @@ function renderWeekCardDetail(id) {
             <div><dt>Datum</dt><dd>${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo))}</dd></div>
             <div><dt>Wedstrijdcontext</dt><dd>${escapeHtml(card.matchContext)}</dd></div>
             <div><dt>Competitieblok</dt><dd>${escapeHtml(card.competitionBlock)}</dd></div>
+            ${plannerBlock ? `<div><dt>Werkblok</dt><dd>Blok ${plannerBlock.id} · ${escapeHtml(plannerBlock.name)}</dd></div>` : ""}
             <div><dt>Competitiefase</dt><dd>${escapeHtml(calendarPhases.join(" · ") || "Geen actieve competitiefase")}</dd></div>
             <div><dt>Kalenderstatus</dt><dd>${escapeHtml(calendarStatuses.join(" · ") || "Geen kalenderitem")}</dd></div>
             ${calendarTypes.length ? `<div><dt>Kalenderperiode</dt><dd>${escapeHtml(calendarTypes.join(" · "))}</dd></div>` : ""}
           </dl>
+          ${plannerBlock ? `<button class="secondary-button compact-button" type="button" data-planner-block="${plannerBlock.id}">Open werkblok</button>` : ""}
         </section>
 
         <section class="content-card">
@@ -3643,8 +4130,8 @@ function renderWeekCardDetail(id) {
           ${card.supportingPrinciples.length ? `
             <div class="detail-field"><span class="detail-label">Ondersteunende principes</span>${renderPlannerArray(card.supportingPrinciples)}</div>
           ` : ""}
-          ${card.desiredBehaviours.length ? `
-            <div class="detail-field"><span class="detail-label">Gewenst spelersgedrag</span>${renderPlannerArray(card.desiredBehaviours)}</div>
+          ${desiredBehaviours.length ? `
+            <div class="detail-field"><span class="detail-label">Gewenst spelersgedrag</span>${renderPlannerArray(desiredBehaviours)}</div>
           ` : ""}
           <div class="planner-phase-grid">
             ${phaseEntries.map(([label, value]) => value ? `
@@ -3664,7 +4151,7 @@ function renderWeekCardDetail(id) {
         <section class="content-card">
           <h2>D. Wedstrijdvoorbereiding</h2>
           ${renderDetailText("Spelhervatting", card.setPiece)}
-          ${card.coachWords.length ? `<div class="detail-field"><span class="detail-label">Coachwoorden</span>${renderPlannerArray(card.coachWords, "coach-word-list")}</div>` : ""}
+          ${coachWords.length ? `<div class="detail-field"><span class="detail-label">Coachwoorden${!card.coachWords.length && plannerBlock ? " · overgenomen uit blok" : ""}</span>${renderPlannerArray(coachWords, "coach-word-list")}</div>` : ""}
           ${card.matchCriteria.length ? `<div class="detail-field"><span class="detail-label">Observeerbare wedstrijdcriteria</span>${renderPlannerArray(card.matchCriteria)}</div>` : ""}
           ${renderDetailText("Verwachte belasting", card.expectedLoad)}
           ${renderDetailText("Alternatief bij lage opkomst", card.lowAttendanceAlternative)}
@@ -3808,6 +4295,112 @@ function renderMatchMinutes(id) {
   `;
 }
 
+function renderTeamEvaluation(id) {
+  const week = getSeasonWeek(id);
+  if (!week || !TEAM_EVALUATION_WEEK_TYPES.includes(week.type)) {
+    goTo("seizoen");
+    return;
+  }
+  const existing = getTeamEvaluationForWeek(week.id);
+  const scores = existing ? existing.scores : {};
+  const scoreOptions = ["NZ", "SZ", "MZ", "ZZ"];
+
+  app.innerHTML = `
+    <section class="screen editor-screen" aria-labelledby="team-evaluation-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">${escapeHtml(week.type)} · ${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
+        <h1 id="team-evaluation-title">Teamevaluatie</h1>
+        <p class="lead">Beoordeel alleen zichtbaar gedrag. NZ is niet zichtbaar; ZZ is zelfstandig zichtbaar.</p>
+      </header>
+
+      <form id="team-evaluation-form" class="team-evaluation-form" data-season-week-id="${escapeHtml(week.id)}" data-evaluation-id="${existing ? escapeHtml(existing.id) : ""}">
+        <div class="form-errors" id="team-evaluation-form-errors" role="alert" hidden></div>
+        <div class="field evaluation-date-field">
+          <label for="team-evaluation-date">Evaluatiedatum</label>
+          <input id="team-evaluation-date" name="date" type="date" value="${escapeHtml(existing ? existing.date : week.dateFrom)}" required>
+        </div>
+
+        <div class="evaluation-behaviour-list">
+          ${TEAM_EVALUATION_BEHAVIOURS.map((behaviour, index) => `
+            <fieldset class="evaluation-behaviour">
+              <legend><span>${index + 1}</span><small>${escapeHtml(behaviour.phase)}</small>${escapeHtml(behaviour.text)}</legend>
+              <div class="evaluation-score-options">
+                ${scoreOptions.map((score) => `
+                  <label>
+                    <input type="radio" name="score-${escapeHtml(behaviour.id)}" value="${score}" ${scores[behaviour.id] === score ? "checked" : ""}>
+                    <span>${score}</span>
+                  </label>
+                `).join("")}
+              </div>
+            </fieldset>
+          `).join("")}
+        </div>
+
+        <div class="content-card evaluation-notes">
+          <div class="field">
+            <label for="team-evaluation-strengths">Drie sterke punten</label>
+            <textarea id="team-evaluation-strengths" name="strengths" rows="3" placeholder="Kort, één punt per regel">${escapeHtml(existing ? existing.strengths : "")}</textarea>
+          </div>
+          <div class="field">
+            <label for="team-evaluation-development">Eén collectief ontwikkelpunt</label>
+            <textarea id="team-evaluation-development" name="developmentPoint" rows="2" placeholder="Eén concreet volgend aandachtspunt">${escapeHtml(existing ? existing.developmentPoint : "")}</textarea>
+          </div>
+        </div>
+
+        <div class="form-sticky-actions">
+          <button class="secondary-button" type="button" data-cancel-form data-cancel-route="speelweek" data-cancel-id="${escapeHtml(week.id)}">Annuleren</button>
+          <button class="primary-button" type="submit">Evaluatie opslaan</button>
+        </div>
+      </form>
+    </section>
+  `;
+  formDirty = false;
+}
+
+function renderTeamEvaluationComparison() {
+  const evaluations = getTeamEvaluations()
+    .filter((evaluation) => getSeasonWeek(evaluation.seasonWeekId))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="evaluation-comparison-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">Seizoensontwikkeling</p>
+        <h1 id="evaluation-comparison-title">Teamevaluaties vergelijken</h1>
+        <p class="lead">Vergelijk zichtbaar teamgedrag door het seizoen heen.</p>
+      </header>
+
+      <div class="evaluation-legend" aria-label="Betekenis scores">
+        <span><b>NZ</b> niet zichtbaar</span><span><b>SZ</b> soms</span><span><b>MZ</b> meestal</span><span><b>ZZ</b> zelfstandig</span>
+      </div>
+
+      ${evaluations.length ? `
+        <div class="evaluation-comparison-scroll" tabindex="0" aria-label="Vergelijking teamevaluaties">
+          <table class="evaluation-comparison-table">
+            <thead><tr><th>Gedrag</th>${evaluations.map((evaluation) => `<th><button type="button" data-team-evaluation="${escapeHtml(evaluation.seasonWeekId)}">${escapeHtml(formatShortDate(evaluation.date))}</button></th>`).join("")}</tr></thead>
+            <tbody>
+              ${TEAM_EVALUATION_BEHAVIOURS.map((behaviour) => `
+                <tr><th><small>${escapeHtml(behaviour.phase)}</small>${escapeHtml(behaviour.text)}</th>${evaluations.map((evaluation) => `<td data-score="${escapeHtml(evaluation.scores[behaviour.id] || "")}">${escapeHtml(evaluation.scores[behaviour.id] || "—")}</td>`).join("")}</tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <div class="evaluation-summary-list">
+          ${evaluations.map((evaluation) => `
+            <article class="content-card">
+              <button type="button" data-team-evaluation="${escapeHtml(evaluation.seasonWeekId)}">${escapeHtml(formatShortDate(evaluation.date))} openen</button>
+              ${evaluation.strengths ? `<div><span>Sterke punten</span>${linesToSafeList(evaluation.strengths)}</div>` : ""}
+              ${evaluation.developmentPoint ? `<div><span>Ontwikkelpunt</span><p>${escapeHtml(evaluation.developmentPoint)}</p></div>` : ""}
+            </article>
+          `).join("")}
+        </div>
+      ` : `
+        <div class="empty-history"><strong>Nog geen teamevaluaties</strong>Open een competitieve speelweek om de eerste evaluatie in te vullen.</div>
+      `}
+    </section>
+  `;
+}
+
 function renderSeasonWeekDetail(id) {
   const week = getSeasonWeek(id);
   if (!week) {
@@ -3873,6 +4466,20 @@ function renderSeasonWeekDetail(id) {
             </button>
           </section>
         ` : ""}
+
+        ${TEAM_EVALUATION_WEEK_TYPES.includes(week.type) ? (() => {
+          const evaluation = getTeamEvaluationForWeek(week.id);
+          return `
+            <section class="content-card team-evaluation-entry-card">
+              <div>
+                <p class="eyebrow">Zichtbaar teamgedrag</p>
+                <h2>Teamevaluatie</h2>
+                <p>${evaluation ? `Ingevuld op ${escapeHtml(formatShortDate(evaluation.date))}.` : "Nog niet ingevuld voor deze speelweek."}</p>
+              </div>
+              <button class="primary-button" type="button" data-team-evaluation="${escapeHtml(week.id)}">${evaluation ? "Evaluatie bewerken" : "Evaluatie invullen"}</button>
+            </section>
+          `;
+        })() : ""}
 
         ${renderAttendanceSection({
           eventType: "seasonWeek",
@@ -5092,6 +5699,7 @@ function renderReflection(id) {
     goTo("trainingen");
     return;
   }
+  const players = getActivePlayers();
 
   app.innerHTML = `
     <section class="screen" aria-labelledby="reflection-title">
@@ -5102,23 +5710,34 @@ function renderReflection(id) {
       </header>
 
       <form class="reflection-form" id="reflection-form" data-training-id="${escapeHtml(training.id)}">
+        <section class="reflection-standouts" aria-labelledby="reflection-standouts-title">
+          <div class="section-heading-row">
+            <div><p class="eyebrow">Optioneel</p><h2 id="reflection-standouts-title">Wie viel op?</h2></div>
+            <span data-standout-count>0 gekozen</span>
+          </div>
+          <div class="standout-player-grid">
+            ${players.map((player) => `
+              <button type="button" data-standout-player="${escapeHtml(player.id)}" aria-pressed="false">${escapeHtml(player.displayName)}</button>
+            `).join("") || `<p>Nog geen actieve spelers.</p>`}
+          </div>
+        </section>
         <div class="field">
           <label for="went-well">Wat ging goed?</label>
-          <textarea id="went-well" name="wentWell" placeholder="Bijvoorbeeld: de druk na balverlies was direct..." required></textarea>
+          <textarea id="went-well" name="wentWell" placeholder="Bijvoorbeeld: de druk na balverlies was direct..."></textarea>
         </div>
         <div class="field">
           <label for="went-less">Wat ging minder?</label>
-          <textarea id="went-less" name="wentLess" placeholder="Waar verloor de groep grip?" required></textarea>
+          <textarea id="went-less" name="wentLess" placeholder="Waar verloor de groep grip?"></textarea>
         </div>
         <div class="field">
           <label for="stood-out">Wat viel op?</label>
-          <textarea id="stood-out" name="stoodOut" placeholder="Spelers, gedrag of onverwachte momenten..." required></textarea>
+          <textarea id="stood-out" name="stoodOut" placeholder="Spelers, gedrag of onverwachte momenten..."></textarea>
         </div>
         <div class="field">
           <label for="next-training">Wat neem ik mee naar de volgende training?</label>
           <textarea id="next-training" name="nextTraining" placeholder="Maak je volgende aandachtspunt concreet..." required></textarea>
         </div>
-        <p class="form-note">Je reflectie wordt alleen op dit apparaat bewaard.</p>
+        <p class="form-note">Alleen het laatste veld is verplicht. Je reflectie wordt lokaal bewaard.</p>
         <button class="primary-button" type="submit">Reflectie opslaan</button>
       </form>
 
@@ -5153,7 +5772,11 @@ function renderHistory(trainingId) {
   };
 
   const cards = reflections.map((reflection) => {
-    const items = Object.entries(labels).map(([key, label]) => `
+    const standoutNames = reflection.standoutPlayerIds
+      .map(getPlayer)
+      .filter(Boolean)
+      .map((player) => player.displayName);
+    const items = Object.entries(labels).filter(([key]) => reflection[key]).map(([key, label]) => `
       <div class="history-item">
         <span class="history-question">${label}</span>
         <p class="history-answer" data-answer="${key}"></p>
@@ -5163,6 +5786,7 @@ function renderHistory(trainingId) {
     return `
       <article class="history-card" data-reflection-id="${reflection.id}">
         <div class="history-date">${formatDate(reflection.createdAt)}</div>
+        ${standoutNames.length ? `<div class="history-standouts"><span>Opvallende spelers</span><strong>${escapeHtml(standoutNames.join(", "))}</strong></div>` : ""}
         ${items}
       </article>
     `;
@@ -5618,6 +6242,28 @@ async function handleClick(event) {
   }
 }
 
+function saveStandoutPlayerObservations(training, playerIds, observationText) {
+  if (!playerIds.length) return true;
+  const card = getWeekCardForTraining(training);
+  const block = card ? getPlannerBlock(card.blockId) : null;
+  const blockLabel = block ? `Blok ${block.id} · ${block.name}` : training.block;
+  const date = getLocalDateKey();
+  const text = observationText
+    || `Viel op tijdens ${training.code} · ${training.title}.`;
+  const selected = new Set(playerIds);
+  const players = getPlayers().map((player) => selected.has(player.id) ? normalizePlayer({
+    ...player,
+    observations: [...player.observations, {
+      id: createUniqueId("observatie"),
+      date,
+      text,
+      blockId: blockLabel || ""
+    }],
+    updatedAt: new Date().toISOString()
+  }) : player);
+  return savePlayers(players);
+}
+
 async function handleSubmit(event) {
   if (event.target.id === "training-form") {
     saveTrainingForm(event);
@@ -5698,19 +6344,34 @@ async function handleSubmit(event) {
   const form = event.target;
   const formData = new FormData(form);
   const trainingId = form.dataset.trainingId;
+  const training = getTraining(trainingId);
+  const standoutPlayerIds = [...form.querySelectorAll("[data-standout-player][aria-pressed='true']")]
+    .map((button) => button.dataset.standoutPlayer);
+  const nextTraining = formData.get("nextTraining").trim();
+
+  if (!nextTraining) {
+    showToast("Vul in wat je meeneemt naar de volgende training");
+    form.elements.nextTraining.focus();
+    return;
+  }
 
   const reflectionSaved = saveReflection({
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     trainingId,
-    trainingCode: getTraining(trainingId).code,
+    trainingCode: training.code,
     createdAt: new Date().toISOString(),
     wentWell: formData.get("wentWell").trim(),
     wentLess: formData.get("wentLess").trim(),
     stoodOut: formData.get("stoodOut").trim(),
-    nextTraining: formData.get("nextTraining").trim()
+    nextTraining,
+    standoutPlayerIds
   });
 
   if (!reflectionSaved) return;
+  if (!saveStandoutPlayerObservations(training, standoutPlayerIds, formData.get("stoodOut").trim())) {
+    showToast("Reflectie opgeslagen, maar spelerobservaties niet volledig");
+    return;
+  }
   showToast("Reflectie opgeslagen");
   goTo("training", trainingId);
 }
