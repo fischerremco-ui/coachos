@@ -1,4 +1,4 @@
-// Voorbeelddata voor CoachOS v0.1.
+// Voorbeelddata voor CoachOS v0.2.
 const PRINCIPLES = [
   {
     id: "lok-druk-vrije-man",
@@ -156,7 +156,7 @@ const TRAININGS = [
     code: "RM-01",
     title: "Gegenpressing",
     theme: "Omschakelen na balverlies",
-    goal: "Binnen vijf seconden na balverlies gezamenlijk druk zetten en de as gesloten houden.",
+    goal: "Na balverlies rollen direct verdelen: eerste druk, opties sluiten en as bewaken. Kan verantwoord heroveren niet, dan vertragen en herstellen.",
     duration: "85 minuten",
     materials: ["16 pionnen", "3 kleuren hesjes", "10 ballen", "4 mini-doelen"],
     exercises: [
@@ -169,8 +169,8 @@ const TRAININGS = [
         detail: "5 tegen 5 + 2 neutraal — heroveren of terug in compact blok."
       },
       {
-        name: "Partijvorm met vijfsecondenregel",
-        detail: "7 tegen 7 — bonuspunt voor herovering binnen vijf seconden."
+        name: "Partijvorm met tijdelijke bonusprikkel",
+        detail: "7 tegen 7 — tijdelijk bonuspunt voor herovering binnen vijf seconden."
       }
     ],
     coachingPoints: [

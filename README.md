@@ -2,8 +2,8 @@
 
 CoachOS is een mobile-first webapp voor een jeugdvoetbaltrainer van VSV Velserbroek.
 De app bevat het team JO16-1, vijf voorbeeldtrainingen, eigen trainingsprogramma’s,
-reflecties, een beheerbaar Playbook, een lokale historie per training, een
-seizoensplanning voor 2026–2027 en lokaal spelers- en aanwezigheidsbeheer.
+reflecties, een beheerbaar Playbook, een lokale historie per training, de tactische
+V4-seizoensplanner voor 2026–2027 en lokaal spelers- en aanwezigheidsbeheer.
 
 ## Lokaal draaien
 
@@ -70,6 +70,8 @@ dit repository-subpad blijven werken.
 - Gebruik de schrijfaanwijzingen en `Voorbeeld tonen` onder tekstvelden. Voorbeelden
   worden alleen getoond en overschrijven nooit ingevoerde tekst.
 - Open een training om alle onderdelen en eerdere reflecties te bekijken.
+- Kies op de trainingsdetailpagina `Trainingskaart printen` voor een compacte
+  A4-weergave zonder navigatie, acties, registraties of meldingen.
 - Kies `Bewerken` om een programma aan te passen.
 - Met `Training dupliceren` maak je een bewerkbare kopie.
 - Met `Als sjabloon gebruiken` maak je een nieuwe training met dezelfde opbouw,
@@ -84,6 +86,8 @@ dit repository-subpad blijven werken.
 - Voeg speelweken handmatig toe en bewerk, dupliceer of verwijder ze wanneer de
   planning verandert.
 - Open een speelweek om bestaande trainingen te koppelen of te ontkoppelen.
+- Open vanuit het dashboard of de tactische jaarlijn een weekkaart. Maak daaruit
+  een maandag- of donderdagtraining; week 33 en 34 bieden ook woensdag aan.
 - Open `Spelers` om spelers toe te voegen, te bewerken, te deactiveren,
   heractiveren of definitief te verwijderen.
 - Registreer op een trainingsdetail de `Aanwezigheid` en op een speelweekdetail
@@ -115,10 +119,12 @@ met verdieping, bewijs of inspiratie en bevat een titel, type en optionele link,
 auteur, samenvatting, belangrijkste inzicht en eigen notities.
 
 PDF-bestanden kunnen lokaal worden toegevoegd. CoachOS controleert het bestandstype
-en de PDF-inhoud en accepteert maximaal 2 MB per bestand. Een bestand wordt één keer
-bij de bron opgeslagen; losse koppelingen bepalen bij welke spelprincipes die bron
-hoort. De interface beheert in deze versie alleen de koppeling vanuit het geopende
-spelprincipe, maar het datamodel ondersteunt meerdere koppelingen.
+en de PDF-inhoud en accepteert maximaal 10 MB per bestand. Een bestand wordt één keer
+als `Blob` in IndexedDB opgeslagen; in `localStorage` staat alleen de metadata. Losse
+koppelingen bepalen bij welke spelprincipes die bron hoort. De interface beheert in
+deze versie alleen de koppeling vanuit het geopende spelprincipe, maar het datamodel
+ondersteunt meerdere koppelingen. Bestaande base64-bijlagen worden bij het opstarten
+veilig naar IndexedDB gemigreerd en pas daarna uit `localStorage` verwijderd.
 
 ## Seizoen 2026–2027
 
@@ -136,6 +142,39 @@ als deze vrij, beker, inhaal of niet nader geclassificeerd is. De eerstvolgende
 competitieronde staat er apart bij. Een huidige fase verschijnt alleen binnen het
 gedateerde bereik van speelweken waarin die fase expliciet is ingevuld; daarbuiten
 staat `Geen actieve competitiefase`.
+
+Het seizoensoverzicht vergelijkt de wedstrijdcontext van iedere V4-weekkaart met
+de gecontroleerde KNVB-kalender. Afwijkingen staan in een dichtklapbaar blok en
+worden nooit automatisch aangepast. De trainer kan één plannerweek per keer, na
+bevestiging, aan het bijbehorende KNVB-kalenderitem gelijk trekken.
+
+### V4-seizoensplanner en weekkaart
+
+Naast de KNVB-kalender bevat CoachOS 39 inhoudelijke weekkaarten uit de VSV JO16
+Seizoensplanner V4: voorbereiding in week 33 en 34, najaar in week 35 tot en met
+50 en voorjaar in week 4 tot en met 24. Week 33 en 34 bevatten maandag, woensdag
+en donderdag. Vanaf week 35 bevat de planner uitsluitend maandag en donderdag;
+dinsdag wordt nooit als trainingsdag toegevoegd.
+
+Iedere kaart gebruikt een stabiele sleutel van seizoen, ISO-jaar en ISO-week. Zo
+blijft er ook bij meerdere kalenderitems in één week precies één inhoudelijke
+weekkaart bestaan. De kaart bewaart het waarom: competitieblok, wedstrijdcontext,
+hoofd- en ondersteunende principes, gewenst gedrag, de vijf spelfases,
+coachwoorden, spelhervatting, observatiecriteria, belasting en het alternatief bij
+lage opkomst. Eigen trainersnotities blijven lokaal bewaard.
+
+Een training vanuit een weekkaart is een bewerkbaar concept in de gewone
+trainingsmodule, geen tweede trainingssysteem. CoachOS vult code, datum, thema,
+blok, doel, gewenst gedrag, criteria, coachwoorden, belasting, broninhoud en de
+relevante spelhervatting vooraf in. Na opslaan wordt de training gekoppeld aan het
+best passende kalenderitem in dezelfde ISO-week. Een tweede klik opent de
+bestaande training en maakt geen duplicaat.
+
+Bij de eerste start vult een idempotente migratie ontbrekende V4-weekkaarten en
+ontbrekende bronvelden aan. Bestaande aangepaste kaartvelden en trainersnotities
+gaan voor de bronwaarden. De migratie raakt trainingen, reflecties, kennisbank,
+PDF’s, kalenderstatussen, kalendernotities, spelers en registraties niet aan en kan
+veilig opnieuw worden uitgevoerd.
 
 Wedstrijdbeheer, automatische PDF-import en automatische trainingsadviezen maken
 geen deel uit van deze versie. Reflecties in een speelweek worden afgeleid van de
@@ -172,10 +211,10 @@ ontwikkelstatistieken bijgehouden.
 ## Opslag en back-ups
 
 Trainingen, concepten, reflecties, spelers, aanwezigheids- en
-beschikbaarheidsregistraties, spelprincipes, bronnen, PDF-bestanden, seizoenen en
-speelweken worden opgeslagen in `localStorage`. Ze blijven op hetzelfde apparaat
-en in dezelfde browser beschikbaar. Er wordt niets naar een externe database
-verstuurd.
+beschikbaarheidsregistraties, spelprincipes, bronnen, seizoenen en speelweken worden
+opgeslagen in `localStorage`. PDF-bestanden staan als blobs in IndexedDB. Alles blijft
+op hetzelfde apparaat en in dezelfde browser beschikbaar. Er wordt niets naar een
+externe database verstuurd.
 
 `localStorage` synchroniseert niet tussen apparaten of browsers. Gegevens op een
 iPhone verschijnen dus niet automatisch op een laptop of andere telefoon. Gebruik
@@ -183,22 +222,30 @@ de back-upfunctie om gegevens handmatig over te zetten. Opslag is bovendien aan 
 webadres gekoppeld: data van `localhost`, een `file://`-adres en de GitHub Pages-URL
 staan los van elkaar.
 
-PDF-bestanden worden als lokale bestandsdata opgeslagen. Browseropslag is beperkt;
-CoachOS toont een duidelijke melding wanneer er onvoldoende ruimte beschikbaar is.
+Browseropslag is beperkt. CoachOS meldt iedere mislukte schrijfactie zichtbaar en
+maakt duidelijk wanneer de opslag vol is. Onderaan het teamdashboard staat, als de
+browser dit ondersteunt, het geschatte opslaggebruik en altijd de datum van de
+laatste back-up. Die regel krijgt een waarschuwingskleur als de laatste back-up ouder
+dan veertien dagen is of nog nooit is gemaakt.
 
-Onderaan het trainingsoverzicht staan twee back-upacties:
+Onderaan het trainingsoverzicht staan drie back-upacties:
 
 - `Back-up downloaden` maakt één JSON-bestand met trainingen, reflecties,
   spelers, aanwezigheids- en beschikbaarheidsregistraties, spelprincipes, bronnen,
-  lokale PDF-bestanden, seizoenen, speelweken en trainingkoppelingen.
+  lokale PDF-bestanden, seizoenen, speelweken, trainingkoppelingen, weekkaarten en
+  eigen trainersnotities.
+- `Back-up zonder bijlagen` maakt een kleiner JSON-bestand wanneer exporteren met
+  PDF-bestanden door onvoldoende geheugen niet lukt.
 - `Back-up importeren` kan gegevens samenvoegen of volledig vervangen.
 
 Bij volledig vervangen downloadt CoachOS eerst automatisch een back-up van de
 huidige gegevens. Alleen geldige CoachOS-back-ups worden geaccepteerd. Back-ups uit
-versie 2 zonder Playbookgegevens, versie 3 zonder seizoensgegevens en versie 4
-zonder spelersgegevens blijven bruikbaar. Bij import wissen oudere back-ups geen
-bestaande kennisbank-, seizoens-, spelers- of registratiegegevens. Het actuele
-back-upformaat is versie 5.
+versie 2 zonder Playbookgegevens, versie 3 zonder seizoensgegevens, versie 4
+zonder spelersgegevens en versie 5 zonder weekkaarten blijven bruikbaar. Bij
+import wissen oudere back-ups geen bestaande kennisbank-, seizoens-, spelers-,
+registratie- of weekkaartgegevens. Het actuele back-upformaat is versie 6.
+PDF-bijlagen worden alleen tijdens export als base64 in het zelfstandige JSON-bestand
+opgenomen en bij import weer als blobs in IndexedDB geplaatst.
 
 ## Installeren als app
 
@@ -235,12 +282,16 @@ app-shell:
 
 - HTML en de offlinepagina
 - CSS
-- JavaScript en voorbeelddata
+- JavaScript, voorbeelddata en V4-weekkaartdata
 - het manifest
 - alle app-iconen
 
-CoachOS gebruikt daarna een cache-first strategie. Trainingen, reflecties,
-concepten, spelers, registraties, Playbookgegevens en de seizoensplanning blijven
+CoachOS gebruikt netwerk-eerst met cachefallback voor de appcode, gegevensbestanden,
+stylesheet, startpagina en navigaties. Daardoor wordt een nieuwe versie na verversen
+direct opgehaald wanneer er verbinding is. Iconen en overige statische bestanden
+gebruiken cache-eerst. Een ontbrekend optioneel icoon blokkeert de installatie van
+de service worker niet. Trainingen, reflecties, concepten, spelers, registraties,
+Playbookgegevens, de seizoensplanning en trainersnotities op weekkaarten blijven
 daarnaast in `localStorage` staan. Lokale PDF-bestanden kunnen hierdoor eveneens offline worden geopend. Als een
 niet-gecachete pagina niet kan worden geladen, verschijnt de nette
 CoachOS-offlinemelding.
@@ -253,10 +304,10 @@ internet kan nog geen bestanden uit de cache halen.
 De cacheversie staat bovenaan `sw.js`:
 
 ```js
-const CACHE_VERSION = "coachos-v5";
+const CACHE_VERSION = "coachos-v7";
 ```
 
-Verhoog deze waarde bij een release, bijvoorbeeld naar `coachos-v6`. Bij activering
+Verhoog deze waarde bij een volgende release, bijvoorbeeld naar `coachos-v8`. Bij activering
 verwijdert de nieuwe service worker automatisch oudere CoachOS-caches. Ververs de
 app daarna één keer om de nieuwe bestanden te laden.
 
@@ -271,6 +322,7 @@ lokale `file://`-versie naar de gepubliceerde HTTPS-versie over te zetten.
 - `index.html` — basisstructuur van de app
 - `styles.css` — mobile-first vormgeving
 - `data.js` — voorbeeldtrainingen, het voorbeeldspelprincipe en de seizoensplanning
+- `planner-data.js` — brongetrouwe V4-weekkaarten voor de tactische jaarlijn
 - `app.js` — navigatie, schermen en lokale opslag
 - `manifest.json` — naam, kleuren, startgedrag en app-iconen
 - `sw.js` — offline cache en versiebeheer

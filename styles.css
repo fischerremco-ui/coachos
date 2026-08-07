@@ -1666,6 +1666,94 @@ h3 {
   line-height: 1.3;
 }
 
+.calendar-conflict-panel {
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: #fff8ea;
+  border: 1px solid #e8c46a;
+  border-radius: var(--radius-lg);
+}
+
+.calendar-conflict-panel summary {
+  min-height: 56px;
+  padding: 17px 42px 17px 16px;
+  color: var(--navy-900);
+  font-size: 0.88rem;
+  font-weight: 850;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.calendar-conflict-panel > p {
+  margin: 0;
+  padding: 0 16px 15px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.calendar-conflict-list {
+  display: grid;
+  gap: 10px;
+  padding: 0 10px 10px;
+}
+
+.calendar-conflict-card {
+  padding: 15px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.calendar-conflict-card header,
+.calendar-conflict-card header span,
+.calendar-conflict-card header strong,
+.calendar-conflict-values span,
+.calendar-conflict-values strong {
+  display: block;
+}
+
+.calendar-conflict-card header span,
+.calendar-conflict-values span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calendar-conflict-card header strong {
+  margin-top: 4px;
+  color: var(--navy-900);
+  font-size: 0.92rem;
+}
+
+.calendar-conflict-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 13px 0;
+}
+
+.calendar-conflict-values div {
+  min-width: 0;
+  padding: 11px;
+  background: var(--surface);
+  border-radius: 9px;
+}
+
+.calendar-conflict-values strong {
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  color: var(--navy-900);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.calendar-conflict-card .secondary-button {
+  width: 100%;
+}
+
 .season-timeline {
   position: relative;
   display: grid;
@@ -2385,6 +2473,262 @@ h3 {
   margin-bottom: 3px;
 }
 
+/* V4-seizoensplanner en weekkaarten */
+.planner-dashboard-card,
+.planner-timeline-section,
+.planner-form-context {
+  margin-top: 18px;
+  padding: 19px;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+}
+
+.planner-dashboard-heading,
+.planner-dashboard-footer,
+.section-heading-row,
+.planner-session-card header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.planner-dashboard-heading h1,
+.planner-dashboard-heading h2,
+.planner-form-context h2,
+.section-heading-row h2 {
+  margin: 2px 0 0;
+  line-height: 1.18;
+}
+
+.planner-week-badge {
+  display: inline-grid;
+  flex: 0 0 50px;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  color: var(--white);
+  background: var(--red-600);
+  border-radius: 16px;
+  font-weight: 900;
+}
+
+.planner-date,
+.planner-context {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.planner-context {
+  color: var(--navy-700);
+  font-weight: 800;
+}
+
+.planner-behaviour-list,
+.planner-detail-list {
+  display: grid;
+  gap: 7px;
+  margin: 15px 0;
+  padding-left: 21px;
+}
+
+.planner-dashboard-footer {
+  align-items: center;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+}
+
+.planner-dashboard-footer > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.planner-dashboard-footer .primary-button {
+  width: auto;
+}
+
+.planner-card-action {
+  color: var(--navy-800);
+  background: var(--blue-100);
+}
+
+.planner-timeline-section {
+  margin-bottom: 20px;
+}
+
+.section-heading-row > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.planner-timeline {
+  display: grid;
+  gap: 9px;
+  max-height: 520px;
+  margin-top: 16px;
+  overflow-y: auto;
+}
+
+.planner-timeline-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 76px;
+  padding: 11px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.planner-timeline-card .planner-week-badge {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+  border-radius: 13px;
+  font-size: 0.85rem;
+}
+
+.planner-timeline-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.planner-timeline-copy strong {
+  color: var(--navy-900);
+  line-height: 1.25;
+}
+
+.planner-timeline-copy span,
+.planner-timeline-copy small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.week-card-hero .planner-dashboard-heading {
+  align-items: flex-start;
+}
+
+.week-card-hero h1 {
+  margin-top: 3px;
+}
+
+.planner-phase-grid,
+.planner-session-list {
+  display: grid;
+  gap: 11px;
+  margin-top: 14px;
+}
+
+.planner-phase-card {
+  padding: 13px;
+  background: var(--surface);
+  border-left: 4px solid var(--navy-700);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.planner-phase-card span,
+.session-duration {
+  color: var(--red-700);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planner-phase-card p {
+  margin: 4px 0 0;
+}
+
+.planner-session-card {
+  padding: 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.planner-session-card h3 {
+  margin: 3px 0 0;
+  line-height: 1.25;
+}
+
+.planner-session-content {
+  margin: 14px 0;
+}
+
+.planner-session-card .primary-button {
+  width: 100%;
+}
+
+.coach-word-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coach-word-list li {
+  padding: 7px 10px;
+  color: var(--navy-800);
+  background: var(--blue-100);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.week-card-linked-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.planner-form-context {
+  margin: 0 0 16px;
+  color: var(--white);
+  background: var(--navy-800);
+  border-color: transparent;
+}
+
+.planner-form-context .eyebrow,
+.planner-form-context p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.print-planner-meta {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.dashboard-storage-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 11px 4px 0;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.dashboard-storage-status.storage-status-warning {
+  color: var(--red-700);
+}
+
 :focus-visible {
   outline: 3px solid #6ca8ff;
   outline-offset: 3px;
@@ -2415,5 +2759,86 @@ h3 {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    min-width: 0;
+    background: #fff;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    overflow: visible;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .topbar,
+  .install-card,
+  .toast,
+  .detail-actions,
+  .sticky-action,
+  .history-section,
+  .attendance-section,
+  .training-detail-screen button {
+    display: none !important;
+  }
+
+  .training-detail-screen {
+    padding: 0;
+    font-size: 9.5pt;
+  }
+
+  .training-detail-screen .detail-hero {
+    padding: 12px 15px;
+    color: #fff;
+    background: var(--navy-900) !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .training-detail-screen .fact-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .training-detail-screen .fact-card,
+  .training-detail-screen .content-card,
+  .training-detail-screen .part-detail-card {
+    padding: 8px 10px;
+    border: 1px solid #cfd5dc;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .training-detail-screen .content-stack,
+  .training-detail-screen .part-detail-card-list {
+    gap: 7px;
+  }
+
+  .training-detail-screen h2,
+  .training-detail-screen h3,
+  .training-detail-screen h4,
+  .training-detail-screen p,
+  .training-detail-screen ul {
+    margin-top: 3px;
+    margin-bottom: 3px;
+  }
+
+  .training-detail-screen .part-number {
+    width: 28px;
+    height: 28px;
+    font-size: 8pt;
   }
 }

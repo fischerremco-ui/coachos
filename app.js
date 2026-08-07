@@ -13,11 +13,17 @@ const PRINCIPLES_STORAGE_KEY = "coachos-principles-v1";
 const KNOWLEDGE_STORAGE_KEY = "coachos-knowledge-v1";
 const SEASONS_STORAGE_KEY = "coachos-seasons-v1";
 const SEASON_WEEKS_STORAGE_KEY = "coachos-season-weeks-v1";
+const WEEK_CARDS_STORAGE_KEY = "coachos-week-cards-v1";
 const PLAYERS_STORAGE_KEY = "coachos-players-v1";
 const ATTENDANCE_STORAGE_KEY = "coachos-attendance-v1";
 const INSTALL_HINT_KEY = "coachos-install-hint-dismissed-v1";
+const ATTACHMENT_MIGRATION_KEY = "coachos-file-migration-v1";
+const LAST_BACKUP_STORAGE_KEY = "coachos-last-backup-v1";
+const FILE_DB_NAME = "coachos-files";
+const FILE_DB_VERSION = 1;
+const FILE_STORE = "attachments";
 const TEAM_ID = "vsv-jo16-1";
-const MAX_PDF_BYTES = 2 * 1024 * 1024;
+const MAX_PDF_BYTES = 10 * 1024 * 1024;
 const SEASON_WEEK_TYPES = [
   "Vrij",
   "Bekerpoule",
@@ -105,7 +111,7 @@ const TEMPLATE_DEFINITIONS = {
   }
 };
 const FIELD_EXAMPLES = {
-  mainGoal: "Spelers kunnen na balverlies binnen vijf seconden gezamenlijk druk op de bal zetten.",
+  mainGoal: "Na balverlies verdelen spelers direct de rollen: eerste druk, opties sluiten en de as bewaken. Kan verantwoord heroveren niet, dan vertragen en herstellen.",
   desiredBehavior: "Dichtste speler zet druk op de bal.\nTweede speler sluit de voorwaartse passlijn.",
   evaluationCriteria: "Bij 6 van de 10 balverliesmomenten reageert het hele team direct.\nDe as blijft aantoonbaar vaker gesloten.",
   materials: "12 pionnen\n8 hesjes\n6 ballen\n2 mini-doelen",
@@ -151,6 +157,7 @@ const routes = {
   "bron-nieuw": { parent: "spelprincipe", render: renderSourceForm },
   "bron-bewerken": { parent: "spelprincipe", render: renderSourceForm },
   seizoen: { parent: "dashboard", render: renderSeasonOverview },
+  weekkaart: { parent: "seizoen", render: renderWeekCardDetail },
   speelweek: { parent: "seizoen", render: renderSeasonWeekDetail },
   "speelweek-nieuw": { parent: "seizoen", render: renderSeasonWeekForm },
   "speelweek-bewerken": { parent: "speelweek", render: renderSeasonWeekForm }
@@ -181,6 +188,22 @@ function goTo(route, id) {
   window.location.hash = id ? `#${route}/${id}` : `#${route}`;
 }
 
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    const description = `${error && error.name || ""} ${error && error.message || ""}`;
+    const isQuotaError = description.includes("Quota")
+      || description.includes("NS_ERROR_DOM_QUOTA");
+    console.error(`Opslaan in localStorage mislukt voor ${key}.`, error);
+    showToast(isQuotaError
+      ? "Opslag vol — maak een back-up en verwijder oude bijlagen. Deze wijziging is NIET bewaard."
+      : "Opslaan mislukt. Deze wijziging is NIET bewaard.");
+    return false;
+  }
+}
+
 function getTrainings() {
   try {
     const saved = localStorage.getItem(TRAININGS_STORAGE_KEY);
@@ -193,19 +216,16 @@ function getTrainings() {
 }
 
 function saveTrainings(trainings) {
-  localStorage.setItem(
-    TRAININGS_STORAGE_KEY,
-    JSON.stringify(trainings.map(normalizeTraining))
-  );
+  return writeStorage(TRAININGS_STORAGE_KEY, trainings.map(normalizeTraining));
 }
 
 function saveTraining(training) {
-  saveTrainings([...getTrainings(), normalizeTraining(training)]);
+  return saveTrainings([...getTrainings(), normalizeTraining(training)]);
 }
 
 function updateTraining(training) {
   const normalized = normalizeTraining(training);
-  saveTrainings(
+  return saveTrainings(
     getTrainings().map((item) => item.id === normalized.id ? normalized : item)
   );
 }
@@ -219,6 +239,8 @@ function duplicateTraining(id) {
     ...JSON.parse(JSON.stringify(source)),
     id: createUniqueId("training"),
     title: `${source.title} Kopie`,
+    plannerWeekKey: "",
+    plannerDay: "",
     parts: source.parts.map((part) => ({
       ...part,
       id: createUniqueId("onderdeel")
@@ -227,8 +249,7 @@ function duplicateTraining(id) {
     updatedAt: now
   };
 
-  saveTraining(duplicate);
-  return duplicate;
+  return saveTraining(duplicate) ? duplicate : null;
 }
 
 function useTrainingAsTemplate(id) {
@@ -241,6 +262,8 @@ function useTrainingAsTemplate(id) {
     id: createUniqueId("training"),
     title: source.title.replace(/\s+Kopie$/i, ""),
     date: "",
+    plannerWeekKey: "",
+    plannerDay: "",
     parts: source.parts.map((part) => ({
       ...part,
       id: createUniqueId("onderdeel")
@@ -249,20 +272,20 @@ function useTrainingAsTemplate(id) {
     updatedAt: now
   };
 
-  saveTraining(templateCopy);
-  return templateCopy;
+  return saveTraining(templateCopy) ? templateCopy : null;
 }
 
 function deleteTraining(id, deleteReflections = false) {
-  saveTrainings(getTrainings().filter((training) => training.id !== id));
-  removeTrainingFromSeasonWeeks(id);
-  deleteAttendanceForEvent("training", id);
+  if (!saveTrainings(getTrainings().filter((training) => training.id !== id))) return false;
+  const seasonLinksSaved = removeTrainingFromSeasonWeeks(id);
+  const attendanceSaved = deleteAttendanceForEvent("training", id);
 
   if (deleteReflections) {
-    saveReflections(
+    if (!saveReflections(
       getReflections().filter((reflection) => reflection.trainingId !== id)
-    );
+    )) return false;
   }
+  return seasonLinksSaved && attendanceSaved;
 }
 
 function getTraining(id) {
@@ -306,10 +329,7 @@ function getPlayers() {
 }
 
 function savePlayers(players) {
-  localStorage.setItem(
-    PLAYERS_STORAGE_KEY,
-    JSON.stringify(players.map(normalizePlayer))
-  );
+  return writeStorage(PLAYERS_STORAGE_KEY, players.map(normalizePlayer));
 }
 
 function getPlayer(id) {
@@ -329,24 +349,23 @@ function getActivePlayers() {
 }
 
 function savePlayer(player) {
-  savePlayers([...getPlayers(), normalizePlayer(player)]);
+  return savePlayers([...getPlayers(), normalizePlayer(player)]);
 }
 
 function updatePlayer(player) {
   const normalized = normalizePlayer(player);
-  savePlayers(getPlayers().map((item) => item.id === normalized.id ? normalized : item));
+  return savePlayers(getPlayers().map((item) => item.id === normalized.id ? normalized : item));
 }
 
 function setPlayerActive(id, isActive) {
   const player = getPlayer(id);
   if (!player) return false;
-  updatePlayer({ ...player, isActive, updatedAt: new Date().toISOString() });
-  return true;
+  return updatePlayer({ ...player, isActive, updatedAt: new Date().toISOString() });
 }
 
 function deletePlayer(id) {
-  savePlayers(getPlayers().filter((player) => player.id !== id));
-  saveAttendanceRecords(getAttendanceRecords().filter((record) => record.playerId !== id));
+  if (!savePlayers(getPlayers().filter((player) => player.id !== id))) return false;
+  return saveAttendanceRecords(getAttendanceRecords().filter((record) => record.playerId !== id));
 }
 
 function validatePlayer(player) {
@@ -397,7 +416,7 @@ function saveAttendanceRecords(records) {
   records.map(normalizeAttendanceRecord).forEach((record) => {
     unique.set(attendanceKey(record), record);
   });
-  localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify([...unique.values()]));
+  return writeStorage(ATTENDANCE_STORAGE_KEY, [...unique.values()]);
 }
 
 function getAttendanceForEvent(eventType, eventId) {
@@ -417,11 +436,11 @@ function upsertAttendanceRecords(records) {
       createdAt: current ? current.createdAt : record.createdAt
     });
   });
-  saveAttendanceRecords([...merged.values()]);
+  return saveAttendanceRecords([...merged.values()]);
 }
 
 function deleteAttendanceForEvent(eventType, eventId) {
-  saveAttendanceRecords(getAttendanceRecords().filter((record) => !(
+  return saveAttendanceRecords(getAttendanceRecords().filter((record) => !(
     record.eventType === eventType && record.eventId === eventId
   )));
 }
@@ -476,10 +495,7 @@ function getSeasons() {
 }
 
 function saveSeasons(seasons) {
-  localStorage.setItem(
-    SEASONS_STORAGE_KEY,
-    JSON.stringify(seasons.map(normalizeSeason))
-  );
+  return writeStorage(SEASONS_STORAGE_KEY, seasons.map(normalizeSeason));
 }
 
 function getSeason(id) {
@@ -502,10 +518,7 @@ function getAllSeasonWeeks() {
 }
 
 function saveSeasonWeeks(weeks) {
-  localStorage.setItem(
-    SEASON_WEEKS_STORAGE_KEY,
-    JSON.stringify(weeks.map(normalizeSeasonWeek))
-  );
+  return writeStorage(SEASON_WEEKS_STORAGE_KEY, weeks.map(normalizeSeasonWeek));
 }
 
 function getSeasonWeeks(seasonId) {
@@ -523,12 +536,12 @@ function getSeasonWeek(id) {
 }
 
 function saveSeasonWeek(week) {
-  saveSeasonWeeks([...getAllSeasonWeeks(), normalizeSeasonWeek(week)]);
+  return saveSeasonWeeks([...getAllSeasonWeeks(), normalizeSeasonWeek(week)]);
 }
 
 function updateSeasonWeek(week) {
   const normalized = normalizeSeasonWeek(week);
-  saveSeasonWeeks(
+  return saveSeasonWeeks(
     getAllSeasonWeeks().map((item) => item.id === normalized.id ? normalized : item)
   );
 }
@@ -547,13 +560,12 @@ function duplicateSeasonWeek(id) {
     updatedAt: now
   };
 
-  saveSeasonWeek(duplicate);
-  return duplicate;
+  return saveSeasonWeek(duplicate) ? duplicate : null;
 }
 
 function deleteSeasonWeek(id) {
-  saveSeasonWeeks(getAllSeasonWeeks().filter((week) => week.id !== id));
-  deleteAttendanceForEvent("seasonWeek", id);
+  if (!saveSeasonWeeks(getAllSeasonWeeks().filter((week) => week.id !== id))) return false;
+  return deleteAttendanceForEvent("seasonWeek", id);
 }
 
 function linkTrainingToSeasonWeek(weekId, trainingId) {
@@ -562,19 +574,18 @@ function linkTrainingToSeasonWeek(weekId, trainingId) {
     return false;
   }
 
-  updateSeasonWeek({
+  return updateSeasonWeek({
     ...week,
     trainingIds: [...week.trainingIds, trainingId],
     updatedAt: new Date().toISOString()
   });
-  return true;
 }
 
 function unlinkTrainingFromSeasonWeek(weekId, trainingId) {
   const week = getSeasonWeek(weekId);
-  if (!week) return;
+  if (!week) return false;
 
-  updateSeasonWeek({
+  return updateSeasonWeek({
     ...week,
     trainingIds: week.trainingIds.filter((id) => id !== trainingId),
     updatedAt: new Date().toISOString()
@@ -584,12 +595,349 @@ function unlinkTrainingFromSeasonWeek(weekId, trainingId) {
 function removeTrainingFromSeasonWeeks(trainingId) {
   const weeks = getAllSeasonWeeks();
   const hasLink = weeks.some((week) => week.trainingIds.includes(trainingId));
-  if (!hasLink) return;
+  if (!hasLink) return true;
 
-  saveSeasonWeeks(weeks.map((week) => ({
+  return saveSeasonWeeks(weeks.map((week) => ({
     ...week,
     trainingIds: week.trainingIds.filter((id) => id !== trainingId)
   })));
+}
+
+function getIsoWeekInfo(dateValue) {
+  const parsed = parseLocalDate(dateValue);
+  if (!parsed) return null;
+  const utcDate = new Date(Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate()));
+  const weekday = utcDate.getUTCDay() || 7;
+  utcDate.setUTCDate(utcDate.getUTCDate() + 4 - weekday);
+  const isoYear = utcDate.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(isoYear, 0, 1));
+  const weekNumber = Math.ceil((((utcDate - yearStart) / 86400000) + 1) / 7);
+  return { year: isoYear, weekNumber };
+}
+
+function weekCardStableKey(card = {}) {
+  return `${card.seasonId || ""}:${Number(card.year) || 0}:W${String(Number(card.weekNumber) || 0).padStart(2, "0")}`;
+}
+
+function normalizePlannerSession(session = {}, day = "") {
+  return {
+    day: session.day || day,
+    date: session.date || "",
+    objective: session.objective || "",
+    suggestedContent: session.suggestedContent || "",
+    load: session.load || "",
+    duration: Number(session.duration) || 90
+  };
+}
+
+function normalizeWeekCard(card = {}) {
+  const sessions = {};
+  ["monday", "wednesday", "thursday"].forEach((day) => {
+    if (card.sessions && card.sessions[day]) {
+      sessions[day] = normalizePlannerSession(card.sessions[day], day);
+    }
+  });
+
+  return {
+    id: card.id || `weekkaart-${String(card.seasonId || "seizoen")}-${Number(card.year) || 0}-w${String(Number(card.weekNumber) || 0).padStart(2, "0")}`,
+    seasonId: card.seasonId || "",
+    year: Number(card.year) || 0,
+    weekNumber: Number(card.weekNumber) || 0,
+    dateFrom: card.dateFrom || "",
+    dateTo: card.dateTo || "",
+    competitionBlock: card.competitionBlock || "",
+    matchContext: card.matchContext || "",
+    mainPrinciple: card.mainPrinciple || "",
+    supportingPrinciples: Array.isArray(card.supportingPrinciples)
+      ? card.supportingPrinciples.filter(Boolean).map(String)
+      : [],
+    desiredBehaviours: Array.isArray(card.desiredBehaviours)
+      ? card.desiredBehaviours.filter(Boolean).map(String)
+      : [],
+    phaseCycle: {
+      attack: card.phaseCycle && card.phaseCycle.attack || "",
+      lossTransition: card.phaseCycle && card.phaseCycle.lossTransition || "",
+      defend: card.phaseCycle && card.phaseCycle.defend || "",
+      winTransition: card.phaseCycle && card.phaseCycle.winTransition || "",
+      setPieces: card.phaseCycle && card.phaseCycle.setPieces || ""
+    },
+    sessions,
+    setPiece: card.setPiece || "",
+    coachWords: Array.isArray(card.coachWords)
+      ? card.coachWords.filter(Boolean).map(String).slice(0, 5)
+      : [],
+    matchCriteria: Array.isArray(card.matchCriteria)
+      ? card.matchCriteria.filter(Boolean).map(String)
+      : [],
+    expectedLoad: card.expectedLoad || "",
+    lowAttendanceAlternative: card.lowAttendanceAlternative || "",
+    trainerNotes: card.trainerNotes || ""
+  };
+}
+
+function fillMissingPlannerFields(source, current) {
+  if (current === undefined || current === null) {
+    return JSON.parse(JSON.stringify(source));
+  }
+  if (Array.isArray(source)) {
+    return Array.isArray(current) ? current : JSON.parse(JSON.stringify(source));
+  }
+  if (source && typeof source === "object") {
+    const merged = { ...current };
+    Object.keys(source).forEach((key) => {
+      merged[key] = fillMissingPlannerFields(source[key], current[key]);
+    });
+    return merged;
+  }
+  return current;
+}
+
+function migrateWeekCards() {
+  let savedCards = [];
+  let raw = null;
+  try {
+    raw = localStorage.getItem(WEEK_CARDS_STORAGE_KEY);
+    savedCards = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(savedCards)) savedCards = [];
+  } catch (error) {
+    console.warn("Weekkaarten konden niet worden gelezen; de bronplanning wordt hersteld.", error);
+    savedCards = [];
+  }
+
+  const uniqueSaved = new Map();
+  savedCards.forEach((card) => {
+    if (card && card.seasonId && card.year && card.weekNumber) {
+      uniqueSaved.set(weekCardStableKey(card), card);
+    }
+  });
+
+  const migrated = PLANNER_WEEK_CARDS.map((source) => {
+    const current = uniqueSaved.get(weekCardStableKey(source));
+    uniqueSaved.delete(weekCardStableKey(source));
+    return normalizeWeekCard(current ? fillMissingPlannerFields(source, current) : source);
+  });
+  uniqueSaved.forEach((card) => migrated.push(normalizeWeekCard(card)));
+  const serialized = JSON.stringify(migrated);
+  if (raw !== serialized) {
+    writeStorage(WEEK_CARDS_STORAGE_KEY, migrated);
+  }
+  return migrated;
+}
+
+function getWeekCards(seasonId = "") {
+  return migrateWeekCards()
+    .filter((card) => !seasonId || card.seasonId === seasonId)
+    .sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+}
+
+function saveWeekCards(cards) {
+  return writeStorage(WEEK_CARDS_STORAGE_KEY, cards.map(normalizeWeekCard));
+}
+
+function getWeekCard(id) {
+  return getWeekCards().find((card) => card.id === id) || null;
+}
+
+function updateWeekCard(updatedCard) {
+  const normalized = normalizeWeekCard(updatedCard);
+  return saveWeekCards(getWeekCards().map((card) => (
+    weekCardStableKey(card) === weekCardStableKey(normalized) ? normalized : card
+  )));
+}
+
+function getCalendarWeeksForWeekCard(card) {
+  return getSeasonWeeks(card.seasonId).filter((week) => {
+    const iso = getIsoWeekInfo(week.dateFrom);
+    return iso && iso.year === card.year && iso.weekNumber === card.weekNumber;
+  });
+}
+
+function getWeekCardTrainingIds(card) {
+  return [...new Set(
+    getCalendarWeeksForWeekCard(card).flatMap((week) => week.trainingIds)
+  )];
+}
+
+function getPrimaryCalendarWeek(card) {
+  const priorityTypes = ["Competitiewedstrijd", "Start nieuwe fase", "Beker", "Bekerpoule", "Inhaalweekend"];
+  return getCalendarWeeksForWeekCard(card)
+    .filter((week) => week.status !== "Vervallen")
+    .sort((a, b) => (
+      Number(priorityTypes.includes(b.type)) - Number(priorityTypes.includes(a.type))
+      || a.dateFrom.localeCompare(b.dateFrom)
+    ))[0] || getCalendarWeeksForWeekCard(card)[0] || null;
+}
+
+function getCalendarMatchKind(type) {
+  if (["Competitiewedstrijd", "Start nieuwe fase"].includes(type)) {
+    return "competitie";
+  }
+  if (["Beker", "Bekerpoule"].includes(type)) return "beker";
+  if (type === "Inhaalweekend") return "inhaal";
+  return "geen-wedstrijd";
+}
+
+function getPlannerMatchKinds(matchContext) {
+  const value = String(matchContext || "").toLocaleLowerCase("nl");
+  const kinds = new Set();
+
+  if (value.includes("inhaal")) kinds.add("inhaal");
+  if (value.includes("beker") || value.includes("poulewedstrijd")) {
+    kinds.add("beker");
+  }
+  if (
+    /(^|[^a-z])competitie([^a-z]|$)/.test(value)
+    || value.includes("competitieblok")
+    || value.includes("final league")
+    || value.includes("start nieuwe fase")
+  ) {
+    kinds.add("competitie");
+  }
+  if (!kinds.size) kinds.add("geen-wedstrijd");
+
+  return kinds;
+}
+
+function findCalendarConflicts(seasonWeeks, weekCards) {
+  const priorityTypes = [
+    "Competitiewedstrijd",
+    "Start nieuwe fase",
+    "Beker",
+    "Bekerpoule",
+    "Inhaalweekend"
+  ];
+
+  return weekCards.reduce((conflicts, card) => {
+    const matchingWeeks = seasonWeeks.filter((week) => {
+      const iso = getIsoWeekInfo(week.dateFrom);
+      return week.seasonId === card.seasonId
+        && iso
+        && iso.year === card.year
+        && iso.weekNumber === card.weekNumber;
+    });
+    if (!matchingWeeks.length) return conflicts;
+
+    const activeWeeks = matchingWeeks.filter((week) => week.status !== "Vervallen");
+    const candidates = activeWeeks.length ? activeWeeks : matchingWeeks;
+    const seasonWeek = [...candidates].sort((a, b) => (
+      Number(priorityTypes.includes(b.type)) - Number(priorityTypes.includes(a.type))
+      || a.dateFrom.localeCompare(b.dateFrom)
+    ))[0];
+    const calendarKind = getCalendarMatchKind(seasonWeek.type);
+    if (getPlannerMatchKinds(card.matchContext).has(calendarKind)) return conflicts;
+
+    conflicts.push({
+      year: card.year,
+      weekNumber: card.weekNumber,
+      weekCardId: card.id,
+      seasonWeekId: seasonWeek.id,
+      dateFrom: card.dateFrom,
+      dateTo: card.dateTo,
+      plannerValue: card.matchContext || "Geen wedstrijdcontext",
+      calendarValue: seasonWeek.type
+    });
+    return conflicts;
+  }, []);
+}
+
+function linkTrainingToWeekCard(card, trainingId) {
+  const week = getPrimaryCalendarWeek(card);
+  if (!week) return false;
+  if (week.trainingIds.includes(trainingId)) return true;
+  return linkTrainingToSeasonWeek(week.id, trainingId);
+}
+
+function unlinkTrainingFromWeekCard(card, trainingId) {
+  let saved = true;
+  getCalendarWeeksForWeekCard(card).forEach((week) => {
+    if (week.trainingIds.includes(trainingId)) {
+      saved = unlinkTrainingFromSeasonWeek(week.id, trainingId) && saved;
+    }
+  });
+  return saved;
+}
+
+const PLANNER_DAY_LABELS = {
+  monday: "Maandag",
+  wednesday: "Woensdag",
+  thursday: "Donderdag"
+};
+
+function findPlannerTraining(card, day) {
+  const code = `W${card.weekNumber}-${day === "monday" ? "MA" : day === "wednesday" ? "WO" : "DO"}`;
+  return getWeekCardTrainingIds(card)
+    .map(getTraining)
+    .filter(Boolean)
+    .find((training) => (
+      (training.plannerWeekKey === weekCardStableKey(card) && training.plannerDay === day)
+      || training.code.toLocaleUpperCase("nl") === code
+      || training.date === card.sessions[day].date
+    )) || null;
+}
+
+function inferPlannerPartType(content) {
+  const value = content.toLocaleLowerCase("nl");
+  if (
+    value.includes("vrije partij")
+    || value.includes("9v9")
+    || value.includes("8v8")
+    || value.includes("9-tegen-9")
+    || value.includes("8-tegen-8")
+    || value.includes("7-tegen-7")
+  ) return "Partijvorm";
+  if (value.includes("activering") || value.includes("warming")) return "Warming-up";
+  if (value.includes("techniek") || value.includes("scan") || value.includes("pasvorm")) return "Techniekvorm";
+  if (/\d+v\d+/.test(value) || value.includes("rondo")) return "Positiespel";
+  if (value.includes("herstel") || value.includes("terugblik") || value.includes("gesprek")) return "Introductie";
+  if (value.includes("partij") || value.includes("spel")) return "Spelvorm";
+  return "Overig";
+}
+
+function buildTrainingFromWeekCard(card, day) {
+  const session = card.sessions[day];
+  if (!session) return null;
+  const dayLabel = PLANNER_DAY_LABELS[day];
+  const codeSuffix = day === "monday" ? "MA" : day === "wednesday" ? "WO" : "DO";
+  const contents = session.suggestedContent
+    .split(";")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const parts = contents.map((content, index) => ({
+    ...createEmptyPart(),
+    name: content.replace(/[.]$/, ""),
+    type: inferPlannerPartType(content),
+    flow: content,
+    attackingCoaching: index === 0 ? card.coachWords.join("\n") : ""
+  }));
+
+  if (day === "thursday" && card.setPiece) {
+    parts.push({
+      ...createEmptyPart(),
+      name: "Spelhervatting",
+      type: "Overig",
+      flow: card.setPiece,
+      attackingCoaching: card.coachWords.join("\n")
+    });
+  }
+
+  return normalizeTraining({
+    ...createEmptyTraining(),
+    code: `W${card.weekNumber}-${codeSuffix}`,
+    title: `${dayLabel} · ${session.objective}`,
+    date: session.date,
+    theme: card.mainPrinciple,
+    block: card.competitionBlock,
+    totalDuration: session.duration,
+    mainGoal: session.objective,
+    desiredBehavior: card.desiredBehaviours.join("\n"),
+    evaluationCriteria: card.matchCriteria.join("\n"),
+    coachWords: card.coachWords.join("\n"),
+    expectedLoad: session.load || card.expectedLoad,
+    setPiece: day === "thursday" ? card.setPiece : "",
+    plannerWeekKey: weekCardStableKey(card),
+    plannerDay: day,
+    parts: parts.length ? parts : [createEmptyPart()]
+  });
 }
 
 function validateSeasonWeek(week) {
@@ -638,10 +986,7 @@ function getPrinciples() {
 }
 
 function savePrinciples(principles) {
-  localStorage.setItem(
-    PRINCIPLES_STORAGE_KEY,
-    JSON.stringify(principles.map(normalizePrinciple))
-  );
+  return writeStorage(PRINCIPLES_STORAGE_KEY, principles.map(normalizePrinciple));
 }
 
 function getPrinciple(id) {
@@ -649,24 +994,111 @@ function getPrinciple(id) {
 }
 
 function savePrinciple(principle) {
-  savePrinciples([...getPrinciples(), normalizePrinciple(principle)]);
+  return savePrinciples([...getPrinciples(), normalizePrinciple(principle)]);
 }
 
 function updatePrinciple(principle) {
   const normalized = normalizePrinciple(principle);
-  savePrinciples(
+  return savePrinciples(
     getPrinciples().map((item) => item.id === normalized.id ? normalized : item)
   );
+}
+
+function openFileDb() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("IndexedDB wordt niet ondersteund"));
+      return;
+    }
+
+    const request = window.indexedDB.open(FILE_DB_NAME, FILE_DB_VERSION);
+    request.addEventListener("upgradeneeded", () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(FILE_STORE)) {
+        database.createObjectStore(FILE_STORE, { keyPath: "id" });
+      }
+    });
+    request.addEventListener("success", () => resolve(request.result));
+    request.addEventListener("error", () => reject(request.error || new Error("Bestandsopslag openen mislukt")));
+    request.addEventListener("blocked", () => reject(new Error("Bestandsopslag is geblokkeerd")));
+  });
+}
+
+function putAttachment(id, blob, meta) {
+  return openFileDb().then((database) => new Promise((resolve, reject) => {
+    const transaction = database.transaction(FILE_STORE, "readwrite");
+    transaction.objectStore(FILE_STORE).put({ id, blob, meta });
+    transaction.addEventListener("complete", () => {
+      database.close();
+      resolve();
+    });
+    transaction.addEventListener("error", () => {
+      database.close();
+      reject(transaction.error || new Error("Bijlage opslaan mislukt"));
+    });
+    transaction.addEventListener("abort", () => {
+      database.close();
+      reject(transaction.error || new Error("Bijlage opslaan afgebroken"));
+    });
+  }));
+}
+
+function getAttachment(id) {
+  if (!id) return Promise.resolve(null);
+  return openFileDb().then((database) => new Promise((resolve, reject) => {
+    const transaction = database.transaction(FILE_STORE, "readonly");
+    const request = transaction.objectStore(FILE_STORE).get(id);
+    request.addEventListener("success", () => {
+      const result = request.result;
+      resolve(result ? { blob: result.blob, meta: result.meta || {} } : null);
+    });
+    request.addEventListener("error", () => reject(request.error || new Error("Bijlage lezen mislukt")));
+    transaction.addEventListener("complete", () => database.close());
+    transaction.addEventListener("abort", () => database.close());
+  }));
+}
+
+function deleteAttachment(id) {
+  if (!id) return Promise.resolve();
+  return openFileDb().then((database) => new Promise((resolve, reject) => {
+    const transaction = database.transaction(FILE_STORE, "readwrite");
+    transaction.objectStore(FILE_STORE).delete(id);
+    transaction.addEventListener("complete", () => {
+      database.close();
+      resolve();
+    });
+    transaction.addEventListener("error", () => {
+      database.close();
+      reject(transaction.error || new Error("Bijlage verwijderen mislukt"));
+    });
+    transaction.addEventListener("abort", () => {
+      database.close();
+      reject(transaction.error || new Error("Bijlage verwijderen afgebroken"));
+    });
+  }));
+}
+
+function listAttachmentIds() {
+  return openFileDb().then((database) => new Promise((resolve, reject) => {
+    const transaction = database.transaction(FILE_STORE, "readonly");
+    const request = transaction.objectStore(FILE_STORE).getAllKeys();
+    request.addEventListener("success", () => resolve(request.result.map(String)));
+    request.addEventListener("error", () => reject(request.error || new Error("Bijlagenlijst lezen mislukt")));
+    transaction.addEventListener("complete", () => database.close());
+    transaction.addEventListener("abort", () => database.close());
+  }));
 }
 
 function normalizeFileReference(fileReference) {
   if (!fileReference || typeof fileReference !== "object") return null;
 
   return {
-    name: fileReference.name || "document.pdf",
-    type: fileReference.type || "application/pdf",
+    attachmentId: fileReference.attachmentId || "",
+    fileName: fileReference.fileName || fileReference.name || "document.pdf",
+    mimeType: fileReference.mimeType || fileReference.type || "application/pdf",
     size: Number(fileReference.size) || 0,
-    dataUrl: fileReference.dataUrl || ""
+    addedAt: fileReference.addedAt || "",
+    ...(fileReference.dataUrl ? { dataUrl: fileReference.dataUrl } : {})
   };
 }
 
@@ -724,10 +1156,57 @@ function getKnowledgeBase() {
 }
 
 function saveKnowledgeBase(knowledgeBase) {
-  localStorage.setItem(
-    KNOWLEDGE_STORAGE_KEY,
-    JSON.stringify(normalizeKnowledgeBase(knowledgeBase))
-  );
+  return writeStorage(KNOWLEDGE_STORAGE_KEY, normalizeKnowledgeBase(knowledgeBase));
+}
+
+function hasCompletedAttachmentMigration() {
+  try {
+    const saved = localStorage.getItem(ATTACHMENT_MIGRATION_KEY);
+    return saved === "true" || JSON.parse(saved) === true;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function migrateLegacyAttachments() {
+  if (hasCompletedAttachmentMigration()) return true;
+
+  const knowledgeBase = getKnowledgeBase();
+  const legacySources = knowledgeBase.sources.filter((source) => (
+    source.fileReference && source.fileReference.dataUrl
+  ));
+
+  try {
+    const migratedSources = [...knowledgeBase.sources];
+    for (const source of legacySources) {
+      const reference = source.fileReference;
+      const attachmentId = reference.attachmentId || `bijlage-${source.id}`;
+      const blob = dataUrlToBlob(reference.dataUrl);
+      const metadata = {
+        attachmentId,
+        fileName: reference.fileName,
+        mimeType: reference.mimeType || blob.type || "application/pdf",
+        size: reference.size || blob.size,
+        addedAt: reference.addedAt || source.updatedAt || source.createdAt || new Date().toISOString()
+      };
+      await putAttachment(attachmentId, blob, metadata);
+      const index = migratedSources.findIndex((item) => item.id === source.id);
+      migratedSources[index] = normalizeSource({ ...source, fileReference: metadata });
+    }
+
+    if (legacySources.length && !saveKnowledgeBase({
+      ...knowledgeBase,
+      sources: migratedSources
+    })) {
+      return false;
+    }
+
+    return writeStorage(ATTACHMENT_MIGRATION_KEY, true);
+  } catch (error) {
+    console.error("Bestaande PDF-bijlagen konden niet naar IndexedDB worden verplaatst.", error);
+    showToast("Bestaande PDF-bijlagen konden niet veilig worden gemigreerd. De oorspronkelijke gegevens zijn behouden.");
+    return false;
+  }
 }
 
 function getSource(id) {
@@ -772,12 +1251,12 @@ function saveSourceForPrinciple(source, principleId) {
       }
     ];
 
-  saveKnowledgeBase({ sources, principleSources });
-  return normalized;
+  return saveKnowledgeBase({ sources, principleSources }) ? normalized : null;
 }
 
-function removeSourceFromPrinciple(sourceId, principleId) {
+async function removeSourceFromPrinciple(sourceId, principleId) {
   const knowledgeBase = getKnowledgeBase();
+  const removedSource = knowledgeBase.sources.find((source) => source.id === sourceId);
   const principleSources = knowledgeBase.principleSources.filter((relation) => !(
     relation.principleId === principleId && relation.sourceId === sourceId
   ));
@@ -796,13 +1275,22 @@ function removeSourceFromPrinciple(sourceId, principleId) {
       return source;
     });
 
-  saveKnowledgeBase({ sources, principleSources });
-  return remainingRelations.length === 0;
+  if (!saveKnowledgeBase({ sources, principleSources })) return null;
+
+  const fullyDeleted = remainingRelations.length === 0;
+  let attachmentDeleted = true;
+  if (fullyDeleted && removedSource && removedSource.fileReference) {
+    try {
+      await deleteAttachment(removedSource.fileReference.attachmentId);
+    } catch (error) {
+      attachmentDeleted = false;
+      console.error("De bijlage van de verwijderde bron kon niet worden opgeruimd.", error);
+    }
+  }
+  return { fullyDeleted, attachmentDeleted };
 }
 
-function deletePrinciple(id) {
-  savePrinciples(getPrinciples().filter((principle) => principle.id !== id));
-
+async function deletePrinciple(id) {
   const knowledgeBase = getKnowledgeBase();
   const removedSourceIds = new Set(
     knowledgeBase.principleSources
@@ -819,8 +1307,23 @@ function deletePrinciple(id) {
       const nextRelation = principleSources.find((relation) => relation.sourceId === source.id);
       return { ...source, primaryPrincipleId: nextRelation ? nextRelation.principleId : "" };
     });
+  const removedAttachments = knowledgeBase.sources
+    .filter((source) => removedSourceIds.has(source.id) && !linkedSourceIds.has(source.id))
+    .map((source) => source.fileReference && source.fileReference.attachmentId)
+    .filter(Boolean);
 
-  saveKnowledgeBase({ sources, principleSources });
+  if (!savePrinciples(getPrinciples().filter((principle) => principle.id !== id))) return false;
+  if (!saveKnowledgeBase({ sources, principleSources })) return false;
+
+  for (const attachmentId of removedAttachments) {
+    try {
+      await deleteAttachment(attachmentId);
+    } catch (error) {
+      console.error("Een bijlage van het verwijderde spelprincipe kon niet worden opgeruimd.", error);
+      showToast("Spelprincipe verwijderd, maar een lokaal PDF-bestand kon niet worden opgeruimd.");
+    }
+  }
+  return true;
 }
 
 function createEmptyPrinciple() {
@@ -878,7 +1381,7 @@ function validateSource(source) {
 
 async function validatePdfFile(file) {
   if (!file) return "";
-  if (file.size > MAX_PDF_BYTES) return "Het PDF-bestand mag maximaal 2 MB groot zijn.";
+  if (file.size > MAX_PDF_BYTES) return "Het PDF-bestand mag maximaal 10 MB groot zijn.";
   if (!file.name.toLocaleLowerCase("nl").endsWith(".pdf")) {
     return "Kies een bestand met de extensie .pdf.";
   }
@@ -917,9 +1420,34 @@ function dataUrlToBlob(dataUrl) {
   return new Blob([bytes], { type: mimeMatch[1] });
 }
 
-function openKnowledgeSource(sourceId) {
+function estimateDataUrlBytes(dataUrl) {
+  const encoded = String(dataUrl || "").split(",")[1] || "";
+  const padding = encoded.endsWith("==") ? 2 : encoded.endsWith("=") ? 1 : 0;
+  return Math.max(0, Math.floor((encoded.length * 3) / 4) - padding);
+}
+
+async function openKnowledgeSource(sourceId) {
   const source = getSource(sourceId);
   if (!source) return;
+
+  if (source.fileReference && source.fileReference.attachmentId) {
+    const opened = window.open("", "_blank");
+    if (opened) opened.opener = null;
+    try {
+      const attachment = await getAttachment(source.fileReference.attachmentId);
+      if (!attachment || !attachment.blob) throw new Error("Bijlage ontbreekt");
+      const fileUrl = URL.createObjectURL(attachment.blob);
+      if (opened) opened.location.href = fileUrl;
+      else window.open(fileUrl, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(fileUrl), 60000);
+      return;
+    } catch (error) {
+      if (opened) opened.close();
+      console.error("Het PDF-bestand kon niet uit IndexedDB worden geopend.", error);
+      showToast("Het PDF-bestand kon niet worden geopend");
+      return;
+    }
+  }
 
   if (source.fileReference && source.fileReference.dataUrl) {
     try {
@@ -929,7 +1457,7 @@ function openKnowledgeSource(sourceId) {
       window.setTimeout(() => URL.revokeObjectURL(fileUrl), 60000);
       return;
     } catch (error) {
-      console.warn("Het PDF-bestand kon niet worden geopend.", error);
+      console.error("Het oude PDF-bestand kon niet worden geopend.", error);
       showToast("Het PDF-bestand kon niet worden geopend");
       return;
     }
@@ -974,6 +1502,15 @@ function normalizeTraining(training) {
     materials: Array.isArray(training.materials)
       ? training.materials.join("\n")
       : training.materials || "",
+    coachWords: Array.isArray(training.coachWords)
+      ? training.coachWords.join("\n")
+      : training.coachWords || "",
+    expectedLoad: training.expectedLoad || "",
+    setPiece: training.setPiece || "",
+    plannerWeekKey: training.plannerWeekKey || "",
+    plannerDay: ["monday", "wednesday", "thursday"].includes(training.plannerDay)
+      ? training.plannerDay
+      : "",
     parts: sourceParts.map((part, index) => ({
       id: part.id || `${id}-onderdeel-${index + 1}`,
       name: part.name || "",
@@ -1058,6 +1595,11 @@ function createEmptyTraining() {
     desiredBehavior: "",
     evaluationCriteria: "",
     materials: "",
+    coachWords: "",
+    expectedLoad: "",
+    setPiece: "",
+    plannerWeekKey: "",
+    plannerDay: "",
     parts: [createEmptyPart()],
     createdAt: "",
     updatedAt: ""
@@ -1105,11 +1647,11 @@ function getReflections() {
 function saveReflection(reflection) {
   const reflections = getReflections();
   reflections.push(reflection);
-  saveReflections(reflections);
+  return saveReflections(reflections);
 }
 
 function saveReflections(reflections) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reflections));
+  return writeStorage(STORAGE_KEY, reflections);
 }
 
 function reflectionsFor(trainingId) {
@@ -1128,10 +1670,10 @@ function getDraft() {
 }
 
 function saveDraft(draft) {
-  localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({
+  return writeStorage(DRAFT_STORAGE_KEY, {
     ...draft,
     savedAt: new Date().toISOString()
-  }));
+  });
 }
 
 function clearDraft() {
@@ -1156,33 +1698,122 @@ function validateTraining(training) {
   return errors;
 }
 
-function exportData() {
+async function exportKnowledgeBase(includeAttachments = true) {
+  const knowledgeBase = getKnowledgeBase();
+  const sources = [];
+
+  for (const source of knowledgeBase.sources) {
+    if (!source.fileReference || !includeAttachments) {
+      sources.push({
+        ...source,
+        fileReference: includeAttachments ? source.fileReference : null
+      });
+      continue;
+    }
+
+    if (source.fileReference.dataUrl) {
+      sources.push(source);
+      continue;
+    }
+
+    const attachment = await getAttachment(source.fileReference.attachmentId);
+    if (!attachment || !attachment.blob) {
+      throw new Error(`Bijlage ontbreekt voor bron ${source.id}`);
+    }
+    const dataUrl = await readFileAsDataUrl(attachment.blob);
+    sources.push({
+      ...source,
+      fileReference: {
+        ...source.fileReference,
+        dataUrl: dataUrl.replace(
+          /^data:[^;]*;base64,/,
+          "data:application/pdf;base64,"
+        )
+      }
+    });
+  }
+
+  return { ...knowledgeBase, sources };
+}
+
+async function exportData(options = {}) {
+  const includeAttachments = options.includeAttachments !== false;
   return {
     app: "CoachOS",
-    version: 5,
+    version: 6,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
     principles: getPrinciples(),
-    knowledgeBase: getKnowledgeBase(),
+    knowledgeBase: await exportKnowledgeBase(includeAttachments),
     seasons: getSeasons(),
     seasonWeeks: getAllSeasonWeeks(),
+    weekCards: getWeekCards(),
     players: getPlayers(),
     attendance: getAttendanceRecords()
   };
 }
 
-function downloadBackup(data = exportData()) {
-  const date = new Date().toISOString().slice(0, 10);
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `coachos-backup-${date}.json`;
-  link.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+function validateWeekCardData(card, seasonIdSet) {
+  const normalized = normalizeWeekCard(card);
+  const validSessions = Object.entries(normalized.sessions).every(([day, session]) => (
+    ["monday", "wednesday", "thursday"].includes(day)
+    && session.day === day
+    && typeof session.date === "string"
+    && typeof session.objective === "string"
+    && typeof session.suggestedContent === "string"
+    && Number(session.duration) > 0
+  ));
+  return Boolean(
+    card
+    && typeof card.id === "string"
+    && card.id
+    && seasonIdSet.has(normalized.seasonId)
+    && Number.isInteger(normalized.year)
+    && normalized.year > 0
+    && Number.isInteger(normalized.weekNumber)
+    && normalized.weekNumber >= 1
+    && normalized.weekNumber <= 53
+    && normalized.dateFrom
+    && normalized.dateTo
+    && normalized.dateTo >= normalized.dateFrom
+    && normalized.mainPrinciple
+    && Object.keys(normalized.sessions).length
+    && validSessions
+  );
+}
+
+async function downloadBackup(options = {}) {
+  const includeAttachments = options.includeAttachments !== false;
+  try {
+    const data = options.data || await exportData({ includeAttachments });
+    const date = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `coachos-backup-${date}${includeAttachments ? "" : "-zonder-bijlagen"}.json`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    const backupDateSaved = writeStorage(
+      LAST_BACKUP_STORAGE_KEY,
+      new Date().toISOString()
+    );
+    if (!options.silentSuccess && backupDateSaved) {
+      showToast(includeAttachments
+        ? "Back-up gedownload"
+        : "Back-up zonder bijlagen gedownload");
+    }
+    return true;
+  } catch (error) {
+    console.error("Back-up maken mislukt.", error);
+    showToast(includeAttachments
+      ? "Back-up met bijlagen mislukt. Kies ‘Back-up zonder bijlagen’."
+      : "Back-up maken mislukt. Er is geen bestand gedownload.");
+    return false;
+  }
 }
 
 function validateImport(data) {
@@ -1265,9 +1896,11 @@ function validateImport(data) {
   const invalidFile = sources.some((source) => {
     const file = source.fileReference;
     return file && (
-      file.type !== "application/pdf"
+      file.mimeType !== "application/pdf"
       || file.size > MAX_PDF_BYTES
+      || typeof file.dataUrl !== "string"
       || !file.dataUrl.startsWith("data:application/pdf;base64,")
+      || estimateDataUrlBytes(file.dataUrl) > MAX_PDF_BYTES
     );
   });
   if (invalidFile) return "De back-up bevat een ongeldig of te groot PDF-bestand.";
@@ -1397,6 +2030,21 @@ function validateImport(data) {
     return "De back-up bevat ongeldige of dubbele aanwezigheidsregistraties.";
   }
 
+  const hasWeekCardData = Number(data.version) >= 6 || data.weekCards !== undefined;
+  if (!hasWeekCardData) return "";
+  if (!Array.isArray(data.weekCards)) {
+    return "De back-up mist geldige weekkaartgegevens.";
+  }
+  const weekCardIds = data.weekCards.map((card) => card && card.id);
+  const weekCardKeys = data.weekCards.map((card) => card && weekCardStableKey(card));
+  if (
+    data.weekCards.some((card) => !validateWeekCardData(card, seasonIdSet))
+    || new Set(weekCardIds).size !== weekCardIds.length
+    || new Set(weekCardKeys).size !== weekCardKeys.length
+  ) {
+    return "De back-up bevat ongeldige of dubbele weekkaarten.";
+  }
+
   return "";
 }
 
@@ -1412,7 +2060,45 @@ function mergeAttendance(current, imported) {
   return [...merged.values()];
 }
 
-function importData(data, mode) {
+function mergeWeekCards(current, imported) {
+  const merged = new Map(current.map((card) => [weekCardStableKey(card), card]));
+  imported.forEach((card) => merged.set(weekCardStableKey(card), normalizeWeekCard(card)));
+  return [...merged.values()];
+}
+
+async function prepareImportedKnowledge(knowledgeBase) {
+  const normalized = normalizeKnowledgeBase(knowledgeBase);
+  const sources = [];
+  const attachmentIds = [];
+
+  for (const source of normalized.sources) {
+    const reference = source.fileReference;
+    if (!reference || !reference.dataUrl) {
+      sources.push(source);
+      continue;
+    }
+
+    const blob = dataUrlToBlob(reference.dataUrl);
+    const attachmentId = createUniqueId("bijlage");
+    const metadata = {
+      attachmentId,
+      fileName: reference.fileName,
+      mimeType: reference.mimeType || blob.type || "application/pdf",
+      size: reference.size || blob.size,
+      addedAt: reference.addedAt || new Date().toISOString()
+    };
+    await putAttachment(attachmentId, blob, metadata);
+    attachmentIds.push(attachmentId);
+    sources.push(normalizeSource({ ...source, fileReference: metadata }));
+  }
+
+  return {
+    knowledgeBase: normalizeKnowledgeBase({ ...normalized, sources }),
+    attachmentIds
+  };
+}
+
+async function importData(data, mode) {
   const importedTrainings = data.trainings.map(normalizeTraining);
   const hasKnowledgeData = Array.isArray(data.principles)
     && data.knowledgeBase
@@ -1421,9 +2107,6 @@ function importData(data, mode) {
   const importedPrinciples = hasKnowledgeData
     ? data.principles.map(normalizePrinciple)
     : [];
-  const importedKnowledge = hasKnowledgeData
-    ? normalizeKnowledgeBase(data.knowledgeBase)
-    : null;
   const hasSeasonData = Array.isArray(data.seasons)
     && Array.isArray(data.seasonWeeks);
   const importedSeasons = hasSeasonData
@@ -1438,47 +2121,86 @@ function importData(data, mode) {
   const importedAttendance = hasPlayerData
     ? data.attendance.map(normalizeAttendanceRecord)
     : [];
+  const hasWeekCardData = Array.isArray(data.weekCards);
+  const importedWeekCards = hasWeekCardData
+    ? data.weekCards.map(normalizeWeekCard)
+    : [];
+  let currentAttachmentIds = [];
 
   if (mode === "replace") {
-    downloadBackup();
+    const safetyBackupSaved = await downloadBackup({ silentSuccess: true });
+    if (!safetyBackupSaved) {
+      showToast("Import geannuleerd: de veiligheidsback-up kon niet worden gemaakt.");
+      return false;
+    }
     if (hasKnowledgeData) {
-      saveKnowledgeBase(importedKnowledge);
-      savePrinciples(importedPrinciples);
+      try {
+        currentAttachmentIds = await listAttachmentIds();
+      } catch (error) {
+        console.error("De bestaande bijlagenlijst kon niet worden gelezen.", error);
+      }
+    }
+  }
+
+  const preparedKnowledge = hasKnowledgeData
+    ? await prepareImportedKnowledge(data.knowledgeBase)
+    : null;
+  const importedKnowledge = preparedKnowledge
+    ? preparedKnowledge.knowledgeBase
+    : null;
+
+  if (mode === "replace") {
+    if (hasKnowledgeData) {
+      if (!saveKnowledgeBase(importedKnowledge)) return false;
+      if (!savePrinciples(importedPrinciples)) return false;
     }
     if (hasSeasonData) {
-      saveSeasons(importedSeasons);
-      saveSeasonWeeks(importedSeasonWeeks);
+      if (!saveSeasons(importedSeasons)) return false;
+      if (!saveSeasonWeeks(importedSeasonWeeks)) return false;
     }
     if (hasPlayerData) {
-      savePlayers(importedPlayers);
-      saveAttendanceRecords(importedAttendance);
+      if (!savePlayers(importedPlayers)) return false;
+      if (!saveAttendanceRecords(importedAttendance)) return false;
     }
-    saveTrainings(importedTrainings);
-    saveReflections(data.reflections);
-    return;
+    if (hasWeekCardData && !saveWeekCards(importedWeekCards)) return false;
+    if (!saveTrainings(importedTrainings)) return false;
+    if (!saveReflections(data.reflections)) return false;
+    migrateWeekCards();
+    if (hasKnowledgeData) {
+      const retainedIds = new Set(preparedKnowledge.attachmentIds);
+      for (const attachmentId of currentAttachmentIds) {
+        if (!retainedIds.has(attachmentId)) await deleteAttachment(attachmentId);
+      }
+    }
+    return true;
   }
 
   if (hasKnowledgeData) {
     const currentKnowledge = getKnowledgeBase();
-    saveKnowledgeBase({
+    if (!saveKnowledgeBase({
       sources: mergeById(currentKnowledge.sources, importedKnowledge.sources),
       principleSources: mergeById(
         currentKnowledge.principleSources,
         importedKnowledge.principleSources
       )
-    });
-    savePrinciples(mergeById(getPrinciples(), importedPrinciples));
+    })) return false;
+    if (!savePrinciples(mergeById(getPrinciples(), importedPrinciples))) return false;
   }
   if (hasSeasonData) {
-    saveSeasons(mergeById(getSeasons(), importedSeasons));
-    saveSeasonWeeks(mergeById(getAllSeasonWeeks(), importedSeasonWeeks));
+    if (!saveSeasons(mergeById(getSeasons(), importedSeasons))) return false;
+    if (!saveSeasonWeeks(mergeById(getAllSeasonWeeks(), importedSeasonWeeks))) return false;
   }
   if (hasPlayerData) {
-    savePlayers(mergeById(getPlayers(), importedPlayers));
-    saveAttendanceRecords(mergeAttendance(getAttendanceRecords(), importedAttendance));
+    if (!savePlayers(mergeById(getPlayers(), importedPlayers))) return false;
+    if (!saveAttendanceRecords(mergeAttendance(getAttendanceRecords(), importedAttendance))) return false;
   }
-  saveTrainings(mergeById(getTrainings(), importedTrainings));
-  saveReflections(mergeById(getReflections(), data.reflections));
+  if (hasWeekCardData) {
+    if (!saveWeekCards(mergeWeekCards(getWeekCards(), importedWeekCards))) return false;
+    migrateWeekCards();
+  }
+  if (!saveTrainings(mergeById(getTrainings(), importedTrainings))) return false;
+  if (!saveReflections(mergeById(getReflections(), data.reflections))) return false;
+  return true;
 }
 
 function showToast(message) {
@@ -1554,7 +2276,7 @@ function setupInstallExperience() {
     installCard.hidden = true;
 
     if (isIOSDevice()) {
-      localStorage.setItem(INSTALL_HINT_KEY, "true");
+      writeStorage(INSTALL_HINT_KEY, true);
     }
   });
 
@@ -1601,10 +2323,15 @@ function getParentIdForRoute(route) {
 function renderApp() {
   const route = parseRoute();
   const routeConfig = routes[route.name];
+  const plannerContext = route.name === "training-nieuw"
+    ? parsePlannerTrainingContext(route.id)
+    : null;
 
   backButton.hidden = !routeConfig.parent;
-  backButton.dataset.parent = routeConfig.parent || "";
-  backButton.dataset.parentId = getParentIdForRoute(route);
+  backButton.dataset.parent = plannerContext ? "weekkaart" : routeConfig.parent || "";
+  backButton.dataset.parentId = plannerContext
+    ? plannerContext.card.id
+    : getParentIdForRoute(route);
 
   routeConfig.render(route.id);
   window.scrollTo(0, 0);
@@ -1766,6 +2493,90 @@ function renderDashboardScheduleItem(label, week) {
   `;
 }
 
+function getNextRelevantWeekCard(cards, todayKey = getLocalDateKey()) {
+  return cards.find((card) => card.dateTo >= todayKey) || null;
+}
+
+function renderDashboardWeekCard(card) {
+  if (!card) {
+    return `
+      <section class="planner-dashboard-card" aria-labelledby="planner-dashboard-title">
+        <p class="eyebrow">Tactische jaarlijn</p>
+        <h2 id="planner-dashboard-title">Geen volgende trainingsweek</h2>
+      </section>
+    `;
+  }
+  const linkedCount = getWeekCardTrainingIds(card).length;
+  return `
+    <section class="planner-dashboard-card" aria-labelledby="planner-dashboard-title">
+      <div class="planner-dashboard-heading">
+        <div>
+          <p class="eyebrow">Volgende trainingsweek · week ${card.weekNumber}</p>
+          <h2 id="planner-dashboard-title">${escapeHtml(card.mainPrinciple)}</h2>
+        </div>
+        <span class="planner-week-badge">W${card.weekNumber}</span>
+      </div>
+      <p class="planner-date">${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo))}</p>
+      <p class="planner-context">${escapeHtml(card.matchContext)}</p>
+      ${card.desiredBehaviours.length ? `
+        <ul class="planner-behaviour-list">
+          ${card.desiredBehaviours.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      ` : ""}
+      <div class="planner-dashboard-footer">
+        <span>${linkedCount} ${linkedCount === 1 ? "gekoppelde training" : "gekoppelde trainingen"}</span>
+        <button class="primary-button" type="button" data-week-card="${escapeHtml(card.id)}">Open weekkaart</button>
+      </div>
+    </section>
+  `;
+}
+
+function getLastBackupDate() {
+  const saved = localStorage.getItem(LAST_BACKUP_STORAGE_KEY);
+  if (!saved) return "";
+  try {
+    const parsed = JSON.parse(saved);
+    return typeof parsed === "string" ? parsed : "";
+  } catch (error) {
+    return saved;
+  }
+}
+
+function formatStorageUsage(bytes) {
+  if (!Number.isFinite(bytes)) return "onbekend";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toLocaleString("nl-NL", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  })} MB`;
+}
+
+async function updateDashboardStorageStatus() {
+  const status = document.querySelector("#dashboard-storage-status");
+  if (!status) return;
+
+  const lastBackup = getLastBackupDate();
+  const lastBackupTime = lastBackup ? new Date(lastBackup).getTime() : 0;
+  const backupIsOld = !lastBackupTime || Date.now() - lastBackupTime > 14 * 86400000;
+  let usageLabel = "Opslaggebruik niet beschikbaar";
+
+  if (window.navigator.storage && window.navigator.storage.estimate) {
+    try {
+      const estimate = await window.navigator.storage.estimate();
+      usageLabel = `Opslag ${formatStorageUsage(estimate.usage)} van ${formatStorageUsage(estimate.quota)}`;
+    } catch (error) {
+      console.warn("Opslaggebruik kon niet worden bepaald.", error);
+    }
+  }
+
+  if (!status.isConnected) return;
+  status.classList.toggle("storage-status-warning", backupIsOld);
+  status.innerHTML = `
+    <span>${escapeHtml(usageLabel)}</span>
+    <span>${lastBackupTime ? `Laatste back-up ${escapeHtml(formatAddedDate(lastBackup))}` : "Nog geen back-up gemaakt"}</span>
+  `;
+}
+
 function renderDashboard() {
   const trainingCount = getTrainings().length;
   const principleCount = getPrinciples().length;
@@ -1775,6 +2586,7 @@ function renderDashboard() {
   const nextWeek = getNextSeasonWeek(weeks);
   const nextCompetition = getNextCompetitionRound(weeks);
   const linkedTrainingCount = nextWeek ? nextWeek.trainingIds.length : 0;
+  const nextPlannerCard = getNextRelevantWeekCard(season ? getWeekCards(season.id) : []);
 
   app.innerHTML = `
     <section class="screen" aria-labelledby="dashboard-title">
@@ -1827,8 +2639,17 @@ function renderDashboard() {
             : "Nog geen trainingen gepland voor deze speelweek."}
         </p>
       </section>
+
+      ${renderDashboardWeekCard(nextPlannerCard)}
+
+      <footer class="dashboard-storage-status" id="dashboard-storage-status" aria-live="polite">
+        <span>Opslag berekenen…</span>
+        <span>Back-upstatus laden…</span>
+      </footer>
     </section>
   `;
+
+  updateDashboardStorageStatus();
 }
 
 function renderPlayerCard(player) {
@@ -2128,8 +2949,32 @@ function renderAttendanceSection({ eventType, eventId, title }) {
   `;
 }
 
+function findWeekCardForSeasonWeek(week) {
+  const iso = getIsoWeekInfo(week.dateFrom);
+  if (!iso) return null;
+  return getWeekCards(week.seasonId).find((card) => (
+    card.year === iso.year && card.weekNumber === iso.weekNumber
+  )) || null;
+}
+
+function renderPlannerTimelineCard(card) {
+  const linkedCount = getWeekCardTrainingIds(card).length;
+  return `
+    <button class="planner-timeline-card" type="button" data-week-card="${escapeHtml(card.id)}">
+      <span class="planner-week-badge">W${card.weekNumber}</span>
+      <span class="planner-timeline-copy">
+        <strong>${escapeHtml(card.mainPrinciple)}</strong>
+        <span>${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo, false))} · ${escapeHtml(card.competitionBlock)}</span>
+        <small>${linkedCount} ${linkedCount === 1 ? "training" : "trainingen"} gekoppeld</small>
+      </span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
+  `;
+}
+
 function renderSeasonWeekCard(week) {
   const trainingCount = week.trainingIds.length;
+  const plannerCard = findWeekCardForSeasonWeek(week);
   const phase = week.phase
     ? `<span class="season-chip phase-chip">${escapeHtml(week.phase)}</span>`
     : "";
@@ -2154,7 +2999,52 @@ function renderSeasonWeekCard(week) {
       <button class="card-action" type="button" data-duplicate-season-week="${escapeHtml(week.id)}">
         Speelweek dupliceren
       </button>
+      ${plannerCard ? `
+        <button class="card-action planner-card-action" type="button" data-week-card="${escapeHtml(plannerCard.id)}">
+          Open weekkaart W${plannerCard.weekNumber}
+        </button>
+      ` : ""}
     </article>
+  `;
+}
+
+function renderCalendarConflicts(conflicts) {
+  if (!conflicts.length) return "";
+  const label = conflicts.length === 1
+    ? "1 week wijkt af tussen de KNVB-kalender en de planner"
+    : `${conflicts.length} weken wijken af tussen de KNVB-kalender en de planner`;
+
+  return `
+    <details class="calendar-conflict-panel">
+      <summary>${escapeHtml(label)}</summary>
+      <p>CoachOS verandert niets automatisch. Controleer iedere week en pas de planner alleen bewust aan.</p>
+      <div class="calendar-conflict-list">
+        ${conflicts.map((conflict) => `
+          <article class="calendar-conflict-card">
+            <header>
+              <span>Week ${conflict.weekNumber} · ${conflict.year}</span>
+              <strong>${escapeHtml(formatSeasonDateRange(conflict.dateFrom, conflict.dateTo))}</strong>
+            </header>
+            <div class="calendar-conflict-values">
+              <div>
+                <span>KNVB-kalender</span>
+                <strong>${escapeHtml(conflict.calendarValue)}</strong>
+              </div>
+              <div>
+                <span>Planner</span>
+                <strong>${escapeHtml(conflict.plannerValue)}</strong>
+              </div>
+            </div>
+            <button
+              class="secondary-button"
+              type="button"
+              data-align-planner-week="${escapeHtml(conflict.weekCardId)}"
+              data-calendar-week="${escapeHtml(conflict.seasonWeekId)}"
+            >Planner aan KNVB gelijk trekken</button>
+          </article>
+        `).join("")}
+      </div>
+    </details>
   `;
 }
 
@@ -2167,6 +3057,8 @@ function renderSeasonOverview() {
 
   const weeks = getSeasonWeeks(season.id);
   const cards = weeks.map(renderSeasonWeekCard).join("");
+  const plannerCards = getWeekCards(season.id);
+  const calendarConflicts = findCalendarConflicts(weeks, plannerCards);
 
   app.innerHTML = `
     <section class="screen" aria-labelledby="season-title">
@@ -2192,6 +3084,20 @@ function renderSeasonOverview() {
         </div>
       </section>
 
+      ${renderCalendarConflicts(calendarConflicts)}
+
+      <section class="planner-timeline-section" aria-labelledby="planner-timeline-title">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">V4-seizoensplanner</p>
+            <h2 id="planner-timeline-title">Tactische jaarlijn</h2>
+          </div>
+          <span>${plannerCards.length} weken</span>
+        </div>
+        <p class="section-intro">De weekkaart bewaart het waarom en gewenste gedrag; de training bevat de concrete uitvoering.</p>
+        <div class="planner-timeline">${plannerCards.map(renderPlannerTimelineCard).join("")}</div>
+      </section>
+
       ${cards ? `
         <div class="season-timeline">${cards}</div>
       ` : `
@@ -2201,6 +3107,143 @@ function renderSeasonOverview() {
         </div>
       `}
     </section>
+  `;
+}
+
+function renderPlannerArray(items, className = "planner-detail-list") {
+  if (!items || !items.length) return "";
+  return `<ul class="${className}">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function renderPlannerSession(card, day, session) {
+  const dayLabel = PLANNER_DAY_LABELS[day];
+  const existing = findPlannerTraining(card, day);
+  return `
+    <article class="planner-session-card">
+      <header>
+        <div>
+          <span class="detail-label">${escapeHtml(dayLabel)} · ${escapeHtml(formatShortDate(session.date))}</span>
+          <h3>${escapeHtml(session.objective)}</h3>
+        </div>
+        <span class="session-duration">${session.duration} min</span>
+      </header>
+      <div class="planner-session-content">
+        ${renderDetailText("Voorgestelde inhoud", session.suggestedContent)}
+        ${renderDetailText("Verwachte belasting", session.load)}
+      </div>
+      ${existing ? `
+        <button class="primary-button" type="button" data-training="${escapeHtml(existing.id)}">Open ${dayLabel.toLocaleLowerCase("nl")}training</button>
+      ` : `
+        <button class="primary-button" type="button" data-create-planner-training data-week-card-id="${escapeHtml(card.id)}" data-planner-day="${escapeHtml(day)}">${dayLabel}training maken</button>
+      `}
+    </article>
+  `;
+}
+
+function renderWeekCardDetail(id) {
+  const card = getWeekCard(id);
+  if (!card) {
+    goTo("seizoen");
+    return;
+  }
+  const calendarWeeks = getCalendarWeeksForWeekCard(card);
+  const calendarPhases = [...new Set(calendarWeeks.map((week) => week.phase).filter(Boolean))];
+  const calendarStatuses = [...new Set(calendarWeeks.map((week) => week.status).filter(Boolean))];
+  const calendarTypes = [...new Set(calendarWeeks.map((week) => week.type).filter(Boolean))];
+  const linkedTrainings = getWeekCardTrainingIds(card).map(getTraining).filter(Boolean);
+  const phaseEntries = [
+    ["Aanval", card.phaseCycle.attack],
+    ["Omschakelen na balverlies", card.phaseCycle.lossTransition],
+    ["Verdedigen", card.phaseCycle.defend],
+    ["Omschakelen na balwinst", card.phaseCycle.winTransition],
+    ["Spelhervattingen", card.phaseCycle.setPieces]
+  ];
+
+  app.innerHTML = `
+    <article class="screen week-card-screen" aria-labelledby="week-card-title">
+      <header class="detail-hero week-card-hero">
+        <div class="planner-dashboard-heading">
+          <div>
+            <p class="eyebrow">V4-weekkaart · W${card.weekNumber}</p>
+            <h1 id="week-card-title">${escapeHtml(card.mainPrinciple)}</h1>
+          </div>
+          <span class="planner-week-badge">W${card.weekNumber}</span>
+        </div>
+        <p>${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo))}</p>
+      </header>
+
+      <div class="content-stack week-card-content">
+        <section class="content-card">
+          <h2>A. Weekinformatie</h2>
+          <dl class="season-detail-list">
+            <div><dt>Week</dt><dd>W${card.weekNumber} · ${card.year}</dd></div>
+            <div><dt>Datum</dt><dd>${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo))}</dd></div>
+            <div><dt>Wedstrijdcontext</dt><dd>${escapeHtml(card.matchContext)}</dd></div>
+            <div><dt>Competitieblok</dt><dd>${escapeHtml(card.competitionBlock)}</dd></div>
+            <div><dt>Competitiefase</dt><dd>${escapeHtml(calendarPhases.join(" · ") || "Geen actieve competitiefase")}</dd></div>
+            <div><dt>Kalenderstatus</dt><dd>${escapeHtml(calendarStatuses.join(" · ") || "Geen kalenderitem")}</dd></div>
+            ${calendarTypes.length ? `<div><dt>Kalenderperiode</dt><dd>${escapeHtml(calendarTypes.join(" · "))}</dd></div>` : ""}
+          </dl>
+        </section>
+
+        <section class="content-card">
+          <h2>B. Voetbalinhoud</h2>
+          ${renderDetailText("Hoofdprincipe", card.mainPrinciple)}
+          ${card.supportingPrinciples.length ? `
+            <div class="detail-field"><span class="detail-label">Ondersteunende principes</span>${renderPlannerArray(card.supportingPrinciples)}</div>
+          ` : ""}
+          ${card.desiredBehaviours.length ? `
+            <div class="detail-field"><span class="detail-label">Gewenst spelersgedrag</span>${renderPlannerArray(card.desiredBehaviours)}</div>
+          ` : ""}
+          <div class="planner-phase-grid">
+            ${phaseEntries.map(([label, value]) => value ? `
+              <div class="planner-phase-card"><span>${escapeHtml(label)}</span><p>${escapeHtml(value)}</p></div>
+            ` : "").join("")}
+          </div>
+        </section>
+
+        <section class="content-card">
+          <h2>C. Trainingsweek</h2>
+          <p class="section-intro">Deze broninhoud is een bewerkbare eerste opzet. Werk organisatie, coaching en materialen verder uit in de training.</p>
+          <div class="planner-session-list">
+            ${Object.entries(card.sessions).map(([day, session]) => renderPlannerSession(card, day, session)).join("")}
+          </div>
+        </section>
+
+        <section class="content-card">
+          <h2>D. Wedstrijdvoorbereiding</h2>
+          ${renderDetailText("Spelhervatting", card.setPiece)}
+          ${card.coachWords.length ? `<div class="detail-field"><span class="detail-label">Coachwoorden</span>${renderPlannerArray(card.coachWords, "coach-word-list")}</div>` : ""}
+          ${card.matchCriteria.length ? `<div class="detail-field"><span class="detail-label">Observeerbare wedstrijdcriteria</span>${renderPlannerArray(card.matchCriteria)}</div>` : ""}
+          ${renderDetailText("Verwachte belasting", card.expectedLoad)}
+          ${renderDetailText("Alternatief bij lage opkomst", card.lowAttendanceAlternative)}
+        </section>
+
+        <section class="content-card">
+          <h2>E. Eigen werkruimte</h2>
+          <form id="week-card-notes-form" data-week-card-id="${escapeHtml(card.id)}">
+            <div class="field">
+              <label for="week-card-notes">Trainersnotities</label>
+              <textarea id="week-card-notes" name="trainerNotes" rows="5" placeholder="Eigen aandachtspunten voor deze week">${escapeHtml(card.trainerNotes)}</textarea>
+            </div>
+            <button class="secondary-button" type="submit">Notities opslaan</button>
+          </form>
+
+          <div class="week-card-linked-section">
+            <h3>Gekoppelde trainingen</h3>
+            ${linkedTrainings.length ? linkedTrainings.map((training) => `
+              <article class="linked-training-card">
+                <button type="button" data-training="${escapeHtml(training.id)}">
+                  <span>${escapeHtml(training.code)}</span>
+                  <strong>${escapeHtml(training.title)}</strong>
+                </button>
+                <button class="unlink-button" type="button" data-unlink-week-card-training="${escapeHtml(training.id)}" data-week-card-id="${escapeHtml(card.id)}">Ontkoppelen</button>
+              </article>
+            `).join("") : `<div class="empty-history compact-empty"><strong>Nog geen trainingen gekoppeld.</strong></div>`}
+          </div>
+        </section>
+      </div>
+    </article>
   `;
 }
 
@@ -2708,10 +3751,10 @@ function renderSourceForm(routeId) {
           <div class="field">
             <label for="source-file">PDF-bestand</label>
             <input id="source-file" type="file" name="file" accept=".pdf,application/pdf">
-            <span class="file-notice">Maximaal 2 MB. PDF-bestanden worden lokaal op dit apparaat opgeslagen.</span>
+            <span class="file-notice">Maximaal 10 MB. PDF-bestanden worden lokaal op dit apparaat opgeslagen.</span>
             ${source.fileReference ? `
               <span class="current-file">
-                Huidig bestand: ${escapeHtml(source.fileReference.name)} (${formatFileSize(source.fileReference.size)})
+                Huidig bestand: ${escapeHtml(source.fileReference.fileName)} (${formatFileSize(source.fileReference.size)})
               </span>
             ` : ""}
           </div>
@@ -2808,6 +3851,7 @@ function renderTrainings() {
         <p>Download trainingen, reflecties, spelers, registraties, het Playbook en de seizoensplanning, of zet een eerdere back-up terug.</p>
         <div class="backup-actions">
           <button class="secondary-button" type="button" data-export-backup>Back-up downloaden</button>
+          <button class="secondary-button" type="button" data-export-backup-without-files>Back-up zonder bijlagen</button>
           <button class="secondary-button" type="button" data-import-backup>Back-up importeren</button>
         </div>
         <input
@@ -2901,19 +3945,40 @@ function updateTrainingListResults() {
   container.innerHTML = `<div class="training-list">${cards}</div>`;
 }
 
-function renderTrainingForm(id) {
-  const existing = id ? getTraining(id) : null;
+function parsePlannerTrainingContext(id) {
+  if (!id || !id.includes("~")) return null;
+  const [encodedCardId, day] = id.split("~");
+  try {
+    const card = getWeekCard(decodeURIComponent(encodedCardId));
+    return card && card.sessions[day] ? { card, day } : null;
+  } catch (error) {
+    return null;
+  }
+}
 
-  if (id && !existing) {
+function renderTrainingForm(id) {
+  const plannerContext = parseRoute().name === "training-nieuw"
+    ? parsePlannerTrainingContext(id)
+    : null;
+  const existing = !plannerContext && id ? getTraining(id) : null;
+
+  if (id && !existing && !plannerContext) {
     goTo("trainingen");
     return;
   }
 
-  let training = existing || createEmptyTraining();
+  let training = existing
+    || (plannerContext ? buildTrainingFromWeekCard(plannerContext.card, plannerContext.day) : null)
+    || createEmptyTraining();
   const isEditing = Boolean(existing);
+  const draftKey = isEditing
+    ? existing.id
+    : plannerContext
+      ? `planner:${weekCardStableKey(plannerContext.card)}:${plannerContext.day}`
+      : "";
   const draft = getDraft();
   const draftMatches = draft
-    && (draft.trainingId || "") === (id || "");
+    && (draft.trainingId || "") === draftKey;
 
   if (draftMatches) {
     const continueDraft = window.confirm(
@@ -2949,9 +4014,20 @@ function renderTrainingForm(id) {
         id="training-form"
         data-training-id="${isEditing ? escapeHtml(existing.id) : ""}"
         data-created-at="${escapeHtml(existing && existing.createdAt ? existing.createdAt : "")}"
+        data-draft-key="${escapeHtml(draftKey)}"
+        data-planner-week-key="${escapeHtml(training.plannerWeekKey)}"
+        data-planner-day="${escapeHtml(training.plannerDay)}"
         novalidate
       >
-        ${!isEditing ? `
+        ${plannerContext ? `
+          <section class="planner-form-context">
+            <p class="eyebrow">Concept uit weekkaart W${plannerContext.card.weekNumber}</p>
+            <h2>${escapeHtml(plannerContext.card.mainPrinciple)}</h2>
+            <p>De broninhoud is vooraf ingevuld. Werk de concrete organisatie, coaching en materialen naar jouw groep uit.</p>
+          </section>
+        ` : ""}
+
+        ${!isEditing && !plannerContext ? `
           <section class="template-picker" aria-labelledby="template-title">
             <div>
               <p class="eyebrow">Sneller starten</p>
@@ -3048,6 +4124,25 @@ function renderTrainingForm(id) {
           </div>
         </section>
 
+        ${(training.coachWords || training.expectedLoad || training.setPiece || plannerContext) ? `
+          <section class="form-card planner-training-fields">
+            <h2>Weekkaartcontext</h2>
+            <div class="field">
+              <label for="training-coach-words">Coachwoorden</label>
+              <textarea id="training-coach-words" name="coachWords" placeholder="Eén coachwoord per regel">${escapeHtml(training.coachWords)}</textarea>
+              <span class="field-hint">Houd de taal kort, herkenbaar en maximaal vijf regels.</span>
+            </div>
+            <div class="field">
+              <label for="training-expected-load">Verwachte belasting</label>
+              <textarea id="training-expected-load" name="expectedLoad" placeholder="Belasting en differentiatie">${escapeHtml(training.expectedLoad)}</textarea>
+            </div>
+            <div class="field">
+              <label for="training-set-piece">Spelhervatting</label>
+              <textarea id="training-set-piece" name="setPiece" placeholder="Relevante spelhervatting">${escapeHtml(training.setPiece)}</textarea>
+            </div>
+          </section>
+        ` : ""}
+
         <section class="form-card">
           <div class="form-card-heading">
             <div>
@@ -3070,8 +4165,8 @@ function renderTrainingForm(id) {
             class="secondary-button"
             type="button"
             data-cancel-form
-            data-cancel-route="${isEditing ? "training" : "trainingen"}"
-            data-cancel-id="${isEditing ? escapeHtml(existing.id) : ""}"
+            data-cancel-route="${isEditing ? "training" : plannerContext ? "weekkaart" : "trainingen"}"
+            data-cancel-id="${isEditing ? escapeHtml(existing.id) : plannerContext ? escapeHtml(plannerContext.card.id) : ""}"
           >
             Annuleren
           </button>
@@ -3337,13 +4432,23 @@ function renderTrainingDetail(id) {
     renderDetailList("Evaluatiecriteria", training.evaluationCriteria)
   ].filter(Boolean).join("");
   const materials = linesToSafeList(training.materials);
+  const plannerCard = training.plannerWeekKey
+    ? getWeekCards().find((card) => weekCardStableKey(card) === training.plannerWeekKey)
+    : null;
+  const plannerDayLabel = PLANNER_DAY_LABELS[training.plannerDay] || "";
+  const plannerContent = [
+    renderDetailList("Coachwoorden", training.coachWords),
+    renderDetailText("Verwachte belasting", training.expectedLoad),
+    renderDetailText("Spelhervatting", training.setPiece)
+  ].filter(Boolean).join("");
 
   app.innerHTML = `
-    <article class="screen" aria-labelledby="training-title">
+    <article class="screen training-detail-screen" aria-labelledby="training-title">
       <header class="detail-hero">
         <span class="detail-code">${escapeHtml(training.code)}</span>
         <h1 id="training-title">${escapeHtml(training.title)}</h1>
         <p>${escapeHtml(training.theme)}</p>
+        ${plannerCard ? `<span class="print-planner-meta">Week ${plannerCard.weekNumber} · ${escapeHtml(plannerDayLabel)}</span>` : ""}
       </header>
 
       <div class="fact-grid">
@@ -3382,6 +4487,12 @@ function renderTrainingDetail(id) {
             ${materials}
           </section>
         ` : ""}
+        ${plannerContent ? `
+          <section class="content-card planner-training-detail">
+            <h3>Weekkaartcontext</h3>
+            ${plannerContent}
+          </section>
+        ` : ""}
         ${parts ? `
           <section class="parts-detail-section">
             <h2>Trainingsonderdelen</h2>
@@ -3396,6 +4507,9 @@ function renderTrainingDetail(id) {
       </div>
 
       <div class="detail-actions">
+        <button class="secondary-button" type="button" data-print-training>
+          Trainingskaart printen
+        </button>
         <button class="secondary-button" type="button" data-edit-training="${escapeHtml(training.id)}">
           Bewerken
         </button>
@@ -3558,10 +4672,11 @@ function formatFileSize(bytes) {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-function handleClick(event) {
+async function handleClick(event) {
   const routeButton = event.target.closest("[data-route]");
   const trainingButton = event.target.closest("[data-training]");
   const seasonWeekButton = event.target.closest("[data-season-week]");
+  const weekCardButton = event.target.closest("[data-week-card]");
   const principleButton = event.target.closest("[data-principle]");
   const reflectButton = event.target.closest("[data-reflect]");
   const upcomingButton = event.target.closest("[data-upcoming]");
@@ -3584,22 +4699,28 @@ function handleClick(event) {
   const movePartButton = event.target.closest("[data-move-part]");
   const cancelButton = event.target.closest("[data-cancel-form]");
   const exportButton = event.target.closest("[data-export-backup]");
+  const exportWithoutFilesButton = event.target.closest("[data-export-backup-without-files]");
   const importButton = event.target.closest("[data-import-backup]");
   const createSeasonWeekButton = event.target.closest("[data-create-season-week]");
   const editSeasonWeekButton = event.target.closest("[data-edit-season-week]");
   const duplicateSeasonWeekButton = event.target.closest("[data-duplicate-season-week]");
   const deleteSeasonWeekButton = event.target.closest("[data-delete-season-week]");
   const unlinkTrainingButton = event.target.closest("[data-unlink-training]");
+  const unlinkWeekCardTrainingButton = event.target.closest("[data-unlink-week-card-training]");
+  const createPlannerTrainingButton = event.target.closest("[data-create-planner-training]");
+  const printTrainingButton = event.target.closest("[data-print-training]");
   const createPlayerButton = event.target.closest("[data-create-player]");
   const editPlayerButton = event.target.closest("[data-edit-player]");
   const togglePlayerButton = event.target.closest("[data-toggle-player]");
   const deletePlayerButton = event.target.closest("[data-delete-player]");
   const attendanceAllButton = event.target.closest("[data-attendance-all]");
   const attendanceNoteButton = event.target.closest("[data-toggle-attendance-note]");
+  const alignPlannerWeekButton = event.target.closest("[data-align-planner-week]");
 
   if (routeButton) goTo(routeButton.dataset.route);
   if (trainingButton) goTo("training", trainingButton.dataset.training);
   if (seasonWeekButton) goTo("speelweek", seasonWeekButton.dataset.seasonWeek);
+  if (weekCardButton) goTo("weekkaart", weekCardButton.dataset.weekCard);
   if (principleButton) goTo("spelprincipe", principleButton.dataset.principle);
   if (reflectButton) goTo("reflectie", reflectButton.dataset.reflect);
   if (upcomingButton) showToast("Komt in een volgende versie");
@@ -3607,6 +4728,16 @@ function handleClick(event) {
   if (createPrincipleButton) goTo("spelprincipe-nieuw");
   if (createSeasonWeekButton) goTo("speelweek-nieuw");
   if (createPlayerButton) goTo("speler-nieuw");
+  if (createPlannerTrainingButton) {
+    const card = getWeekCard(createPlannerTrainingButton.dataset.weekCardId);
+    const day = createPlannerTrainingButton.dataset.plannerDay;
+    const existing = card ? findPlannerTraining(card, day) : null;
+    if (existing) {
+      goTo("training", existing.id);
+    } else if (card && card.sessions[day]) {
+      goTo("training-nieuw", `${encodeURIComponent(card.id)}~${day}`);
+    }
+  }
   if (editPlayerButton) goTo("speler-bewerken", editPlayerButton.dataset.editPlayer);
   if (editSeasonWeekButton) {
     goTo("speelweek-bewerken", editSeasonWeekButton.dataset.editSeasonWeek);
@@ -3624,8 +4755,25 @@ function handleClick(event) {
       )
     );
   }
-  if (openSourceButton) openKnowledgeSource(openSourceButton.dataset.openSource);
+  if (openSourceButton) await openKnowledgeSource(openSourceButton.dataset.openSource);
   if (editButton) goTo("training-bewerken", editButton.dataset.editTraining);
+
+  if (alignPlannerWeekButton) {
+    const card = getWeekCard(alignPlannerWeekButton.dataset.alignPlannerWeek);
+    const seasonWeek = getSeasonWeek(alignPlannerWeekButton.dataset.calendarWeek);
+    if (!card || !seasonWeek) return;
+
+    const confirmed = window.confirm(
+      `Wil je plannerweek W${card.weekNumber} wijzigen van “${card.matchContext || "Geen wedstrijdcontext"}” naar “${seasonWeek.type}”?`
+    );
+    if (confirmed && updateWeekCard({
+      ...card,
+      matchContext: seasonWeek.type
+    })) {
+      showToast(`Plannerweek W${card.weekNumber} aangepast aan de KNVB-kalender`);
+      renderSeasonOverview();
+    }
+  }
 
   if (deletePrincipleButton) {
     const principle = getPrinciple(deletePrincipleButton.dataset.deletePrinciple);
@@ -3639,9 +4787,10 @@ function handleClick(event) {
     );
 
     if (confirmed) {
-      deletePrinciple(principle.id);
-      showToast("Spelprincipe verwijderd");
-      goTo("playbook");
+      if (await deletePrinciple(principle.id)) {
+        showToast("Spelprincipe verwijderd");
+        goTo("playbook");
+      }
     }
   }
 
@@ -3660,9 +4809,15 @@ function handleClick(event) {
     );
 
     if (confirmed) {
-      const fullyDeleted = removeSourceFromPrinciple(sourceId, principleId);
-      showToast(fullyDeleted ? "Bron verwijderd" : "Bron losgekoppeld");
-      renderPrincipleDetail(principleId);
+      const result = await removeSourceFromPrinciple(sourceId, principleId);
+      if (result) {
+        showToast(result.fullyDeleted
+          ? result.attachmentDeleted
+            ? "Bron en lokaal PDF-bestand verwijderd"
+            : "Bron verwijderd, maar het lokale PDF-bestand kon niet worden opgeruimd"
+          : "Bron losgekoppeld");
+        renderPrincipleDetail(principleId);
+      }
     }
   }
 
@@ -3752,9 +4907,10 @@ function handleClick(event) {
         ? window.confirm("Wil je ook de gekoppelde reflecties verwijderen?")
         : false;
 
-      deleteTraining(training.id, deleteLinkedReflections);
-      showToast("Training verwijderd");
-      goTo("trainingen");
+      if (deleteTraining(training.id, deleteLinkedReflections)) {
+        showToast("Training verwijderd");
+        goTo("trainingen");
+      }
     }
   }
 
@@ -3779,9 +4935,10 @@ function handleClick(event) {
     );
 
     if (confirmed) {
-      deleteSeasonWeek(week.id);
-      showToast("Speelweek verwijderd");
-      goTo("seizoen");
+      if (deleteSeasonWeek(week.id)) {
+        showToast("Speelweek verwijderd");
+        goTo("seizoen");
+      }
     }
   }
 
@@ -3802,9 +4959,10 @@ function handleClick(event) {
         `${player.displayName} heeft opgeslagen historie. Deactiveren bewaart die historie. Wil je de speler deactiveren?`
       );
       if (deactivate) {
-        setPlayerActive(player.id, false);
-        showToast("Speler gedeactiveerd");
-        renderPlayers();
+        if (setPlayerActive(player.id, false)) {
+          showToast("Speler gedeactiveerd");
+          renderPlayers();
+        }
         return;
       }
     }
@@ -3815,9 +4973,10 @@ function handleClick(event) {
         : `Weet je zeker dat je ${player.displayName} definitief wilt verwijderen?`
     );
     if (confirmed) {
-      deletePlayer(player.id);
-      showToast("Speler verwijderd");
-      renderPlayers();
+      if (deletePlayer(player.id)) {
+        showToast("Speler verwijderd");
+        renderPlayers();
+      }
     }
   }
 
@@ -3839,17 +4998,35 @@ function handleClick(event) {
   }
 
   if (unlinkTrainingButton) {
-    unlinkTrainingFromSeasonWeek(
+    const unlinked = unlinkTrainingFromSeasonWeek(
       unlinkTrainingButton.dataset.weekId,
       unlinkTrainingButton.dataset.unlinkTraining
     );
-    showToast("Training ontkoppeld");
-    renderSeasonWeekDetail(unlinkTrainingButton.dataset.weekId);
+    if (unlinked) {
+      showToast("Training ontkoppeld");
+      renderSeasonWeekDetail(unlinkTrainingButton.dataset.weekId);
+    }
   }
 
+  if (unlinkWeekCardTrainingButton) {
+    const card = getWeekCard(unlinkWeekCardTrainingButton.dataset.weekCardId);
+    if (card) {
+      const unlinked = unlinkTrainingFromWeekCard(card, unlinkWeekCardTrainingButton.dataset.unlinkWeekCardTraining);
+      if (unlinked) {
+        showToast("Training ontkoppeld");
+        renderWeekCardDetail(card.id);
+      }
+    }
+  }
+
+  if (printTrainingButton) window.print();
+
   if (exportButton) {
-    downloadBackup();
-    showToast("Back-up gedownload");
+    await downloadBackup();
+  }
+
+  if (exportWithoutFilesButton) {
+    await downloadBackup({ includeAttachments: false });
   }
 
   if (importButton) {
@@ -3875,6 +5052,17 @@ async function handleSubmit(event) {
 
   if (event.target.id === "season-week-form") {
     saveSeasonWeekForm(event);
+    return;
+  }
+
+  if (event.target.id === "week-card-notes-form") {
+    event.preventDefault();
+    const card = getWeekCard(event.target.dataset.weekCardId);
+    if (!card) return;
+    if (updateWeekCard({
+      ...card,
+      trainerNotes: event.target.elements.trainerNotes.value.trim()
+    })) showToast("Trainersnotities opgeslagen");
     return;
   }
 
@@ -3912,7 +5100,7 @@ async function handleSubmit(event) {
   const formData = new FormData(form);
   const trainingId = form.dataset.trainingId;
 
-  saveReflection({
+  const reflectionSaved = saveReflection({
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     trainingId,
     trainingCode: getTraining(trainingId).code,
@@ -3923,6 +5111,7 @@ async function handleSubmit(event) {
     nextTraining: formData.get("nextTraining").trim()
   });
 
+  if (!reflectionSaved) return;
   showToast("Reflectie opgeslagen");
   goTo("training", trainingId);
 }
@@ -3956,11 +5145,8 @@ function savePlayerForm(event) {
     return;
   }
 
-  try {
-    if (existing) updatePlayer(player);
-    else savePlayer(player);
-  } catch (error) {
-    console.warn("De speler kon niet worden opgeslagen.", error);
+  const playerSaved = existing ? updatePlayer(player) : savePlayer(player);
+  if (!playerSaved) {
     showFormErrors(["De speler kon niet lokaal worden opgeslagen."], "player-form-errors");
     return;
   }
@@ -3986,13 +5172,7 @@ function saveAttendanceForm(event) {
     updatedAt: now
   }));
 
-  try {
-    upsertAttendanceRecords(records);
-  } catch (error) {
-    console.warn("De registratie kon niet worden opgeslagen.", error);
-    showToast("De registratie kon niet lokaal worden opgeslagen");
-    return;
-  }
+  if (!upsertAttendanceRecords(records)) return;
 
   formDirty = false;
   showToast(form.dataset.eventType === "training"
@@ -4019,14 +5199,10 @@ function savePrincipleForm(event) {
     return;
   }
 
-  try {
-    if (existingId) {
-      updatePrinciple(principle);
-    } else {
-      savePrinciple(principle);
-    }
-  } catch (error) {
-    console.warn("Het spelprincipe kon niet worden opgeslagen.", error);
+  const principleSaved = existingId
+    ? updatePrinciple(principle)
+    : savePrinciple(principle);
+  if (!principleSaved) {
     showFormErrors(
       ["Het spelprincipe kon niet lokaal worden opgeslagen."],
       "principle-form-errors"
@@ -4071,6 +5247,7 @@ async function saveSourceForm(event) {
   };
   const errors = validateSource(source);
   const file = form.elements.file.files[0];
+  let newAttachmentId = "";
 
   if (file) {
     const fileError = await validatePdfFile(file);
@@ -4084,20 +5261,19 @@ async function saveSourceForm(event) {
 
   if (file) {
     try {
-      const fileDataUrl = await readFileAsDataUrl(file);
+      newAttachmentId = createUniqueId("bijlage");
       source.fileReference = {
-        name: file.name,
-        type: "application/pdf",
+        attachmentId: newAttachmentId,
+        fileName: file.name,
+        mimeType: "application/pdf",
         size: file.size,
-        dataUrl: fileDataUrl.replace(
-          /^data:[^;]*;base64,/,
-          "data:application/pdf;base64,"
-        )
+        addedAt: now
       };
+      await putAttachment(newAttachmentId, file, source.fileReference);
     } catch (error) {
-      console.warn("Het PDF-bestand kon niet worden gelezen.", error);
+      console.error("Het PDF-bestand kon niet in IndexedDB worden opgeslagen.", error);
       showFormErrors(
-        ["Het PDF-bestand kon niet worden gelezen. Kies het bestand opnieuw."],
+        ["Het PDF-bestand kon niet lokaal worden opgeslagen. Kies het bestand opnieuw."],
         "source-form-errors"
       );
       return;
@@ -4105,20 +5281,37 @@ async function saveSourceForm(event) {
   }
 
   try {
-    saveSourceForPrinciple(source, principleId);
+    const savedSource = saveSourceForPrinciple(source, principleId);
+    if (!savedSource) {
+      if (newAttachmentId) await deleteAttachment(newAttachmentId).catch(() => {});
+      showFormErrors(
+        ["De bron kon niet lokaal worden opgeslagen."],
+        "source-form-errors"
+      );
+      return;
+    }
   } catch (error) {
-    console.warn("De bron kon niet worden opgeslagen.", error);
-    const storageMessage = error && (
-      error.name === "QuotaExceededError"
-      || error.code === 22
-    )
-      ? "Er is onvoldoende lokale opslagruimte. Verwijder een andere PDF of kies een kleiner bestand."
-      : "De bron kon niet lokaal worden opgeslagen.";
-    showFormErrors([storageMessage], "source-form-errors");
+    if (newAttachmentId) await deleteAttachment(newAttachmentId).catch(() => {});
+    console.error("De bron kon niet worden opgeslagen.", error);
+    showFormErrors(["De bron kon niet lokaal worden opgeslagen."], "source-form-errors");
     return;
   }
 
-  showToast("Bron opgeslagen");
+  const previousAttachmentId = existing
+    && existing.fileReference
+    && existing.fileReference.attachmentId;
+  let previousAttachmentRemoved = true;
+  if (newAttachmentId && previousAttachmentId && previousAttachmentId !== newAttachmentId) {
+    try {
+      await deleteAttachment(previousAttachmentId);
+    } catch (error) {
+      previousAttachmentRemoved = false;
+      console.error("De vervangen PDF-bijlage kon niet worden opgeruimd.", error);
+      showToast("Bron opgeslagen, maar het oude PDF-bestand kon niet worden opgeruimd.");
+    }
+  }
+
+  if (previousAttachmentRemoved) showToast("Bron opgeslagen");
   goTo("spelprincipe", principleId);
 }
 
@@ -4162,14 +5355,8 @@ function saveSeasonWeekForm(event) {
     return;
   }
 
-  try {
-    if (existing) {
-      updateSeasonWeek(week);
-    } else {
-      saveSeasonWeek(week);
-    }
-  } catch (error) {
-    console.warn("De speelweek kon niet worden opgeslagen.", error);
+  const weekSaved = existing ? updateSeasonWeek(week) : saveSeasonWeek(week);
+  if (!weekSaved) {
     showFormErrors(
       ["De speelweek kon niet lokaal worden opgeslagen."],
       "season-week-form-errors"
@@ -4200,16 +5387,21 @@ function saveTrainingForm(event) {
     return;
   }
 
-  if (existingId) {
-    updateTraining(training);
-  } else {
-    saveTraining(training);
+  const trainingSaved = existingId ? updateTraining(training) : saveTraining(training);
+  if (!trainingSaved) return;
+
+  let plannerLinkSaved = true;
+  if (training.plannerWeekKey && training.plannerDay) {
+    const card = getWeekCards().find((item) => (
+      weekCardStableKey(item) === training.plannerWeekKey
+    ));
+    if (card) plannerLinkSaved = linkTrainingToWeekCard(card, training.id);
   }
 
   window.clearTimeout(draftTimer);
   clearDraft();
   formDirty = false;
-  showToast("Training opgeslagen");
+  if (plannerLinkSaved) showToast("Training opgeslagen");
   goTo("training", training.id);
 }
 
@@ -4245,6 +5437,11 @@ function readTrainingForm(form) {
     desiredBehavior: value("desiredBehavior"),
     evaluationCriteria: value("evaluationCriteria"),
     materials: value("materials"),
+    coachWords: value("coachWords"),
+    expectedLoad: value("expectedLoad"),
+    setPiece: value("setPiece"),
+    plannerWeekKey: form.dataset.plannerWeekKey || "",
+    plannerDay: form.dataset.plannerDay || "",
     parts,
     createdAt: form.dataset.createdAt || "",
     updatedAt: ""
@@ -4276,7 +5473,7 @@ function persistCurrentDraft() {
   if (!form || !formDirty) return;
 
   saveDraft({
-    trainingId: form.dataset.trainingId || "",
+    trainingId: form.dataset.draftKey || form.dataset.trainingId || "",
     data: readTrainingForm(form)
   });
 }
@@ -4390,9 +5587,14 @@ async function handleBackupFile(input) {
       return;
     }
 
-    importData(data, normalizedChoice === "vervangen" ? "replace" : "merge");
-    showToast("Back-up geïmporteerd");
-    renderTrainings();
+    const imported = await importData(
+      data,
+      normalizedChoice === "vervangen" ? "replace" : "merge"
+    );
+    if (imported) {
+      showToast("Back-up geïmporteerd");
+      renderTrainings();
+    }
   } catch (error) {
     console.warn("Importeren is mislukt.", error);
     showToast("Dit bestand kon niet worden geïmporteerd.");
@@ -4426,6 +5628,8 @@ window.addEventListener("online", () => {
   showToast("Je bent weer online");
 });
 
+migrateWeekCards();
+migrateLegacyAttachments();
 setupInstallExperience();
 registerServiceWorker();
 

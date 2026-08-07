@@ -28,7 +28,7 @@
           <span class="wordmark-dot" aria-hidden="true"></span>
           CoachOS
         </a>
-        <span class="version">v0.1</span>
+        <span class="version">v0.2</span>
       </header>
 
       <main id="app" tabindex="-1">
@@ -90,7 +90,7 @@
         var status = document.getElementById("startup-status");
         if (!status) return;
         status.className = "startup-status startup-error";
-        status.innerHTML = "<strong>CoachOS kon niet starten.</strong><br>Controleer of index.html, data.js en app.js in dezelfde map staan en open de pagina in Chrome, Edge of Safari.";
+        status.innerHTML = "<strong>CoachOS kon niet starten.</strong><br>Controleer of index.html, data.js, planner-data.js en app.js in dezelfde map staan en open de pagina in Chrome, Edge of Safari.";
       });
       window.setTimeout(function () {
         var status = document.getElementById("startup-status");
@@ -100,6 +100,7 @@
       }, 1500);
     </script>
     <script src="data.js"></script>
+    <script src="planner-data.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
