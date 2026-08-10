@@ -3192,25 +3192,47 @@ function getTrainingBlockCoachWords(training) {
 
 function renderTonightPart(part, index) {
   const coaching = [
-    ["Aanvallen", part.attackingCoaching],
-    ["Verdedigen", part.defendingCoaching],
-    ["Omschakelen", part.transitionCoaching]
-  ].filter(([, value]) => value);
+    renderDetailList("Aanvallend", part.attackingCoaching),
+    renderDetailList("Verdedigend", part.defendingCoaching),
+    renderDetailList("Omschakeling", part.transitionCoaching)
+  ].filter(Boolean).join("");
+
   return `
     <details class="tonight-part" ${index === 0 ? "open" : ""}>
       <summary>
-        <span>${index + 1}</span>
-        <strong>${escapeHtml(part.name)}</strong>
-        <b>${Number(part.duration) || 0} min</b>
+        <span class="tonight-part-number">${index + 1}</span>
+        <strong class="tonight-part-name">${escapeHtml(part.name)}</strong>
+        <b class="tonight-part-duration">${Number(part.duration) || 0} min</b>
       </summary>
       <div class="tonight-part-content">
-        ${part.organization ? `<div><span>Organisatie</span><p>${escapeHtml(part.organization)}</p></div>` : ""}
-        ${part.flow ? `<div><span>Verloop</span><p>${escapeHtml(part.flow)}</p></div>` : ""}
-        ${coaching.map(([label, value]) => `<div><span>${escapeHtml(label)}</span>${linesToSafeList(value)}</div>`).join("")}
-        ${part.rulesScoring ? `<div><span>Regels en puntentelling</span>${linesToSafeList(part.rulesScoring)}</div>` : ""}
+        ${renderDetailText("Organisatie", part.organization)}
+        ${renderDetailText("Verloop", part.flow)}
+        ${coaching}
+        ${renderDetailList("Regels en puntentelling", part.rulesScoring)}
       </div>
     </details>
   `;
+}
+
+function toggleTonightAttendance(playerId, trainingId) {
+  if (!playerId || !trainingId) return;
+
+  const current = getAttendanceForEvent("training", trainingId)
+    .find((record) => record.playerId === playerId);
+  const displayedStatus = current && ["Aanwezig", "Afwezig"].includes(current.status)
+    ? current.status
+    : "Onbekend";
+  const nextStatus = displayedStatus === "Aanwezig" ? "Afwezig" : "Aanwezig";
+
+  const saved = upsertAttendanceRecords([{
+    playerId,
+    eventType: "training",
+    eventId: trainingId,
+    status: nextStatus,
+    note: current ? current.note : ""
+  }]);
+
+  if (saved) renderTonight();
 }
 
 function renderTonight() {
@@ -3237,14 +3259,17 @@ function renderTonight() {
         <p class="eyebrow">${within24Hours ? "Binnen 24 uur" : "Eerstvolgende training · " + escapeHtml(formatShortDate(training.date))}</p>
         <h1 id="tonight-title">${escapeHtml(training.title)}</h1>
         <p>${escapeHtml(training.theme || "Geen thema ingevuld")}</p>
-        <div class="tonight-goal"><span>Hoofddoel</span><strong>${escapeHtml(training.mainGoal || "Nog niet ingevuld")}</strong></div>
+        <div class="tonight-goal">
+          <span class="tonight-goal-label">Hoofddoel</span>
+          <strong>${escapeHtml(training.mainGoal || "Nog niet ingevuld")}</strong>
+        </div>
       </header>
 
       <section class="tonight-coach-words" aria-labelledby="tonight-words-title">
         <p class="eyebrow">Bloktaal</p>
         <h2 id="tonight-words-title">Coachwoorden</h2>
         ${coachWords.length
-          ? `<div>${coachWords.map((word) => `<strong>${escapeHtml(word)}</strong>`).join("")}</div>`
+          ? `<ul class="tonight-coach-word-list">${coachWords.map((word) => `<li>${escapeHtml(word)}</li>`).join("")}</ul>`
           : `<p>Nog geen coachwoorden voor dit blok vastgelegd.</p>`}
       </section>
 
@@ -6860,6 +6885,7 @@ async function handleClick(event) {
   const alignPlannerWeekButton = event.target.closest("[data-align-planner-week]");
   const matchMinutesButton = event.target.closest("[data-match-minutes]");
   const setMatchMinutesButton = event.target.closest("[data-set-match-minutes]");
+  const tonightAttendanceButton = event.target.closest("[data-tonight-attendance]");
   const addObservationButton = event.target.closest("[data-add-observation]");
   const addHeightButton = event.target.closest("[data-add-height-measurement]");
   const exerciseButton = event.target.closest("[data-exercise]");
@@ -6987,6 +7013,13 @@ async function handleClick(event) {
       focusedMinutesInput.focus();
       formDirty = true;
     }
+  }
+
+  if (tonightAttendanceButton) {
+    toggleTonightAttendance(
+      tonightAttendanceButton.dataset.tonightAttendance,
+      tonightAttendanceButton.dataset.trainingId
+    );
   }
 
   if (addObservationButton) {
