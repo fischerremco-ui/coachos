@@ -2498,10 +2498,14 @@ function validateImport(data) {
     return "De back-up mist geldige weekkaartgegevens.";
   }
   if (data.weekCards.length) {
+    const knownSeasonIds = new Set([
+      ...seasonIdSet,
+      ...getSeasons().map((season) => season.id)
+    ]);
     const weekCardIds = data.weekCards.map((card) => card && card.id);
     const weekCardKeys = data.weekCards.map((card) => card && weekCardStableKey(card));
     if (
-      data.weekCards.some((card) => !validateWeekCardData(card, seasonIdSet))
+      data.weekCards.some((card) => !validateWeekCardData(card, knownSeasonIds))
       || new Set(weekCardIds).size !== weekCardIds.length
       || new Set(weekCardKeys).size !== weekCardKeys.length
     ) {
