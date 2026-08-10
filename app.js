@@ -2497,14 +2497,16 @@ function validateImport(data) {
   if (!Array.isArray(data.weekCards)) {
     return "De back-up mist geldige weekkaartgegevens.";
   }
-  const weekCardIds = data.weekCards.map((card) => card && card.id);
-  const weekCardKeys = data.weekCards.map((card) => card && weekCardStableKey(card));
-  if (
-    data.weekCards.some((card) => !validateWeekCardData(card, seasonIdSet))
-    || new Set(weekCardIds).size !== weekCardIds.length
-    || new Set(weekCardKeys).size !== weekCardKeys.length
-  ) {
-    return "De back-up bevat ongeldige of dubbele weekkaarten.";
+  if (data.weekCards.length) {
+    const weekCardIds = data.weekCards.map((card) => card && card.id);
+    const weekCardKeys = data.weekCards.map((card) => card && weekCardStableKey(card));
+    if (
+      data.weekCards.some((card) => !validateWeekCardData(card, seasonIdSet))
+      || new Set(weekCardIds).size !== weekCardIds.length
+      || new Set(weekCardKeys).size !== weekCardKeys.length
+    ) {
+      return "De back-up bevat ongeldige of dubbele weekkaarten.";
+    }
   }
 
   const hasMatchMinutesData = Number(data.version) >= 7
