@@ -159,6 +159,7 @@ const exerciseLibraryState = {
 const libraryPickerState = {
   query: ""
 };
+let backupImportTab = "file";
 
 const routes = {
   home: { parent: null, render: renderHome },
@@ -5863,15 +5864,54 @@ function renderTrainings() {
         <div class="backup-actions">
           <button class="secondary-button" type="button" data-export-backup>Back-up downloaden</button>
           <button class="secondary-button" type="button" data-export-backup-without-files>Back-up zonder bijlagen</button>
-          <button class="secondary-button" type="button" data-import-backup>Back-up importeren</button>
         </div>
-        <input
-          class="visually-hidden"
-          id="backup-file"
-          type="file"
-          accept=".json,application/json"
-          data-backup-file
-        >
+
+        <div class="backup-import-tabs" role="tablist" aria-label="Manier van importeren">
+          <button
+            type="button"
+            class="filter-chip"
+            role="tab"
+            data-backup-import-tab="file"
+            aria-pressed="${backupImportTab === "file"}"
+            aria-selected="${backupImportTab === "file"}"
+          >Bestand kiezen</button>
+          <button
+            type="button"
+            class="filter-chip"
+            role="tab"
+            data-backup-import-tab="paste"
+            aria-pressed="${backupImportTab === "paste"}"
+            aria-selected="${backupImportTab === "paste"}"
+          >Tekst plakken</button>
+        </div>
+
+        ${backupImportTab === "paste" ? `
+          <div class="backup-paste-import">
+            <div class="field">
+              <label for="backup-paste-textarea" class="visually-hidden">
+                Plak hier de inhoud van je back-upbestand
+              </label>
+              <textarea
+                id="backup-paste-textarea"
+                rows="8"
+                placeholder="Plak hier de inhoud van je back-upbestand"
+                data-backup-paste
+              ></textarea>
+            </div>
+            <button class="secondary-button" type="button" data-import-backup-paste>
+              Importeren
+            </button>
+          </div>
+        ` : `
+          <button class="secondary-button" type="button" data-import-backup>Back-up importeren</button>
+          <input
+            class="visually-hidden"
+            id="backup-file"
+            type="file"
+            accept=".json,application/json"
+            data-backup-file
+          >
+        `}
       </section>
     </section>
   `;
@@ -6801,6 +6841,8 @@ async function handleClick(event) {
   const exportButton = event.target.closest("[data-export-backup]");
   const exportWithoutFilesButton = event.target.closest("[data-export-backup-without-files]");
   const importButton = event.target.closest("[data-import-backup]");
+  const importPasteButton = event.target.closest("[data-import-backup-paste]");
+  const backupImportTabButton = event.target.closest("[data-backup-import-tab]");
   const createSeasonWeekButton = event.target.closest("[data-create-season-week]");
   const editSeasonWeekButton = event.target.closest("[data-edit-season-week]");
   const duplicateSeasonWeekButton = event.target.closest("[data-duplicate-season-week]");
@@ -7237,6 +7279,15 @@ async function handleClick(event) {
 
   if (importButton) {
     document.querySelector("#backup-file").click();
+  }
+
+  if (importPasteButton) {
+    await handleBackupPaste();
+  }
+
+  if (backupImportTabButton) {
+    backupImportTab = backupImportTabButton.dataset.backupImportTab;
+    renderTrainings();
   }
 }
 
@@ -8019,6 +8070,47 @@ async function handleBackupFile(input) {
     showToast("Dit bestand kon niet worden geïmporteerd.");
   } finally {
     input.value = "";
+  }
+}
+
+async function handleBackupPaste() {
+  const textarea = document.querySelector("#backup-paste-textarea");
+  if (!textarea) return;
+
+  let data;
+  try {
+    data = JSON.parse(textarea.value);
+  } catch (error) {
+    showToast("Geen geldige JSON — controleer of je de volledige tekst hebt geplakt.");
+    return;
+  }
+
+  const importError = validateImport(data);
+  if (importError) {
+    showToast(importError);
+    return;
+  }
+
+  const choice = window.prompt(
+    'Typ "samenvoegen" om gegevens toe te voegen, of "vervangen" om de huidige gegevens te vervangen.'
+  );
+  const normalizedChoice = choice
+    ? choice.trim().toLocaleLowerCase("nl")
+    : "";
+
+  if (!["samenvoegen", "vervangen"].includes(normalizedChoice)) {
+    showToast("Import geannuleerd");
+    return;
+  }
+
+  const imported = await importData(
+    data,
+    normalizedChoice === "vervangen" ? "replace" : "merge"
+  );
+  if (imported) {
+    showToast("Back-up geïmporteerd");
+    textarea.value = "";
+    renderTrainings();
   }
 }
 
