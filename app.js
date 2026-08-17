@@ -1528,17 +1528,6 @@ function deleteAttachment(id) {
   }));
 }
 
-function listAttachmentIds() {
-  return openFileDb().then((database) => new Promise((resolve, reject) => {
-    const transaction = database.transaction(FILE_STORE, "readonly");
-    const request = transaction.objectStore(FILE_STORE).getAllKeys();
-    request.addEventListener("success", () => resolve(request.result.map(String)));
-    request.addEventListener("error", () => reject(request.error || new Error("Bijlagenlijst lezen mislukt")));
-    transaction.addEventListener("complete", () => database.close());
-    transaction.addEventListener("abort", () => database.close());
-  }));
-}
-
 function normalizeFileReference(fileReference) {
   if (!fileReference || typeof fileReference !== "object") return null;
 
@@ -2216,35 +2205,6 @@ async function exportData(options = {}) {
   };
 }
 
-function validateWeekCardData(card, seasonIdSet) {
-  const normalized = normalizeWeekCard(card);
-  const validSessions = Object.entries(normalized.sessions).every(([day, session]) => (
-    ["monday", "wednesday", "thursday"].includes(day)
-    && session.day === day
-    && typeof session.date === "string"
-    && typeof session.objective === "string"
-    && typeof session.suggestedContent === "string"
-    && Number(session.duration) > 0
-  ));
-  return Boolean(
-    card
-    && typeof card.id === "string"
-    && card.id
-    && seasonIdSet.has(normalized.seasonId)
-    && Number.isInteger(normalized.year)
-    && normalized.year > 0
-    && Number.isInteger(normalized.weekNumber)
-    && normalized.weekNumber >= 1
-    && normalized.weekNumber <= 53
-    && normalized.dateFrom
-    && normalized.dateTo
-    && normalized.dateTo >= normalized.dateFrom
-    && normalized.mainPrinciple
-    && Object.keys(normalized.sessions).length
-    && validSessions
-  );
-}
-
 async function downloadBackup(options = {}) {
   const includeAttachments = options.includeAttachments !== false;
   try {
@@ -2497,21 +2457,6 @@ function validateImport(data) {
   if (!Array.isArray(data.weekCards)) {
     return "De back-up mist geldige weekkaartgegevens.";
   }
-  if (data.weekCards.length) {
-    const knownSeasonIds = new Set([
-      ...seasonIdSet,
-      ...getSeasons().map((season) => season.id)
-    ]);
-    const weekCardIds = data.weekCards.map((card) => card && card.id);
-    const weekCardKeys = data.weekCards.map((card) => card && weekCardStableKey(card));
-    if (
-      data.weekCards.some((card) => !validateWeekCardData(card, knownSeasonIds))
-      || new Set(weekCardIds).size !== weekCardIds.length
-      || new Set(weekCardKeys).size !== weekCardKeys.length
-    ) {
-      return "De back-up bevat ongeldige of dubbele weekkaarten.";
-    }
-  }
 
   const hasMatchMinutesData = Number(data.version) >= 7
     || data.matchMinutes !== undefined;
@@ -2579,7 +2524,10 @@ function mergeAttendance(current, imported) {
 
 function mergeWeekCards(current, imported) {
   const merged = new Map(current.map((card) => [weekCardStableKey(card), card]));
-  imported.forEach((card) => merged.set(weekCardStableKey(card), normalizeWeekCard(card)));
+  imported.forEach((card) => {
+    const key = weekCardStableKey(card);
+    if (!merged.has(key)) merged.set(key, normalizeWeekCard(card));
+  });
   return [...merged.values()];
 }
 
@@ -2649,7 +2597,7 @@ async function importData(data, mode) {
     : [];
   const hasWeekCardData = Array.isArray(data.weekCards);
   const importedWeekCards = hasWeekCardData
-    ? data.weekCards.map(normalizeWeekCard)
+    ? data.weekCards.filter((card) => card && typeof card === "object").map(normalizeWeekCard)
     : [];
   const hasMatchMinutesData = Array.isArray(data.matchMinutes);
   const importedMatchMinutes = hasMatchMinutesData
@@ -2659,20 +2607,12 @@ async function importData(data, mode) {
   const importedLibraryExercises = hasLibraryExerciseData
     ? data.libraryExercises.map(normalizeLibraryExercise)
     : [];
-  let currentAttachmentIds = [];
 
   if (mode === "replace") {
     const safetyBackupSaved = await downloadBackup({ silentSuccess: true });
     if (!safetyBackupSaved) {
       showToast("Import geannuleerd: de veiligheidsback-up kon niet worden gemaakt.");
       return false;
-    }
-    if (hasKnowledgeData) {
-      try {
-        currentAttachmentIds = await listAttachmentIds();
-      } catch (error) {
-        console.error("De bestaande bijlagenlijst kon niet worden gelezen.", error);
-      }
     }
   }
 
@@ -2682,34 +2622,6 @@ async function importData(data, mode) {
   const importedKnowledge = preparedKnowledge
     ? preparedKnowledge.knowledgeBase
     : null;
-
-  if (mode === "replace") {
-    if (hasKnowledgeData) {
-      if (!saveKnowledgeBase(importedKnowledge)) return false;
-      if (!savePrinciples(importedPrinciples)) return false;
-    }
-    if (hasSeasonData) {
-      if (!saveSeasons(importedSeasons)) return false;
-      if (!saveSeasonWeeks(importedSeasonWeeks)) return false;
-    }
-    if (hasPlayerData) {
-      if (!savePlayers(importedPlayers)) return false;
-      if (!saveAttendanceRecords(importedAttendance)) return false;
-    }
-    if (hasWeekCardData && !saveWeekCards(importedWeekCards)) return false;
-    if (hasMatchMinutesData && !saveMatchMinutes(importedMatchMinutes)) return false;
-    if (hasLibraryExerciseData && !saveLibraryExercises(importedLibraryExercises)) return false;
-    if (!saveTrainings(importedTrainings)) return false;
-    if (!saveReflections(data.reflections)) return false;
-    migrateWeekCards();
-    if (hasKnowledgeData) {
-      const retainedIds = new Set(preparedKnowledge.attachmentIds);
-      for (const attachmentId of currentAttachmentIds) {
-        if (!retainedIds.has(attachmentId)) await deleteAttachment(attachmentId);
-      }
-    }
-    return true;
-  }
 
   if (hasKnowledgeData) {
     const currentKnowledge = getKnowledgeBase();
