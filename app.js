@@ -89,6 +89,13 @@ const EXERCISE_PHASES = [
   "Omschakelen na balwinst",
   "Dode spelmomenten"
 ];
+const COACH_CARD_VISUAL_TYPES = ["rondo", "half-pitch", "full-pitch"];
+const COACH_CARD_CORE_PART_TYPES = ["Positiespel", "ASM", "Spelvorm", "Partijvorm", "Techniekvorm"];
+const COACH_CARD_VISUAL_TYPE_BY_PART_TYPE = {
+  Partijvorm: "full-pitch",
+  ASM: "half-pitch",
+  Positiespel: "rondo"
+};
 const TEMPLATE_DEFINITIONS = {
   empty: {
     label: "Leeg formulier",
@@ -1969,8 +1976,12 @@ function normalizeTraining(training) {
         : part.variations || "",
       materials: Array.isArray(part.materials)
         ? part.materials.join("\n")
-        : part.materials || ""
+        : part.materials || "",
+      visualType: COACH_CARD_VISUAL_TYPES.includes(part.visualType) ? part.visualType : null
     })),
+    observationPoints: Array.isArray(training.observationPoints)
+      ? training.observationPoints.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
     createdAt: training.createdAt || "",
     updatedAt: training.updatedAt || ""
   };
@@ -1997,6 +2008,98 @@ function linesToSafeList(value) {
     <ul class="detail-line-list">
       ${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
     </ul>
+  `;
+}
+
+function buildPenaltyArcPath(centerX, centerY, radius, boundaryY, bulgeDirection) {
+  const dy = boundaryY - centerY;
+  const dx = Math.sqrt(Math.max(radius * radius - dy * dy, 0));
+  const x1 = centerX - dx;
+  const x2 = centerX + dx;
+  const sweepFlag = bulgeDirection > 0 ? 1 : 0;
+  return `M ${x1} ${boundaryY} A ${radius} ${radius} 0 0 ${sweepFlag} ${x2} ${boundaryY}`;
+}
+
+function buildFullPitchMarkup(width, height) {
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const penaltyAreaWidth = 40.32;
+  const penaltyAreaDepth = 16.5;
+  const goalAreaWidth = 18.32;
+  const goalAreaDepth = 5.5;
+  const penaltySpotDistance = 11;
+  const arcRadius = 9.15;
+  const topArc = buildPenaltyArcPath(centerX, penaltySpotDistance, arcRadius, penaltyAreaDepth, 1);
+  const bottomArc = buildPenaltyArcPath(centerX, height - penaltySpotDistance, arcRadius, height - penaltyAreaDepth, -1);
+
+  return `
+    <svg viewBox="0 0 ${width} ${height}" class="coachcard-pitch-svg" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" class="pitch-line-shape" />
+      <line x1="0" y1="${centerY}" x2="${width}" y2="${centerY}" class="pitch-line" />
+      <circle cx="${centerX}" cy="${centerY}" r="9.15" class="pitch-line-shape" />
+      <circle cx="${centerX}" cy="${centerY}" r="0.7" class="pitch-dot" />
+      <rect x="${centerX - penaltyAreaWidth / 2}" y="0" width="${penaltyAreaWidth}" height="${penaltyAreaDepth}" class="pitch-line-shape" />
+      <rect x="${centerX - goalAreaWidth / 2}" y="0" width="${goalAreaWidth}" height="${goalAreaDepth}" class="pitch-line-shape" />
+      <circle cx="${centerX}" cy="${penaltySpotDistance}" r="0.7" class="pitch-dot" />
+      <path d="${topArc}" class="pitch-line" />
+      <rect x="${centerX - penaltyAreaWidth / 2}" y="${height - penaltyAreaDepth}" width="${penaltyAreaWidth}" height="${penaltyAreaDepth}" class="pitch-line-shape" />
+      <rect x="${centerX - goalAreaWidth / 2}" y="${height - goalAreaDepth}" width="${goalAreaWidth}" height="${goalAreaDepth}" class="pitch-line-shape" />
+      <circle cx="${centerX}" cy="${height - penaltySpotDistance}" r="0.7" class="pitch-dot" />
+      <path d="${bottomArc}" class="pitch-line" />
+    </svg>
+  `;
+}
+
+function buildHalfPitchMarkup(width, height) {
+  const centerX = width / 2;
+  const penaltyAreaWidth = 40.32;
+  const penaltyAreaDepth = 16.5;
+  const goalAreaWidth = 18.32;
+  const goalAreaDepth = 5.5;
+  const penaltySpotDistance = 11;
+  const arcRadius = 9.15;
+  const penaltyArc = buildPenaltyArcPath(centerX, height - penaltySpotDistance, arcRadius, height - penaltyAreaDepth, -1);
+  const centerCircleArc = buildPenaltyArcPath(centerX, 0, arcRadius, 0, 1);
+
+  return `
+    <svg viewBox="0 0 ${width} ${height}" class="coachcard-pitch-svg" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" class="pitch-line-shape" />
+      <line x1="0" y1="0.5" x2="${width}" y2="0.5" class="pitch-line" />
+      <path d="${centerCircleArc}" class="pitch-line" />
+      <rect x="${centerX - penaltyAreaWidth / 2}" y="${height - penaltyAreaDepth}" width="${penaltyAreaWidth}" height="${penaltyAreaDepth}" class="pitch-line-shape" />
+      <rect x="${centerX - goalAreaWidth / 2}" y="${height - goalAreaDepth}" width="${goalAreaWidth}" height="${goalAreaDepth}" class="pitch-line-shape" />
+      <circle cx="${centerX}" cy="${height - penaltySpotDistance}" r="0.7" class="pitch-dot" />
+      <path d="${penaltyArc}" class="pitch-line" />
+    </svg>
+  `;
+}
+
+function buildMiniPitchSVG({ variant, width, height } = {}) {
+  if (variant === "half") {
+    return buildHalfPitchMarkup(width || 68, height || 52.5);
+  }
+  return buildFullPitchMarkup(width || 68, height || 105);
+}
+
+function buildRondoSVG() {
+  const stations = [
+    { x: 50, y: 86, label: "A" },
+    { x: 26, y: 44, label: "A" },
+    { x: 74, y: 44, label: "A" }
+  ];
+  const stationMarkup = stations.map((station) => `
+    <circle cx="${station.x}" cy="${station.y}" r="7" class="rondo-dot rondo-dot-a" />
+    <text x="${station.x}" y="${station.y + 3}" class="rondo-label" text-anchor="middle" font-size="9" font-weight="800">${station.label}</text>
+  `).join("");
+
+  return `
+    <svg viewBox="0 0 100 100" class="coachcard-pitch-svg" aria-hidden="true">
+      ${stationMarkup}
+      <circle cx="50" cy="58" r="7" class="rondo-dot rondo-dot-b" />
+      <text x="50" y="61" class="rondo-label" text-anchor="middle" font-size="9" font-weight="800">B</text>
+      <circle cx="50" cy="14" r="7" class="rondo-dot rondo-dot-c" />
+      <text x="50" y="17" class="rondo-label" text-anchor="middle" font-size="9" font-weight="800">C</text>
+    </svg>
   `;
 }
 
@@ -6430,6 +6533,119 @@ function renderPartDetailCard(part, index) {
   `;
 }
 
+function resolveExerciseVisualType(part) {
+  if (COACH_CARD_VISUAL_TYPES.includes(part.visualType)) return part.visualType;
+  return COACH_CARD_VISUAL_TYPE_BY_PART_TYPE[part.type] || null;
+}
+
+function getCoachCardCoreParts(training) {
+  return training.parts.filter((part) => COACH_CARD_CORE_PART_TYPES.includes(part.type));
+}
+
+function pickCoachCardExercises(training) {
+  return getCoachCardCoreParts(training)
+    .slice(0, 3)
+    .map((part) => ({ part, visualType: resolveExerciseVisualType(part) }));
+}
+
+function getCoachCardObservationPoints(training) {
+  if (training.observationPoints.length) return training.observationPoints.slice(0, 5);
+
+  const derived = getCoachCardCoreParts(training).flatMap((part) => [
+    ...splitTextLines(part.attackingCoaching),
+    ...splitTextLines(part.defendingCoaching),
+    ...splitTextLines(part.transitionCoaching)
+  ]);
+
+  return derived.slice(0, 5);
+}
+
+function renderCoachCardPrint(trainingId) {
+  const container = document.querySelector("#coachcard-print");
+  const training = getTraining(trainingId);
+  if (!container || !training) return;
+
+  const plannerCard = getWeekCardForTraining(training);
+  const weekLabel = plannerCard ? `W${plannerCard.weekNumber} · ` : "";
+  const trainingLabel = training.code || training.title || "Training";
+  const problemText = training.theme || training.mainGoal || "";
+  const coachWords = getTrainingBlockCoachWords(training);
+  const exercises = pickCoachCardExercises(training);
+  const observationPoints = getCoachCardObservationPoints(training);
+  const season = getTeamSeason();
+  const seasonLabel = season ? season.name.replace(/^seizoen\s*/i, "") : "";
+
+  const exercisesMarkup = exercises.map(({ part, visualType }, index) => {
+    const visual = visualType === "rondo"
+      ? buildRondoSVG()
+      : visualType
+        ? buildMiniPitchSVG({ variant: visualType === "half-pitch" ? "half" : "full" })
+        : "";
+    const arrow = index < exercises.length - 1
+      ? `<span class="coachcard-exercise-arrow" aria-hidden="true">→</span>`
+      : "";
+    return `
+      <div class="coachcard-exercise-box">
+        <div class="coachcard-exercise-visual">${visual}</div>
+        <p class="coachcard-exercise-title">${escapeHtml(part.name || "Onderdeel")}</p>
+      </div>
+      ${arrow}
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <header class="coachcard-header">
+      <p class="coachcard-eyebrow">Coach Card</p>
+      <h1 class="coachcard-title">VSV JO16-1 | ${escapeHtml(weekLabel)}${escapeHtml(trainingLabel)}</h1>
+    </header>
+
+    <section class="coachcard-problem">
+      <span class="coachcard-label">Voetbalprobleem</span>
+      ${problemText
+        ? `<p>${escapeHtml(problemText)}</p>`
+        : `<p class="coachcard-placeholder">Nog geen voetbalprobleem ingevuld voor deze training.</p>`}
+    </section>
+
+    ${exercises.length ? `
+      <section class="coachcard-exercises">
+        ${exercisesMarkup}
+      </section>
+    ` : ""}
+
+    ${coachWords.length ? `
+      <section class="coachcard-words">
+        ${coachWords.map((word) => escapeHtml(word)).join(" · ")}
+      </section>
+    ` : ""}
+
+    <section class="coachcard-observe">
+      <span class="coachcard-label">Vandaag observeren</span>
+      ${observationPoints.length ? `
+        <ul>${observationPoints.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      ` : `
+        <p class="coachcard-placeholder">Nog geen observatiepunten ingevuld voor deze training.</p>
+      `}
+    </section>
+
+    <section class="coachcard-notes">
+      ${["Wat zag ik?", "Wie viel mij op?", "Meenemen naar volgende training"].map((title) => `
+        <div class="coachcard-note-block">
+          <h3>${escapeHtml(title)}</h3>
+          <span class="coachcard-note-line"></span>
+          <span class="coachcard-note-line"></span>
+          <span class="coachcard-note-line"></span>
+          <span class="coachcard-note-line"></span>
+        </div>
+      `).join("")}
+    </section>
+
+    <footer class="coachcard-footer">
+      <span>VSV Velserbroek | JO16-1${seasonLabel ? ` | Seizoen ${escapeHtml(seasonLabel)}` : ""}</span>
+      <span>${escapeHtml(training.code)}</span>
+    </footer>
+  `;
+}
+
 function renderTrainingDetail(id) {
   const training = getTraining(id);
 
@@ -6535,6 +6751,9 @@ function renderTrainingDetail(id) {
       <div class="detail-actions">
         <button class="secondary-button" type="button" data-print-training>
           Trainingskaart printen
+        </button>
+        <button class="secondary-button" type="button" data-print-coachcard="${escapeHtml(training.id)}">
+          Print Coach Card
         </button>
         <button class="secondary-button" type="button" data-edit-training="${escapeHtml(training.id)}">
           Bewerken
@@ -6753,6 +6972,7 @@ async function handleClick(event) {
   const unlinkWeekCardTrainingButton = event.target.closest("[data-unlink-week-card-training]");
   const createPlannerTrainingButton = event.target.closest("[data-create-planner-training]");
   const printTrainingButton = event.target.closest("[data-print-training]");
+  const printCoachCardButton = event.target.closest("[data-print-coachcard]");
   const createPlayerButton = event.target.closest("[data-create-player]");
   const editPlayerButton = event.target.closest("[data-edit-player]");
   const togglePlayerButton = event.target.closest("[data-toggle-player]");
@@ -7178,6 +7398,12 @@ async function handleClick(event) {
   }
 
   if (printTrainingButton) window.print();
+
+  if (printCoachCardButton) {
+    renderCoachCardPrint(printCoachCardButton.dataset.printCoachcard);
+    document.body.classList.add("printing-coachcard");
+    window.print();
+  }
 
   if (exportButton) {
     await downloadBackup();
@@ -8007,6 +8233,9 @@ window.addEventListener("offline", () => {
 });
 window.addEventListener("online", () => {
   showToast("Je bent weer online");
+});
+window.addEventListener("afterprint", () => {
+  document.body.classList.remove("printing-coachcard");
 });
 
 migrateWeekCards();

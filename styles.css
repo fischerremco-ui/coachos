@@ -3854,3 +3854,216 @@ h3 {
 .tonight-reflection-action {
   margin-top: 26px;
 }
+
+/* Print Coach Card — alleen zichtbaar tijdens printen (body.printing-coachcard) */
+
+.coachcard-print {
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
+.coachcard-header {
+  padding: 10px 14px;
+  color: #fff;
+  background: var(--red-600);
+}
+
+.coachcard-eyebrow {
+  margin: 0 0 3px;
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.coachcard-title {
+  margin: 0;
+  font-size: 14pt;
+  font-weight: 900;
+}
+
+.coachcard-label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--red-700);
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.coachcard-problem {
+  padding: 8px 14px;
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.coachcard-problem p {
+  margin: 0;
+  font-size: 9.5pt;
+  font-weight: 700;
+}
+
+.coachcard-problem p.coachcard-placeholder,
+.coachcard-placeholder {
+  color: #8a8a8a;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.coachcard-exercises {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.coachcard-exercise-box {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.coachcard-exercise-visual {
+  padding: 3px;
+  border: 1px solid #d8d8d8;
+  border-radius: 4px;
+}
+
+.coachcard-pitch-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 34mm;
+}
+
+.coachcard-pitch-svg .pitch-line,
+.coachcard-pitch-svg .pitch-line-shape {
+  fill: none;
+  stroke: #333;
+  stroke-width: 0.6;
+}
+
+.coachcard-pitch-svg .pitch-dot {
+  fill: #333;
+}
+
+.coachcard-pitch-svg .rondo-dot-a {
+  fill: var(--navy-900);
+}
+
+.coachcard-pitch-svg .rondo-dot-b,
+.coachcard-pitch-svg .rondo-dot-c {
+  fill: var(--red-600);
+}
+
+.coachcard-pitch-svg .rondo-label {
+  fill: #fff;
+}
+
+.coachcard-exercise-title {
+  margin: 4px 0 0;
+  overflow: hidden;
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.coachcard-exercise-arrow {
+  flex: 0 0 auto;
+  color: var(--red-600);
+  font-size: 14pt;
+  font-weight: 800;
+}
+
+.coachcard-words {
+  padding: 7px 14px;
+  color: #fff;
+  background: var(--navy-900);
+  text-align: center;
+  font-size: 9pt;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.coachcard-observe {
+  padding: 8px 14px;
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.coachcard-observe ul {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: 9pt;
+}
+
+.coachcard-observe li {
+  padding-left: 2px;
+}
+
+.coachcard-notes {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.coachcard-note-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.coachcard-note-block h3 {
+  margin: 0 0 8px;
+  font-size: 8.5pt;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.coachcard-note-line {
+  display: block;
+  height: 14px;
+  border-bottom: 1px solid #c8c8c8;
+}
+
+.coachcard-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 14px 0;
+  color: #8a8a8a;
+  font-size: 7pt;
+}
+
+@media print {
+  body.printing-coachcard * {
+    visibility: hidden;
+  }
+
+  body.printing-coachcard .coachcard-print,
+  body.printing-coachcard .coachcard-print * {
+    visibility: visible;
+  }
+
+  body.printing-coachcard .coachcard-print {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  body.printing-coachcard .coachcard-header,
+  body.printing-coachcard .coachcard-words {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
