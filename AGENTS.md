@@ -11,7 +11,7 @@ externe dependency. De bestanden worden rechtstreeks geserveerd.
 | Bestand | Inhoud |
 |---|---|
 | `index.html` | app-shell, laadt in deze volgorde `data.js`, `planner-data.js`, `app.js` |
-| `app.js` | ~5100 regels, alle logica |
+| `app.js` | ~8400 regels, alle logica |
 | `data.js` | voorbeelddata: `PRINCIPLES`, `SEASONS`, `SEASON_WEEKS`, `TRAININGS` |
 | `planner-data.js` | `PLANNER_WEEK_CARDS`: 39 weekkaarten uit de papieren seizoensplanner |
 | `styles.css` | alle styling |
@@ -19,8 +19,9 @@ externe dependency. De bestanden worden rechtstreeks geserveerd.
 | `manifest.json` | PWA-manifest |
 | `offline.html` | offline-fallbackpagina |
 
-Alle data staat lokaal op het apparaat van de trainer. Er is een JSON-back-up met
-import/export en per entiteit uitgeschreven validatie.
+Alle data staat lokaal op het apparaat van de trainer. Er is een JSON-back-up
+(formaatversie 9) met import/export en per entiteit uitgeschreven validatie.
+Versie 9 bevat ook trainingsblokken, aandachtspelers per blok en teamevaluaties.
 
 ## Privacy — harde eis
 

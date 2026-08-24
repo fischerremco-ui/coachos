@@ -170,9 +170,10 @@ const libraryPickerState = {
 const routes = {
   home: { parent: null, render: renderHome },
   teams: { parent: "home", render: renderTeams },
-  dashboard: { parent: "teams", render: renderDashboard },
+  dashboard: { parent: null, render: renderDashboard },
   vanavond: { parent: "dashboard", render: renderTonight },
   belasting: { parent: "dashboard", render: renderSquadLoad },
+  wedstrijden: { parent: "dashboard", render: renderMatches },
   spelers: { parent: "dashboard", render: renderPlayers },
   speler: { parent: "spelers", render: renderPlayerDetail },
   "speler-nieuw": { parent: "spelers", render: renderPlayerForm },
@@ -569,6 +570,26 @@ function getSquadLoad(weeks = 3) {
       b.minutes - a.minutes
       || a.name.localeCompare(b.name, "nl", { sensitivity: "base" })
     ));
+}
+
+function calculatePlayerMatchStats(playerId, records = getMatchMinutes()) {
+  const season = getTeamSeason();
+  const seasonWeekIds = new Set(
+    season ? getSeasonWeeks(season.id).map((week) => week.id) : []
+  );
+  const playerRecords = records.filter((record) => (
+    record.playerId === playerId
+    && (!seasonWeekIds.size || seasonWeekIds.has(record.seasonWeekId))
+    && record.minutes > 0
+  ));
+  const totalMinutes = playerRecords.reduce((sum, record) => sum + record.minutes, 0);
+
+  return {
+    appearances: playerRecords.length,
+    starts: playerRecords.filter((record) => record.startingEleven).length,
+    totalMinutes,
+    averageMinutes: playerRecords.length ? Math.round(totalMinutes / playerRecords.length) : 0
+  };
 }
 
 function playerHasHistory(playerId) {
@@ -2292,7 +2313,7 @@ async function exportData(options = {}) {
   const includeAttachments = options.includeAttachments !== false;
   return {
     app: "CoachOS",
-    version: 8,
+    version: 9,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
@@ -2304,7 +2325,10 @@ async function exportData(options = {}) {
     players: getPlayers(),
     attendance: getAttendanceRecords(),
     matchMinutes: getMatchMinutes(),
-    libraryExercises: getLibraryExercises()
+    libraryExercises: getLibraryExercises(),
+    plannerBlocks: getPlannerBlocks(),
+    blockFocus: getBlockFocusRecords(),
+    teamEvaluations: getTeamEvaluations()
   };
 }
 
@@ -2610,6 +2634,61 @@ function validateImport(data) {
     return "De back-up bevat ongeldige of dubbele oefenvormen.";
   }
 
+  const hasOperationalData = Number(data.version) >= 9
+    || data.plannerBlocks !== undefined
+    || data.blockFocus !== undefined
+    || data.teamEvaluations !== undefined;
+  if (!hasOperationalData) return "";
+  if (
+    !Array.isArray(data.plannerBlocks)
+    || !Array.isArray(data.blockFocus)
+    || !Array.isArray(data.teamEvaluations)
+  ) {
+    return "De back-up mist geldige trainingsblokken, aandachtspelers of teamevaluaties.";
+  }
+
+  const plannerBlockIds = data.plannerBlocks.map((block) => Number(block && block.id));
+  const validPlannerBlockIds = new Set(PLANNER_BLOCKS.map((block) => Number(block.id)));
+  const invalidPlannerBlock = data.plannerBlocks.some((block) => (
+    !block
+    || !validPlannerBlockIds.has(Number(block.id))
+    || normalizePlannerBlock(block).id !== Number(block.id)
+  ));
+  if (invalidPlannerBlock || new Set(plannerBlockIds).size !== plannerBlockIds.length) {
+    return "De back-up bevat ongeldige of dubbele trainingsblokken.";
+  }
+
+  const blockFocusIds = data.blockFocus.map((record) => Number(record && record.blockId));
+  const invalidBlockFocus = data.blockFocus.some((record) => (
+    !record
+    || !validPlannerBlockIds.has(Number(record.blockId))
+    || !Array.isArray(record.playerIds)
+    || record.playerIds.some((playerId) => !playerIdSet.has(playerId))
+    || new Set(record.playerIds).size !== record.playerIds.length
+    || record.playerIds.length > 5
+  ));
+  if (invalidBlockFocus || new Set(blockFocusIds).size !== blockFocusIds.length) {
+    return "De back-up bevat ongeldige of dubbele aandachtspelers per trainingsblok.";
+  }
+
+  const evaluationWeekIds = data.teamEvaluations.map((record) => record && record.seasonWeekId);
+  const invalidTeamEvaluation = data.teamEvaluations.some((record) => {
+    const week = record && seasonWeekById.get(record.seasonWeekId);
+    return !record
+      || typeof record.id !== "string"
+      || !record.id
+      || !week
+      || !TEAM_EVALUATION_WEEK_TYPES.includes(week.type)
+      || !record.date
+      || !record.scores
+      || typeof record.scores !== "object"
+      || typeof record.strengths !== "string"
+      || typeof record.developmentPoint !== "string";
+  });
+  if (invalidTeamEvaluation || new Set(evaluationWeekIds).size !== evaluationWeekIds.length) {
+    return "De back-up bevat ongeldige of dubbele teamevaluaties.";
+  }
+
   return "";
 }
 
@@ -2641,6 +2720,16 @@ function mergeMatchMinutes(current, imported) {
     normalizeMatchMinutes(record)
   ));
   return [...merged.values()];
+}
+
+function mergeByKey(current, imported, getKey) {
+  const merged = new Map(current.map((item) => [getKey(item), item]));
+  imported.forEach((item) => merged.set(getKey(item), item));
+  return [...merged.values()];
+}
+
+function replaceOrMerge(mode, current, imported, merge) {
+  return mode === "replace" ? imported : merge(current, imported);
 }
 
 async function prepareImportedKnowledge(knowledgeBase) {
@@ -2710,6 +2799,18 @@ async function importData(data, mode) {
   const importedLibraryExercises = hasLibraryExerciseData
     ? data.libraryExercises.map(normalizeLibraryExercise)
     : [];
+  const hasOperationalData = Array.isArray(data.plannerBlocks)
+    && Array.isArray(data.blockFocus)
+    && Array.isArray(data.teamEvaluations);
+  const importedPlannerBlocks = hasOperationalData
+    ? data.plannerBlocks.map(normalizePlannerBlock)
+    : [];
+  const importedBlockFocus = hasOperationalData
+    ? data.blockFocus.map(normalizeBlockFocus)
+    : [];
+  const importedTeamEvaluations = hasOperationalData
+    ? data.teamEvaluations.map(normalizeTeamEvaluation)
+    : [];
 
   if (mode === "replace") {
     const safetyBackupSaved = await downloadBackup({ silentSuccess: true });
@@ -2728,35 +2829,76 @@ async function importData(data, mode) {
 
   if (hasKnowledgeData) {
     const currentKnowledge = getKnowledgeBase();
-    if (!saveKnowledgeBase({
+    const knowledgeToSave = mode === "replace" ? importedKnowledge : {
       sources: mergeById(currentKnowledge.sources, importedKnowledge.sources),
       principleSources: mergeById(
         currentKnowledge.principleSources,
         importedKnowledge.principleSources
       )
-    })) return false;
-    if (!savePrinciples(mergeById(getPrinciples(), importedPrinciples))) return false;
+    };
+    if (!saveKnowledgeBase(knowledgeToSave)) return false;
+    if (!savePrinciples(replaceOrMerge(
+      mode,
+      getPrinciples(),
+      importedPrinciples,
+      mergeById
+    ))) return false;
   }
   if (hasSeasonData) {
-    if (!saveSeasons(mergeById(getSeasons(), importedSeasons))) return false;
-    if (!saveSeasonWeeks(mergeById(getAllSeasonWeeks(), importedSeasonWeeks))) return false;
+    if (!saveSeasons(replaceOrMerge(mode, getSeasons(), importedSeasons, mergeById))) return false;
+    if (!saveSeasonWeeks(replaceOrMerge(
+      mode,
+      getAllSeasonWeeks(),
+      importedSeasonWeeks,
+      mergeById
+    ))) return false;
   }
   if (hasPlayerData) {
-    if (!savePlayers(mergeById(getPlayers(), importedPlayers))) return false;
-    if (!saveAttendanceRecords(mergeAttendance(getAttendanceRecords(), importedAttendance))) return false;
+    if (!savePlayers(replaceOrMerge(mode, getPlayers(), importedPlayers, mergeById))) return false;
+    if (!saveAttendanceRecords(replaceOrMerge(
+      mode,
+      getAttendanceRecords(),
+      importedAttendance,
+      mergeAttendance
+    ))) return false;
   }
   if (hasWeekCardData) {
-    if (!saveWeekCards(mergeWeekCards(getWeekCards(), importedWeekCards))) return false;
+    if (!saveWeekCards(replaceOrMerge(
+      mode,
+      getWeekCards(),
+      importedWeekCards,
+      mergeWeekCards
+    ))) return false;
     migrateWeekCards();
   }
   if (hasMatchMinutesData && !saveMatchMinutes(
-    mergeMatchMinutes(getMatchMinutes(), importedMatchMinutes)
+    replaceOrMerge(mode, getMatchMinutes(), importedMatchMinutes, mergeMatchMinutes)
   )) return false;
   if (hasLibraryExerciseData && !saveLibraryExercises(
-    mergeById(getLibraryExercises(), importedLibraryExercises)
+    replaceOrMerge(mode, getLibraryExercises(), importedLibraryExercises, mergeById)
   )) return false;
-  if (!saveTrainings(mergeById(getTrainings(), importedTrainings))) return false;
-  if (!saveReflections(mergeById(getReflections(), data.reflections))) return false;
+  if (hasOperationalData) {
+    if (!savePlannerBlocks(replaceOrMerge(
+      mode,
+      getPlannerBlocks(),
+      importedPlannerBlocks,
+      (current, imported) => mergeByKey(current, imported, (block) => Number(block.id))
+    ))) return false;
+    if (!saveBlockFocusRecords(replaceOrMerge(
+      mode,
+      getBlockFocusRecords(),
+      importedBlockFocus,
+      (current, imported) => mergeByKey(current, imported, (record) => Number(record.blockId))
+    ))) return false;
+    if (!saveTeamEvaluations(replaceOrMerge(
+      mode,
+      getTeamEvaluations(),
+      importedTeamEvaluations,
+      (current, imported) => mergeByKey(current, imported, (record) => record.seasonWeekId)
+    ))) return false;
+  }
+  if (!saveTrainings(replaceOrMerge(mode, getTrainings(), importedTrainings, mergeById))) return false;
+  if (!saveReflections(replaceOrMerge(mode, getReflections(), data.reflections, mergeById))) return false;
   return true;
 }
 
@@ -2904,7 +3046,7 @@ function renderHome() {
     <section class="screen screen-home" aria-labelledby="home-title">
       <div>
         <div class="logo-stage" aria-label="Ruimte voor het VSV-logo">
-          <div class="club-mark" aria-hidden="true"><span>VSV</span></div>
+          <img class="club-logo" src="icons/icon-384.png" alt="VSV Velserbroek">
         </div>
         <div class="home-copy">
           <p class="eyebrow">Jeugdopleiding</p>
@@ -2913,7 +3055,7 @@ function renderHome() {
         </div>
       </div>
       <div class="home-action">
-        <button class="primary-button" type="button" data-route="teams">Open VSV</button>
+        <button class="primary-button" type="button" data-route="dashboard">Open dashboard</button>
       </div>
     </section>
   `;
@@ -3421,9 +3563,12 @@ function renderDashboard() {
   app.innerHTML = `
     <section class="screen" aria-labelledby="dashboard-title">
       <div class="dashboard-hero">
-        <p class="eyebrow">Teamdashboard</p>
-        <h1 id="dashboard-title">JO16-1</h1>
-        <p>VSV Velserbroek · Jeugdopleiding</p>
+        <img class="dashboard-club-logo" src="icons/icon-192.png" alt="">
+        <div>
+          <p class="eyebrow">Teamdashboard</p>
+          <h1 id="dashboard-title">JO16-1</h1>
+          <p>VSV Velserbroek · Jeugdopleiding</p>
+        </div>
       </div>
 
       <button class="tonight-dashboard-button" type="button" data-route="vanavond">
@@ -3444,10 +3589,10 @@ function renderDashboard() {
           <span class="dashboard-title">Trainingen</span>
           <span class="dashboard-state">${trainingCount} ${trainingCount === 1 ? "programma" : "programma’s"}</span>
         </button>
-        <button class="dashboard-button" type="button" data-upcoming="Wedstrijden">
+        <button class="dashboard-button active" type="button" data-route="wedstrijden">
           <span class="dashboard-icon" aria-hidden="true">W</span>
           <span class="dashboard-title">Wedstrijden</span>
-          <span class="dashboard-state">Binnenkort</span>
+          <span class="dashboard-state">Speelminuten en basisplaatsen</span>
         </button>
         <button class="dashboard-button active" type="button" data-route="spelers">
           <span class="dashboard-icon" aria-hidden="true">S</span>
@@ -3539,8 +3684,66 @@ function renderSquadLoad() {
   `;
 }
 
+function renderMatches() {
+  const todayKey = getLocalDateKey();
+  const season = getTeamSeason();
+  const weeks = season
+    ? getSeasonWeeks(season.id)
+      .filter((week) => MATCH_MINUTES_WEEK_TYPES.includes(week.type))
+      .sort((a, b) => {
+        const aUpcoming = a.dateTo >= todayKey;
+        const bUpcoming = b.dateTo >= todayKey;
+        if (aUpcoming !== bUpcoming) return aUpcoming ? -1 : 1;
+        return aUpcoming
+          ? a.dateFrom.localeCompare(b.dateFrom)
+          : b.dateFrom.localeCompare(a.dateFrom);
+      })
+    : [];
+
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="matches-title">
+      <header class="screen-header screen-header-compact">
+        <p class="eyebrow">JO16-1</p>
+        <h1 id="matches-title">Wedstrijden</h1>
+        <p class="lead">Registreer basisplaatsen en speelminuten. De spelerstatistieken worden automatisch bijgewerkt.</p>
+      </header>
+
+      ${weeks.length ? `
+        <div class="match-overview-list">
+          ${weeks.map((week) => {
+            const records = getMatchMinutesForWeek(week.id).filter((record) => record.minutes > 0);
+            const totalMinutes = records.reduce((sum, record) => sum + record.minutes, 0);
+            const isUpcoming = week.dateFrom > todayKey;
+            return `
+              <article class="match-overview-card">
+                <div>
+                  <span class="detail-label">${escapeHtml(week.type)}</span>
+                  <h2>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</h2>
+                  <p>${records.length
+                    ? `${records.length} spelers · ${totalMinutes} gezamenlijke minuten geregistreerd`
+                    : isUpcoming ? "Nog te spelen" : "Nog geen speelminuten geregistreerd"}</p>
+                </div>
+                <button class="${records.length ? "secondary-button" : "primary-button"}" type="button" data-match-minutes="${escapeHtml(week.id)}">
+                  ${records.length ? "Minuten aanpassen" : "Minuten registreren"}
+                </button>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      ` : `
+        <div class="empty-history players-empty">
+          <strong>Nog geen wedstrijden gepland</strong>
+          Voeg in de seizoensplanning eerst een beker- of competitiewedstrijd toe.
+        </div>
+      `}
+    </section>
+  `;
+}
+
 function renderPlayerCard(player) {
   const positions = [player.primaryPosition, player.secondaryPosition].filter(Boolean).join(" · ");
+  const attendanceStats = calculatePlayerAttendanceStats(player.id);
+  const matchStats = calculatePlayerMatchStats(player.id);
   const metadata = [
     player.shirtNumber !== "" ? `Rugnummer ${player.shirtNumber}` : "",
     positions,
@@ -3555,6 +3758,12 @@ function renderPlayerCard(player) {
           <h3>${escapeHtml(player.displayName)}</h3>
           <p>${escapeHtml(metadata || (player.isActive ? "Actieve speler" : "Niet actief"))}</p>
         </div>
+      </div>
+      <div class="player-card-statistics" aria-label="Seizoenstatistieken">
+        <span><small>Trainingen</small><strong>${attendanceStats.attendedTrainings}/${attendanceStats.registeredTrainings}</strong></span>
+        <span><small>Opkomst</small><strong>${formatPercentage(attendanceStats.trainingPercentage)}</strong></span>
+        <span><small>Wedstrijden</small><strong>${matchStats.appearances}</strong></span>
+        <span><small>Minuten</small><strong>${matchStats.totalMinutes}</strong></span>
       </div>
       <div class="player-card-actions">
         <button class="primary-button player-profile-button" type="button" data-player="${escapeHtml(player.id)}">Profiel openen</button>
@@ -3586,6 +3795,8 @@ function renderPlayerDetail(id) {
     }))
     .reverse();
   const currentBlock = getCurrentDevelopmentBlock();
+  const attendanceStats = calculatePlayerAttendanceStats(player.id);
+  const matchStats = calculatePlayerMatchStats(player.id);
 
   app.innerHTML = `
     <article class="screen player-profile" aria-labelledby="player-profile-title">
@@ -3597,6 +3808,21 @@ function renderPlayerDetail(id) {
           <p>${escapeHtml(positions || (player.isActive ? "Actieve speler" : "Niet actief"))}</p>
         </div>
       </header>
+
+      <section class="player-season-statistics" aria-labelledby="player-season-statistics-title">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Dit seizoen</p>
+            <h2 id="player-season-statistics-title">Training en wedstrijden</h2>
+          </div>
+        </div>
+        <div class="player-stat-grid">
+          <div><span>Trainingen bezocht</span><strong>${attendanceStats.attendedTrainings}/${attendanceStats.registeredTrainings}</strong></div>
+          <div><span>Trainingsopkomst</span><strong>${formatPercentage(attendanceStats.trainingPercentage)}</strong></div>
+          <div><span>Wedstrijden</span><strong>${matchStats.appearances}</strong><small>${matchStats.starts}× basis</small></div>
+          <div><span>Speelminuten</span><strong>${matchStats.totalMinutes}</strong><small>${matchStats.averageMinutes} gemiddeld</small></div>
+        </div>
+      </section>
 
       <section class="player-development-grid">
         <div>
@@ -3825,6 +4051,10 @@ function calculatePlayerAttendanceStats(playerId, records = getAttendanceRecords
   const playerRecords = records.filter((record) => record.playerId === playerId);
   const trainingRecords = playerRecords.filter((record) => record.eventType === "training");
   const seasonWeekRecords = playerRecords.filter((record) => record.eventType === "seasonWeek");
+  const knownTrainingRecords = trainingRecords.filter((record) => (
+    PRESENT_ATTENDANCE_STATUSES.includes(record.status)
+    || ABSENT_ATTENDANCE_STATUSES.includes(record.status)
+  ));
   const percentage = (eventRecords) => {
     const known = eventRecords.filter((record) => (
       PRESENT_ATTENDANCE_STATUSES.includes(record.status)
@@ -3837,6 +4067,16 @@ function calculatePlayerAttendanceStats(playerId, records = getAttendanceRecords
 
   return {
     registeredTrainings: new Set(trainingRecords.map((record) => record.eventId)).size,
+    attendedTrainings: new Set(
+      knownTrainingRecords
+        .filter((record) => PRESENT_ATTENDANCE_STATUSES.includes(record.status))
+        .map((record) => record.eventId)
+    ).size,
+    missedTrainings: new Set(
+      knownTrainingRecords
+        .filter((record) => ABSENT_ATTENDANCE_STATUSES.includes(record.status))
+        .map((record) => record.eventId)
+    ).size,
     trainingPercentage: percentage(trainingRecords),
     registeredSeasonWeeks: new Set(seasonWeekRecords.map((record) => record.eventId)).size,
     seasonWeekPercentage: percentage(seasonWeekRecords)
@@ -3897,14 +4137,16 @@ function renderAttendanceStatistics() {
         <div class="statistics-list">
           ${players.map((player) => {
             const stats = calculatePlayerAttendanceStats(player.id, records);
+            const matchStats = calculatePlayerMatchStats(player.id);
             return `
               <article class="statistics-card">
                 <h2>${escapeHtml(player.displayName)}</h2>
                 <dl>
-                  <div><dt>Geregistreerde trainingen</dt><dd>${stats.registeredTrainings}</dd></div>
+                  <div><dt>Trainingen bezocht</dt><dd>${stats.attendedTrainings}/${stats.registeredTrainings}</dd></div>
                   <div><dt>Trainingsaanwezigheid</dt><dd>${formatPercentage(stats.trainingPercentage)}</dd></div>
-                  <div><dt>Speelweken met geregistreerde beschikbaarheid</dt><dd>${stats.registeredSeasonWeeks}</dd></div>
-                  <div><dt>Speelweekbeschikbaarheid</dt><dd>${formatPercentage(stats.seasonWeekPercentage)}</dd></div>
+                  <div><dt>Wedstrijden gespeeld</dt><dd>${matchStats.appearances}</dd></div>
+                  <div><dt>Basisplaatsen</dt><dd>${matchStats.starts}</dd></div>
+                  <div><dt>Speelminuten</dt><dd>${matchStats.totalMinutes}</dd></div>
                 </dl>
               </article>
             `;
@@ -8245,7 +8487,7 @@ setupInstallExperience();
 registerServiceWorker();
 
 if (!window.location.hash) {
-  window.location.hash = "#home";
+  window.location.hash = "#dashboard";
 } else {
   renderApp();
 }

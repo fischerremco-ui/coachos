@@ -298,6 +298,16 @@ h3 {
   letter-spacing: -0.08em;
 }
 
+.club-logo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(72%, 250px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.28));
+}
+
 .home-action {
   padding-top: 26px;
 }
@@ -414,6 +424,9 @@ h3 {
 }
 
 .dashboard-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   padding: 26px 24px;
   color: var(--white);
   background:
@@ -421,6 +434,14 @@ h3 {
     var(--navy-900);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
+}
+
+.dashboard-club-logo {
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  border-radius: 18px;
 }
 
 .dashboard-hero .eyebrow {
@@ -2314,6 +2335,36 @@ h3 {
   margin-top: 14px;
 }
 
+.player-card-statistics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.player-card-statistics span {
+  min-width: 0;
+  padding: 11px;
+  background: var(--surface);
+  border-radius: 12px;
+}
+
+.player-card-statistics small,
+.player-card-statistics strong {
+  display: block;
+}
+
+.player-card-statistics small {
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.player-card-statistics strong {
+  margin-top: 2px;
+  color: var(--navy-900);
+  font-size: 1.25rem;
+}
+
 .player-card-actions button {
   min-height: 46px;
   padding: 9px 8px;
@@ -2351,6 +2402,86 @@ h3 {
   display: grid;
   gap: 10px;
   margin: 16px 0;
+}
+
+.player-season-statistics {
+  margin: 16px 0;
+  padding: 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.player-season-statistics h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.player-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.player-stat-grid > div {
+  padding: 14px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}
+
+.player-stat-grid span,
+.player-stat-grid strong,
+.player-stat-grid small {
+  display: block;
+}
+
+.player-stat-grid span {
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.player-stat-grid strong {
+  margin-top: 5px;
+  color: var(--navy-900);
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.player-stat-grid small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.match-overview-list {
+  display: grid;
+  gap: 12px;
+}
+
+.match-overview-card {
+  padding: 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.match-overview-card h2 {
+  margin: 5px 0 7px;
+  color: var(--navy-900);
+  font-size: 1.35rem;
+}
+
+.match-overview-card p {
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.match-overview-card button {
+  min-height: 52px;
 }
 
 .player-development-grid > div {
