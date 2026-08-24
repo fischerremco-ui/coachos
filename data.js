@@ -1,4 +1,4 @@
-// Voorbeelddata voor CoachOS v0.3.
+// Voorbeelddata voor CoachOS v0.3.1.
 const PRINCIPLES = [
   {
     id: "lok-druk-vrije-man",

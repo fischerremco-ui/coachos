@@ -1,4 +1,4 @@
-const CACHE_VERSION = "coachos-v9";
+const CACHE_VERSION = "coachos-v10";
 const CRITICAL_SHELL = [
   "./",
   "./index.html",
@@ -10,15 +10,15 @@ const CRITICAL_SHELL = [
   "./offline.html"
 ];
 const OPTIONAL_SHELL = [
-  "./icons/icon-72.png",
-  "./icons/icon-96.png",
-  "./icons/icon-128.png",
-  "./icons/icon-144.png",
-  "./icons/icon-152.png",
-  "./icons/icon-180.png",
-  "./icons/icon-192.png",
-  "./icons/icon-384.png",
-  "./icons/icon-512.png"
+  "./icons/vsv-72-v031.png",
+  "./icons/vsv-96-v031.png",
+  "./icons/vsv-128-v031.png",
+  "./icons/vsv-144-v031.png",
+  "./icons/vsv-152-v031.png",
+  "./icons/vsv-180-v031.png",
+  "./icons/vsv-192-v031.png",
+  "./icons/vsv-384-v031.png",
+  "./icons/vsv-512-v031.png"
 ];
 const NETWORK_FIRST_FILES = new Set([
   "app.js",
@@ -86,7 +86,7 @@ async function getCachedFallback(request) {
   }
 
   if (request.destination === "image") {
-    return caches.match("./icons/icon-192.png");
+    return caches.match("./icons/vsv-192-v031.png");
   }
 
   return new Response(

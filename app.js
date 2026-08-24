@@ -3046,7 +3046,7 @@ function renderHome() {
     <section class="screen screen-home" aria-labelledby="home-title">
       <div>
         <div class="logo-stage" aria-label="Ruimte voor het VSV-logo">
-          <img class="club-logo" src="icons/icon-384.png" alt="VSV Velserbroek">
+          <img class="club-logo" src="icons/vsv-384-v031.png" alt="VSV Velserbroek">
         </div>
         <div class="home-copy">
           <p class="eyebrow">Jeugdopleiding</p>
@@ -3563,7 +3563,7 @@ function renderDashboard() {
   app.innerHTML = `
     <section class="screen" aria-labelledby="dashboard-title">
       <div class="dashboard-hero">
-        <img class="dashboard-club-logo" src="icons/icon-192.png" alt="">
+        <img class="dashboard-club-logo" src="icons/vsv-384-v031.png" alt="" aria-hidden="true">
         <div>
           <p class="eyebrow">Teamdashboard</p>
           <h1 id="dashboard-title">JO16-1</h1>
