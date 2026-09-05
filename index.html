@@ -92,7 +92,7 @@
         var status = document.getElementById("startup-status");
         if (!status) return;
         status.className = "startup-status startup-error";
-        status.innerHTML = "<strong>CoachOS kon niet starten.</strong><br>Controleer of index.html, data.js, planner-data.js en app.js in dezelfde map staan en open de pagina in Chrome, Edge of Safari.";
+        status.innerHTML = "<strong>CoachOS kon niet starten.</strong><br>Controleer of index.html, data.js, planner-data.js, calendar-migration.js en app.js in dezelfde map staan en open de pagina in Chrome, Edge of Safari.";
       });
       window.setTimeout(function () {
         var status = document.getElementById("startup-status");
@@ -103,6 +103,7 @@
     </script>
     <script src="data.js"></script>
     <script src="planner-data.js"></script>
+    <script src="calendar-migration.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
