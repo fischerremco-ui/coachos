@@ -1,10 +1,11 @@
-const CACHE_VERSION = "coachos-v10";
+const CACHE_VERSION = "coachos-v11";
 const CRITICAL_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./data.js",
   "./planner-data.js",
+  "./calendar-migration.js",
   "./app.js",
   "./manifest.json",
   "./offline.html"
@@ -24,6 +25,7 @@ const NETWORK_FIRST_FILES = new Set([
   "app.js",
   "data.js",
   "planner-data.js",
+  "calendar-migration.js",
   "styles.css",
   "index.html"
 ]);
