@@ -37,6 +37,7 @@ const plain=value=>JSON.parse(JSON.stringify(value));
  const raw=JSON.stringify([...r.values]);
  r.run('renderSeasonWeekDetail("speelweek-2026-2027-05")');assert.equal(JSON.stringify([...r.values]),raw);
  assert.match(r.run('app.innerHTML'),/DIOS O16-2 – VSV O16-1/);
+ assert.doesNotMatch(r.run('app.innerHTML'),/Geen wedstrijd gekoppeld/);
  await r.run('handleClick({target:{closest: selector => selector === "[data-team-evaluation]" ? {dataset:{teamEvaluation:"speelweek-2026-2027-05"}} : null}})');
  assert.equal(r.run('window.location.hash'),'#teamevaluatie/speelweek-2026-2027-05');
  assert.equal(r.run('getParentIdForRoute({name:"teamevaluatie",id:"speelweek-2026-2027-05"})'),'speelweek-2026-2027-05');

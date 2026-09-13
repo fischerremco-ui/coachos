@@ -5003,10 +5003,15 @@ function renderSeasonWeekDetail(id) {
 
         <section class="content-card">
           <h2>Wedstrijd</h2>
-          <div class="empty-history compact-empty">
-            <strong>Geen wedstrijd gekoppeld</strong>
-            Wedstrijdbeheer is nog niet beschikbaar.
-          </div>
+          ${week.matchTitle ? `
+            <p><strong>${escapeHtml(week.matchTitle)}</strong></p>
+            <p>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
+          ` : `
+            <div class="empty-history compact-empty">
+              <strong>Geen wedstrijd gekoppeld</strong>
+              Wedstrijdbeheer is nog niet beschikbaar.
+            </div>
+          `}
         </section>
 
         <section class="content-card">
