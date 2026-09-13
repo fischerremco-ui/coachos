@@ -676,6 +676,9 @@ function normalizeSeason(season = {}) {
 }
 
 function normalizeSeasonWeek(week = {}) {
+  // Enrich the existing week without changing its ID or writing stored data.
+  const scheduledWeek = SEASON_WEEKS.find((item) => item.id === week.id
+    && item.seasonId === week.seasonId && item.dateFrom === week.dateFrom);
   const trainingIds = Array.isArray(week.trainingIds)
     ? [...new Set(week.trainingIds.filter((id) => typeof id === "string" && id))]
     : [];
@@ -693,6 +696,7 @@ function normalizeSeasonWeek(week = {}) {
       : week.trainingWeekNumber || "",
     status: SEASON_WEEK_STATUSES.includes(week.status) ? week.status : "Gepland",
     trainingIds,
+    matchTitle: String(week.matchTitle ?? (scheduledWeek && scheduledWeek.matchTitle) ?? ""),
     matchId: typeof week.matchId === "string" && week.matchId ? week.matchId : null,
     createdAt: week.createdAt || "",
     updatedAt: week.updatedAt || ""
@@ -772,6 +776,7 @@ function duplicateSeasonWeek(id) {
     id: createUniqueId("speelweek"),
     trainingIds: [],
     matchId: null,
+    matchTitle: "",
     createdAt: now,
     updatedAt: now
   };
@@ -3012,6 +3017,7 @@ function getParentIdForRoute(route) {
     "spelprincipe-bewerken",
     "speelweek-bewerken",
     "speelminuten",
+    "teamevaluatie",
     "speler-bewerken",
     "oefenvorm-bewerken"
   ].includes(route.name)) {
@@ -3717,7 +3723,7 @@ function renderMatches() {
             return `
               <article class="match-overview-card">
                 <div>
-                  <span class="detail-label">${escapeHtml(week.type)}</span>
+                  <span class="detail-label">${escapeHtml(week.matchTitle || week.type)}</span>
                   <h2>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</h2>
                   <p>${records.length
                     ? `${records.length} spelers · ${totalMinutes} gezamenlijke minuten geregistreerd`
@@ -4714,6 +4720,7 @@ function renderMatchMinutes(id) {
       <header class="screen-header screen-header-compact">
         <p class="eyebrow">${escapeHtml(week.type)} · ${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
         <h1 id="match-minutes-title">Speelminuten</h1>
+        ${week.matchTitle ? `<p>${escapeHtml(week.matchTitle)}</p>` : ""}
         <p class="lead">Registreer de wedstrijdbelasting als basis voor herstel en extra prikkels.</p>
       </header>
 
@@ -4793,6 +4800,7 @@ function renderTeamEvaluation(id) {
       <header class="screen-header screen-header-compact">
         <p class="eyebrow">${escapeHtml(week.type)} · ${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
         <h1 id="team-evaluation-title">Teamevaluatie</h1>
+        ${week.matchTitle ? `<p>${escapeHtml(week.matchTitle)}</p>` : ""}
         <p class="lead">Beoordeel alleen zichtbaar gedrag. NZ is niet zichtbaar; ZZ is zelfstandig zichtbaar.</p>
       </header>
 
@@ -4914,7 +4922,7 @@ function renderSeasonWeekDetail(id) {
     <article class="screen" aria-labelledby="season-week-title">
       <header class="detail-hero season-week-hero">
         <p class="eyebrow">Speelweek</p>
-        <h1 id="season-week-title">${escapeHtml(week.type)}</h1>
+        <h1 id="season-week-title">${escapeHtml(week.matchTitle || week.type)}</h1>
         <p>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
         <div class="season-week-meta">
           ${week.phase ? `<span class="season-chip phase-chip">${escapeHtml(week.phase)}</span>` : ""}
@@ -7222,6 +7230,7 @@ async function handleClick(event) {
   const attendanceAllButton = event.target.closest("[data-attendance-all]");
   const attendanceNoteButton = event.target.closest("[data-toggle-attendance-note]");
   const alignPlannerWeekButton = event.target.closest("[data-align-planner-week]");
+  const teamEvaluationButton = event.target.closest("[data-team-evaluation]");
   const matchMinutesButton = event.target.closest("[data-match-minutes]");
   const setMatchMinutesButton = event.target.closest("[data-set-match-minutes]");
   const tonightAttendanceButton = event.target.closest("[data-tonight-attendance]");
@@ -7250,6 +7259,7 @@ async function handleClick(event) {
   if (createPrincipleButton) goTo("spelprincipe-nieuw");
   if (createSeasonWeekButton) goTo("speelweek-nieuw");
   if (createPlayerButton) goTo("speler-nieuw");
+  if (teamEvaluationButton) goTo("teamevaluatie", teamEvaluationButton.dataset.teamEvaluation);
   if (matchMinutesButton) goTo("speelminuten", matchMinutesButton.dataset.matchMinutes);
   if (createPlannerTrainingButton) {
     const card = getWeekCard(createPlannerTrainingButton.dataset.weekCardId);
@@ -7683,6 +7693,11 @@ function saveStandoutPlayerObservations(training, playerIds, observationText) {
 }
 
 async function handleSubmit(event) {
+  if (event.target.id === "team-evaluation-form") {
+    saveTeamEvaluationForm(event);
+    return;
+  }
+
   if (event.target.id === "training-form") {
     saveTrainingForm(event);
     return;
@@ -7909,6 +7924,38 @@ function saveHeightMeasurementForm(event) {
   renderPlayerDetail(player.id);
 }
 
+function saveTeamEvaluationForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const week = getSeasonWeek(form.dataset.seasonWeekId);
+  if (!week || !TEAM_EVALUATION_WEEK_TYPES.includes(week.type)) return;
+  const date = normalizeDateKey(form.elements.date.value);
+  if (!date) {
+    showFormErrors(["Vul een geldige evaluatiedatum in."], "team-evaluation-form-errors");
+    return;
+  }
+  const existing = getTeamEvaluationForWeek(week.id);
+  const now = new Date().toISOString();
+  const scores = {};
+  TEAM_EVALUATION_BEHAVIOURS.forEach((behaviour) => {
+    const value = form.elements[`score-${behaviour.id}`].value;
+    if (value) scores[behaviour.id] = value;
+  });
+  if (!upsertTeamEvaluation({
+    id: existing ? existing.id : createUniqueId("teamevaluatie"),
+    seasonWeekId: week.id,
+    date,
+    scores,
+    strengths: form.elements.strengths.value,
+    developmentPoint: form.elements.developmentPoint.value,
+    createdAt: existing ? existing.createdAt : now,
+    updatedAt: now
+  })) return;
+  formDirty = false;
+  showToast("Teamevaluatie opgeslagen");
+  goTo("speelweek", week.id);
+}
+
 function saveMatchMinutesForm(event) {
   event.preventDefault();
   const form = event.target;
@@ -7947,7 +7994,8 @@ function saveMatchMinutesForm(event) {
       playerId: row.dataset.matchMinutesPlayer,
       minutes,
       startingEleven,
-      note: "",
+      note: (getMatchMinutesForWeek(seasonWeekId)
+        .find((record) => record.playerId === row.dataset.matchMinutesPlayer) || {}).note || "",
       createdAt: input.dataset.createdAt || now,
       updatedAt: now
     }));
@@ -8156,6 +8204,7 @@ function saveSeasonWeekForm(event) {
     ...readSeasonWeekForm(form),
     id: form.dataset.weekId || createUniqueId("speelweek"),
     trainingIds: existing ? existing.trainingIds : [],
+    matchTitle: existing ? existing.matchTitle : "",
     matchId: existing ? existing.matchId : null,
     createdAt: form.dataset.createdAt || now,
     updatedAt: now
@@ -8328,7 +8377,7 @@ function handleInput(event) {
     return;
   }
 
-  if (event.target.closest("#player-form, #attendance-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
+  if (event.target.closest("#player-form, #attendance-form, #team-evaluation-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
     formDirty = true;
   }
 }
@@ -8365,7 +8414,7 @@ function handleChange(event) {
     return;
   }
 
-  if (event.target.closest("#player-form, #attendance-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
+  if (event.target.closest("#player-form, #attendance-form, #team-evaluation-form, #match-minutes-form, #observation-form, #height-measurement-form")) {
     formDirty = true;
   }
 }

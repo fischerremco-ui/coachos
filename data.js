@@ -82,6 +82,9 @@ const SEASON_WEEKS = [
   updatedAt: "2026-08-04T00:00:00.000Z"
 }));
 
+// Wedstrijd bij de bestaande speelweek; registraties blijven aan die week gekoppeld.
+SEASON_WEEKS.find((week) => week.id === "speelweek-2026-2027-05").matchTitle = "DIOS O16-2 – VSV O16-1";
+
 const TRAININGS = [
   {
     id: "rm-00a",
