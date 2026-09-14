@@ -518,3 +518,212 @@ SEASON_WEEKS.find((week) => week.id === "speelweek-2026-2027-03").trainingIds = 
   "training-rm-ma-w35",
   "training-rm-do-w35"
 ];
+
+// Uitgewerkte trainingen volgens de V4-weekkaart; eenmalig lokaal toegevoegd.
+const WEEK38_TRAININGS = [
+  {
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "coachWords": "Baldruk? Door\nGeen druk: diepte\nKeeper coacht",
+    "code": "W38-MA",
+    "createdAt": "2026-09-14T12:00:00.000Z",
+    "date": "2026-09-14",
+    "desiredBehavior": "Eerste verdediger zet richting; 8/10 sluiten aan en maken druk op de bal werkelijk mogelijk.\n6 bewaakt de as en jaagt niet blind mee.\n3/4 staan halfopen: doorstappen bij baldruk, diepte beveiligen zonder baldruk.\nKeeper coacht vóór de diepe pass.",
+    "evaluationCriteria": "Observeer 10 momenten: kiest de laatste lijn bij minstens 7 passend voor doorstappen of diepte beschermen?\nObserveer 5 diepe dreigingen: coacht de keeper minstens 3 keer vóór de pass?\nLaat na afloop één speler per linie uitleggen wat hij doet als de eerste druk wordt uitgespeeld.",
+    "expectedLoad": "Middel, 90 minuten inclusief uitleg, drinken en herstel. Spelers met veel wedstrijdminuten doen in de twee hoofdvormen één reeks minder of spelen tijdelijk als doelspeler. Weinig minuten: alle reeksen actief. Geen extra loopconditionering.",
+    "id": "training-rm-ma-w38",
+    "mainGoal": "De eerste verdediger stuurt naar buiten; de laatste lijn leest echte baldruk en kiest samen doorstappen of diepte beschermen. Competitieweek: voortbouwen op opbouw en restverdediging uit week 35–37.",
+    "materials": "16–20 pionnen\nHesjes in 2 kleuren + 2 neutrale hesjes\n8–10 ballen\n1 groot doel en 2 mini-doelen (of poortjes)\nTweede groot doel indien beschikbaar",
+    "parts": [
+      {
+        "defendingCoaching": "Baldruk betekent: de tegenstander kan niet vrij kijken en diep spelen.",
+        "duration": 5,
+        "flow": "Vraag twee spelers naar een moment met en zonder druk op de bal. Leg één afspraak vast: de balbezitter bepaalt ons stappen, niet alleen het roepen van een medespeler.",
+        "id": "training-rm-ma-w38-deel-1",
+        "name": "Start: wanneer kan onze laatste lijn door?",
+        "organization": "Spelers bij het veld; ballen klaarliggen. Vraag naar gespeelde minuten en ervaren vermoeidheid.",
+        "rulesScoring": "",
+        "type": "Introductie",
+        "variations": "Bij ieder aantal uitvoerbaar."
+      },
+      {
+        "attackingCoaching": "Kijk vóór je krijgt; eerste aanname laat zien of vooruit spelen mogelijk is.",
+        "defendingCoaching": "Eerst kijken, dan voeten verplaatsen. Bij diepte halfopen draaien; geen lange achterwaartse sprint.",
+        "duration": 10,
+        "flow": "3 min rustig passen en bewegen; 3 min zijwaarts bewegen, gecontroleerd remmen en halfopen teruglopen; 4 min: ontvanger neemt afwisselend vooruit of onder lichte druk aan, partner leest dit en stapt of draait mee. Rollen elke minuut wisselen.",
+        "id": "training-rm-ma-w38-deel-2",
+        "name": "ASM met bal: kijken, remmen en halfopen draaien",
+        "organization": "Tweetallen, ieder een baan van 12×5 m; 1 bal per tweetal.",
+        "rulesScoring": "",
+        "type": "ASM",
+        "variations": "Vermoeide spelers kleinere afstanden, rustig tempo. Geen wachtrijen."
+      },
+      {
+        "defendingCoaching": "Druk op bal: samen aansluiten. Ontsnapt de balbezitter en kijkt hij vooruit: eerst diepte beschermen. Binnenkant dicht.",
+        "duration": 15,
+        "flow": "3 min uitleg en wandelvoorbeeld; 3×3 min spel met 1 min overleg ertussen; laatste minuut drinken. Aanvallers combineren en proberen de bal in de eindzone te ontvangen. Dichtste verdediger stuurt buitenom, andere twee geven dekking en lezen baldruk.",
+        "id": "training-rm-ma-w38-deel-3",
+        "name": "Lijncoördinatie: 3 verdedigers lezen 3 aanvallers",
+        "organization": "Twee vakken van 20×15 m voor 12 spelers; per vak 3v3 naar een eindzone van 3 m. Met 14 twee wisselspelers, elke 90 sec wisselen.",
+        "rulesScoring": "1 punt voor gecontroleerde ontvangst in de eindzone; verdedigers scoren na balwinst over de tegenoverliggende eindlijn.",
+        "type": "Spelvorm",
+        "variations": "6–10 spelers: één vak 3v3 of 4v4, overige spelers rouleren per reeks."
+      },
+      {
+        "defendingCoaching": "Geen baldruk: sluit de pass naar de diepe man door terug te bewegen, blijf de bal zien. Wel baldruk: sluit als blok aan. Keeper kan doelspeler zijn en de lijn coachen.",
+        "duration": 20,
+        "flow": "2 min uitleg; 4×3 min spel, 1 min herstel na de eerste drie reeksen; 3 min drinken/overgang. Diepe doelspeler beweegt zijwaarts. Veldspelers kunnen de doelzone verdedigen. Na score start het andere team. Wissel doelspelers per reeks.",
+        "id": "training-rm-ma-w38-deel-4",
+        "name": "5v5 met twee diepe doelspelers",
+        "organization": "Veld 36×28 m met aan beide uiteinden een doelzone van 4 m. 5v5 in het veld + per team 1 doelspeler in de eigen aanvalsdoelzone: 12 spelers. 13–14: wissel elke 2 min.",
+        "rulesScoring": "1 punt bij gecontroleerde pass naar doelspeler. Niet blind terugzakken: trainer telt óók juiste momenten van doorstappen.",
+        "transitionCoaching": "Na balverlies dichtste speler druk, anderen as en diepte. Na balwinst eerst vooruit kijken.",
+        "type": "Positiespel",
+        "variations": "10 spelers: 4v4 + 2 doelspelers; 8: 3v3 + 2; 6: 3v3 naar eindzones. Veel wedstrijdminuten: één reeks doelspeler of herstel."
+      },
+      {
+        "attackingCoaching": "Lok druk uit en zoek de vrije man; vrije blik vooruit is de prikkel om diepte aan te vallen.",
+        "defendingCoaching": "8/10 in aanvallende ploeg zetten na balverlies actief druk; 6 houdt centrum. 3/4 stappen alleen als diep spelen onder druk staat. Keeper meldt vrije balbezitter vroeg.",
+        "duration": 25,
+        "flow": "3 min uitleg; 4×4 min met 1 min herstel na de eerste drie reeksen; 3 min overgang. Start bij aanvallende opbouwer. Soms start diens verdediger dichtbij, soms 4–5 m verder weg: achterste lijn moet de werkelijke situatie lezen. Speel na balwinst door naar mini-doelen. Wissel rollen halverwege.",
+        "id": "training-rm-ma-w38-deel-5",
+        "name": "Richting groot doel: druk vóór de laatste lijn",
+        "organization": "40×34 m, groot doel met keeper tegenover 2 mini-doelen. 6 verdedigers inclusief keeper (1, 2, 3, 4, 5, 6) tegen 6 aanvallers (7, 8, 9, 10, 11 en opbouwer). Met 14 krijgt ieder team één extra speler.",
+        "rulesScoring": "Gewoon scoren = 1. Trainer turft 10 keuzes van de laatste lijn; korte feedback tussen reeksen.",
+        "type": "Partijvorm",
+        "variations": "10: keeper + 4 tegen 5; 8: keeper + 3 tegen 4; 6: 3v3 naar poorten. Veel minuten: één reeks minder, geen extra slotruns."
+      },
+      {
+        "defendingCoaching": "Bal ligt vrij: bescherm de diepte vóór de trap. Niet op een vast fluitsignaal blind uitstappen; na wegwerken samen aansluiten.",
+        "duration": 10,
+        "flow": "2 min afspraken: keeper coacht startpositie, lijn ziet bal én lopers, 6 bewaakt tweede bal. 6 min: 4–6 hervattingen afwisselend kort en diep; na eerste contact doorspelen tot bal uit is. 2 min opruimen.",
+        "id": "training-rm-ma-w38-deel-6",
+        "name": "Vrije trap tegen: lijn en tweede bal",
+        "organization": "Zelfde doel. Verdedigende lijn, keeper en 6 tegenover aanvallers. Vrije trap vanaf flank op 20–25 m; rollen aansluiten op opkomst.",
+        "rulesScoring": "",
+        "type": "Spelvorm",
+        "variations": "Weinig spelers: 3 verdedigers + keeper tegen 2–4 aanvallers; zonder keeper naar eindzone. Neem vooral grondpasses en enkele gevarieerde leveringen."
+      },
+      {
+        "defendingCoaching": "Laat spelers de drie coachwoorden zelf noemen.",
+        "duration": 5,
+        "flow": "2 min rustig uitlopen; 3 min: speler uit voorste, middelste en laatste lijn beantwoordt: wat verandert als er géén druk meer is? Benoem donderdag als toepassing onder wedstrijdweerstand.",
+        "id": "training-rm-ma-w38-deel-7",
+        "name": "Rustig afsluiten en terugvraag",
+        "organization": "Samen rustig bewegen, materialen naar de kant.",
+        "rulesScoring": "",
+        "type": "Afsluiting",
+        "variations": "Iedere opkomst."
+      }
+    ],
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W38",
+    "setPiece": "Vrije trap tegen: lijn, diepte en tweede bal.",
+    "theme": "Baldruk stuurt laatste lijn",
+    "title": "Baldruk lezen: samen stappen of diepte beschermen",
+    "totalDuration": 90,
+    "updatedAt": "2026-09-14T12:00:00.000Z"
+  },
+  {
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "coachWords": "Baldruk? Door\nGeen druk: diepte\nKeeper coacht",
+    "code": "W38-DO",
+    "createdAt": "2026-09-14T12:00:00.000Z",
+    "date": "2026-09-17",
+    "desiredBehavior": "Eerste verdediger zet richting; 8/10 sluiten aan en maken druk op de bal werkelijk mogelijk.\n6 bewaakt de as en jaagt niet blind mee.\n3/4 staan halfopen: doorstappen bij baldruk, diepte beveiligen zonder baldruk.\nKeeper coacht vóór de diepe pass.",
+    "evaluationCriteria": "Observeer 10 momenten: kiest de laatste lijn bij minstens 7 passend voor doorstappen of diepte beschermen?\nObserveer 5 diepe dreigingen: coacht de keeper minstens 3 keer vóór de pass?\nLaat na afloop één speler per linie uitleggen wat hij doet als de eerste druk wordt uitgespeeld.",
+    "expectedLoad": "Middel; 90 minuten inclusief pauzes. Korte wedstrijdechte acties, ruime herstarts en geen conditionele finisher. Bij vermoeidheid een reeks inkorten of beurt overslaan; fris afsluiten voor de competitiewedstrijd.",
+    "id": "training-rm-do-w38",
+    "mainGoal": "De eerste verdediger stuurt naar buiten; de laatste lijn leest echte baldruk en kiest samen doorstappen of diepte beschermen. Competitieweek: voortbouwen op opbouw en restverdediging uit week 35–37.",
+    "materials": "16–20 pionnen\nHesjes in 2 kleuren + 2 neutrale hesjes\n8–10 ballen\n1 groot doel en 2 mini-doelen (of poortjes)\nTweede groot doel indien beschikbaar",
+    "parts": [
+      {
+        "defendingCoaching": "Gebruik dezelfde taal als maandag.",
+        "duration": 5,
+        "flow": "Laat spelers herhalen: wanneer door, wanneer diepte, wie coacht? Verdeel rollen van eerste druk, 6 en keeper. Noem geen nieuwe tactische regels.",
+        "id": "training-rm-do-w38-deel-1",
+        "name": "Start: drie afspraken voor zaterdag",
+        "organization": "Bij het veld; doelen en ballen vooraf klaar.",
+        "rulesScoring": "",
+        "type": "Introductie",
+        "variations": "Iedere opkomst."
+      },
+      {
+        "attackingCoaching": "Open aannemen; kijk vóór je krijgt.",
+        "defendingCoaching": "Kijk naar balbezitter en ruimte achter je; op voorvoeten kunnen reageren.",
+        "duration": 12,
+        "flow": "4 min bewegen en passen; 4 min halfopen draaien/remmen op beweging partner; 4 min korte passduels met oplopend tempo. Geen maximale sprintseries.",
+        "id": "training-rm-do-w38-deel-2",
+        "name": "Activering: passen, scannen en reageren",
+        "organization": "Tweetallen in banen 12×5 m, daarna twee kleine groepen.",
+        "rulesScoring": "",
+        "type": "Warming-up",
+        "variations": "6–10: zelfde tweetallen; oneven aantal drietal."
+      },
+      {
+        "defendingCoaching": "Dichtste speler stuurt naar buiten, steun sluit door de as. Achterste spelers lezen of die druk werkt.",
+        "duration": 15,
+        "flow": "2 min uitleg; 3×3 min, 1 min herstel tussen reeksen; 2 min drinken. Scoren door medespeler in eindzone aan te spelen. Neutrale spelers helpen balbezit, maximaal 2 contacten. Bij verlies wisselen veldspelers direct van rol.",
+        "id": "training-rm-do-w38-deel-3",
+        "name": "4v4 + 2 steunspelers: druk echt maken",
+        "organization": "28×22 m met aan twee uiteinden een eindzone. 4v4 + 2 neutrale zijsteunspelers (10). Met 12: 5v5 + 2; met 14: 6v6 + 2 in 32×26 m.",
+        "rulesScoring": "1 punt per gecontroleerde eindzonepass.",
+        "transitionCoaching": "Vijf seconden is een aansporing tot directe reactie: als druk faalt, samen herstellen en diepte beschermen.",
+        "type": "Positiespel",
+        "variations": "8: 3v3 + 2; 6: 3v3 zonder neutrale spelers. Vermoeide spelers kort als steunspeler."
+      },
+      {
+        "attackingCoaching": "Bij vrije bal vooruit kijken en diepte bedreigen. Onder druk steun bieden en vrije kant vinden.",
+        "defendingCoaching": "Bij echte baldruk lijn door; zonder druk halfopen diepte bewaken. 6 blijft tussen bal en doel. Keeper coacht vroeg. Niet doorstappen omdat het vooraf een 'drukreeks' heet.",
+        "duration": 25,
+        "flow": "3 min uitleg; 4×4 min met 1 min overleg tussen reeksen; 3 min drinken/overgang. Reeks 1/3: balbezitter start onder nabije druk. Reeks 2/4: vrije aanname, eerste verdediger start verder weg. Na start volledig vrij spel: de situatie kan veranderen. Halverwege speelrichting/rollen wisselen.",
+        "id": "training-rm-do-w38-deel-4",
+        "name": "Wedstrijdscenario: wél of geen druk vanaf middellijn",
+        "organization": "Bij 16 spelers: 8v8 inclusief keepers op circa 55×40 m, start rond middellijn. Bij 12–14: 6v6/7v7 op 40×34 m; met één keeper groot doel tegenover 2 mini-doelen.",
+        "rulesScoring": "Doelpunt = 1; trainer registreert 10 keuzes van de laatste lijn en 5 coachmomenten van keeper.",
+        "type": "Partijvorm",
+        "variations": "10: 5v5; 8: 4v4; 6: 3v3 naar twee poorten op 25×20 m. Zelfde scenario's, geen verplichte 8v8."
+      },
+      {
+        "defendingCoaching": "Keeper organiseert; lijn ziet bal en lopers. 6 bewaakt tweede bal; na wegwerken aansluiten zodra er druk is.",
+        "duration": 10,
+        "flow": "2 min herinneren; 6 min 4–6 vrije trappen, doorspelen na eerste contact; 2 min door naar partij. Rollen en communicatie gaan vóór hoeveelheid herhalingen.",
+        "id": "training-rm-do-w38-deel-5",
+        "name": "Vrije trap tegen + tweede bal onder weerstand",
+        "organization": "Groot doel, keeper, lijn en 6; tegenstanders kiezen korte of diepe vrije trap vanaf de flank.",
+        "rulesScoring": "",
+        "type": "Spelvorm",
+        "variations": "6–10: kleinere bezetting, eerst grondvariant. Zonder keeper naar eindzone."
+      },
+      {
+        "defendingCoaching": "Observeer of kiezen tussen stappen en diepte zonder hulp lukt.",
+        "duration": 18,
+        "flow": "2×7 min vrij spel met 2 min drinken/zelfoverleg; 2 min wisselen en klaarzetten afsluiting. Coach niet tijdens het spel, behalve voor veiligheid. Laat keeper en spelers elkaar corrigeren.",
+        "id": "training-rm-do-w38-deel-6",
+        "name": "Vrije partij: spelers sturen zelf",
+        "organization": "Zelfde veld en teams als hoofdvorm; bij ongelijke aantallen één neutrale speler.",
+        "rulesScoring": "Alleen gewone doelpunten; geen bonusregels.",
+        "transitionCoaching": "Na balverlies rollen verdelen; na balwinst vooruit of vrije kant.",
+        "type": "Partijvorm",
+        "variations": "Kleinere aantallen: veld verkleinen; geen extra loopwerk ter compensatie."
+      },
+      {
+        "defendingCoaching": "Baldruk? Door. Geen druk: diepte. Keeper coacht.",
+        "duration": 5,
+        "flow": "2 min rustig uitlopen; 3 min: één afspraak per linie voor zaterdag. Trainer noteert aantal juiste lijnkeuzes en vroege keepercoaching voor de teamevaluatie.",
+        "id": "training-rm-do-w38-deel-7",
+        "name": "Afsluiting: meenemen naar wedstrijd",
+        "organization": "Rustig bewegen en korte kring.",
+        "rulesScoring": "",
+        "type": "Afsluiting",
+        "variations": "Iedere opkomst."
+      }
+    ],
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W38",
+    "setPiece": "Vrije trap tegen: lijn, diepte en tweede bal.",
+    "theme": "Baldruk stuurt laatste lijn",
+    "title": "Baldruk stuurt de lijn: toepassen richting zaterdag",
+    "totalDuration": 90,
+    "updatedAt": "2026-09-14T12:00:00.000Z"
+  }
+];
