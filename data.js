@@ -727,3 +727,205 @@ const WEEK38_TRAININGS = [
     "updatedAt": "2026-09-14T12:00:00.000Z"
   }
 ];
+
+// Week 39: V4-weekkaart met steun na balwinst als wedstrijdaccent.
+const WEEK39_TRAININGS = [
+  {
+    "id": "training-rm-ma-w39",
+    "code": "W39-MA",
+    "title": "Direct reageren en elkaar helpen na balwinst",
+    "date": "2026-09-21",
+    "theme": "Directe reactie na balverlies",
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "totalDuration": 90,
+    "mainGoal": "Week 39, V4-weekkaart: eerste druk, steun sluit en as dicht. Lukt heroveren niet, dan vertragen en compact herstellen. Extra wedstrijdaandacht: na balwinst helpt één middenvelder onder de bal om van het eigen doel weg te spelen.",
+    "desiredBehavior": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+    "evaluationCriteria": "Turf 10 balverliezen: bij minstens 7 direct druk door de dichtste speler en dekking in de as.\nAls eerste druk mislukt: team herstelt tussen bal en eigen doel in plaats van los doorjagen.\nTurf 5 balwinsten: bij minstens 4 biedt een middenvelder schuin onder de bal steun. Dit zijn oefendoelen, geen gemeten resultaten.",
+    "coachWords": "Eerste druk\nAs dicht\nGeen kans? Herstel\nHelp na balwinst",
+    "expectedLoad": "90 min inclusief uitleg en rust. Middel-hoog voor spelers met weinig wedstrijdminuten; veel minuten of vermoeid: neutrale rol en één reeks minder. Geen conditionele finisher.",
+    "materials": "16–20 pionnen\nHesjes in 3 kleuren\n8–10 ballen\n1 groot doel en 2 mini-doelen, of 4 poortjes\nDrinken naast veld",
+    "setPiece": "Ingooi aanvallende helft: restbezetting.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W39",
+    "parts": [
+      {
+        "name": "Start: één jaagt, de rest helpt",
+        "duration": 5,
+        "type": "Introductie",
+        "organization": "Bij het klaargezette veld. Opkomst en wedstrijdminuten van zaterdag eerst controleren.",
+        "flow": "Vraag: waarom kwamen we na rust moeilijk van ons eigen doel af? Toon met drie spelers druk, steun en as. Leg ook uit wie na balwinst terugkomt om te helpen.",
+        "transitionCoaching": "Eerste druk — as dicht — geen kans? Herstel.",
+        "variations": "",
+        "rulesScoring": "",
+        "id": "training-rm-ma-w39-deel-1"
+      },
+      {
+        "name": "Warming-up en ASM: kijken, remmen, reageren",
+        "duration": 12,
+        "type": "Warming-up",
+        "organization": "Tweetallen in banen van 12×5 m, één bal per tweetal. Bij oneven aantal één drietal.",
+        "flow": "4 min rustig dribbelen en passen; 4 min zijwaarts bewegen, gecontroleerd remmen en open draaien op de beweging van je partner; 4 min pass en korte reactie van 3–5 m. Wissel iedere minuut van rol.",
+        "transitionCoaching": "Eerst kijken, dan bewegen. Bouw het tempo op; geen losse lange wachtrijen.",
+        "variations": "Veel minuten of vermoeid: afstanden kleiner en rustig tempo.",
+        "rulesScoring": "",
+        "id": "training-rm-ma-w39-deel-2"
+      },
+      {
+        "name": "Omschakelspel 3v3 + 3: meteen nieuwe rollen",
+        "duration": 18,
+        "type": "Positiespel",
+        "organization": "9 spelers: 3v3 + 3 neutrale spelers in 24×20 m. Neutrale spelers spelen steeds met de ploeg aan de bal. Met 12: 4v4 + 4 in 28×22 m.",
+        "flow": "3 min uitleg en voorbeeld; 3×4 min spel met 1 min herstel na de eerste twee reeksen; 1 min drinken. Bij onderschepping direct doorspelen: verliezende ploeg verdedigt. Wissel neutrale rollen per reeks.",
+        "transitionCoaching": "Dichtste speler druk, anderen sluiten korte passes. Neutralen hoeven niet mee te jagen. Bij herovering eerst kijken of vooruit kan.",
+        "variations": "8: 3v3 + 2 in 22×18 m. 10: 4v4 + 2. 14: 5v5 + 4. Veel wedstrijdminuten: neutrale rol en eventueel één reeks rustig herstel naast het vak met een bal. Weinig minuten: actieve veldrol.",
+        "rulesScoring": "5 passes = 1 punt. Geen verplichte contactlimiet. Vijf seconden is een reactieprikkel, geen bevel om blind te blijven jagen.",
+        "id": "training-rm-ma-w39-deel-3"
+      },
+      {
+        "name": "Uit de druk: middenvelder helpt achteruit",
+        "duration": 20,
+        "type": "Spelvorm",
+        "organization": "12 spelers: 5v5 in 36×28 m + 1 doelspeler per team in de eigen aanvals-eindzone van 3 m. Iedere ploeg heeft een lage speler (6), een verbindende middenvelder en een hoge speler.",
+        "flow": "3 min uitleg; 3×4 min spel, 1 min overleg na de eerste twee reeksen; 3 min drinken en overgang. Scoor door jouw doelspeler gecontroleerd aan te spelen. Bij balwinst maakt één middenvelder direct een schuine terugloopactie als afspeeloptie. Andere spelers geven breedte en diepte. Doelspelers wisselen per reeks.",
+        "transitionCoaching": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+        "variations": "8: 3v3 + 2 doelspelers op 28×22 m. 10: 4v4 + 2 op 32×24 m. 14: 6v6 + 2. Geen vaste verdedigers nodig: rolverdeling per reeks.",
+        "rulesScoring": "Doelspeler bereiken = 1 punt. Vooruit spelen mag meteen als die pass vrij is; geen verplichte omweg via 6. Trainer telt apart hoe vaak steun onder de bal beschikbaar is.",
+        "id": "training-rm-ma-w39-deel-4"
+      },
+      {
+        "name": "Richtingspartij: bal terug of samen herstellen",
+        "duration": 22,
+        "type": "Partijvorm",
+        "organization": "12 spelers: 6v6 inclusief eventuele keepers op 40×34 m. Eén keeper: groot doel tegenover twee mini-doelen; wissel veldrollen halverwege. Zonder keeper: twee mini-doelen per kant.",
+        "flow": "3 min uitleg; 4×3 min partij met 1 min herstel na de eerste drie reeksen; 4 min drinken en ombouwen. Gewoon voetbal met directe omschakeling. Coach tijdens de rust: wie geeft druk, wie dekt de as, wie helpt na balwinst?",
+        "transitionCoaching": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+        "variations": "8: 4v4 op 30×24 m. 10: 5v5 op 36×28 m. 14: 7v7 op 45×34 m. Keeper telt mee in het totaal. Veel minuten: één reeks rust; andere ploeg krijgt dan één neutrale speler zodat niemand stil hoeft te wachten.",
+        "rulesScoring": "Gewoon doelpunt = 1. Geen bonus voor onnodig lang jagen. Trainer observeert reactie bij balverlies en het herstel als druk mislukt.",
+        "id": "training-rm-ma-w39-deel-5"
+      },
+      {
+        "name": "Ingooi aanvallende helft: wie blijft erachter?",
+        "duration": 8,
+        "type": "Spelvorm",
+        "organization": "Zelfde veld, start met ingooi langs de zijlijn op aanvallende helft. Ploeg van 6: ingooier, korte optie, diepe optie, steunspeler, 6 en laatste speler/keeper.",
+        "flow": "2 min voordoen; 6 min afwisselend links/rechts ingooien en doorspelen tot bal uit of doelpunt. Eén speler komt kort, één dreigt diep; 6 blijft aan de binnenkant achter de bal, laatste speler bewaakt diepte.",
+        "transitionCoaching": "Niet iedereen naar de zijlijn of voor de bal. Bij verlies: dichtste druk, 6 sluit binnenkant.",
+        "variations": "8 spelers: 4v4; ingooier en korte optie, één asbewaker en één speler voor dieptedekking. 10–14: meer ontvangers, zelfde restbezetting.",
+        "rulesScoring": "Bij ingooi geen buitenspel; zodra daarna wordt gepasst gelden de normale buitenspelafspraken van de partij.",
+        "id": "training-rm-ma-w39-deel-6"
+      },
+      {
+        "name": "Afsluiten: spelers noemen hun volgende actie",
+        "duration": 5,
+        "type": "Afsluiting",
+        "organization": "Rustig bewegen en samen opruimen.",
+        "flow": "2 min rustig uitlopen; 3 min terugvragen: wat doe je als je niet dicht bij de verloren bal staat? Wie helpt de balveroveraar? Noteer de twee observaties voor donderdag.",
+        "transitionCoaching": "Eerste druk — as dicht — help na balwinst.",
+        "variations": "",
+        "rulesScoring": "",
+        "id": "training-rm-ma-w39-deel-7"
+      }
+    ],
+    "createdAt": "2026-09-21T08:00:00.000Z",
+    "updatedAt": "2026-09-21T08:00:00.000Z"
+  },
+  {
+    "id": "training-rm-do-w39",
+    "code": "W39-DO",
+    "title": "Bal terugwinnen of samen herstellen",
+    "date": "2026-09-24",
+    "theme": "Directe reactie na balverlies",
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "totalDuration": 90,
+    "mainGoal": "Week 39, V4-weekkaart: eerste druk, steun sluit en as dicht. Lukt heroveren niet, dan vertragen en compact herstellen. Extra wedstrijdaandacht: na balwinst helpt één middenvelder onder de bal om van het eigen doel weg te spelen.",
+    "desiredBehavior": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+    "evaluationCriteria": "Turf 10 balverliezen: bij minstens 7 direct druk door de dichtste speler en dekking in de as.\nAls eerste druk mislukt: team herstelt tussen bal en eigen doel in plaats van los doorjagen.\nTurf 5 balwinsten: bij minstens 4 biedt een middenvelder schuin onder de bal steun. Dit zijn oefendoelen, geen gemeten resultaten.",
+    "coachWords": "Eerste druk\nAs dicht\nGeen kans? Herstel\nHelp na balwinst",
+    "expectedLoad": "90 min inclusief uitleg en rust. Korte intensieve acties; donderdag minder stapeling dan maandag, fris richting zaterdag. Weinig minuten: volledige reeksen, vermoeide spelers een reeks korter of neutraal. Geen conditionele finisher.",
+    "materials": "16–20 pionnen\nHesjes in 3 kleuren\n8–10 ballen\n1 groot doel en 2 mini-doelen, of 4 poortjes\nDrinken naast veld",
+    "setPiece": "Ingooi aanvallende helft: restbezetting.",
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W39",
+    "parts": [
+      {
+        "name": "Start: afspraken terughalen",
+        "duration": 5,
+        "type": "Introductie",
+        "organization": "Bij het veld; dezelfde coachwoorden als maandag.",
+        "flow": "Laat spelers zelf druk, as en herstel uitleggen. Benoem: na balwinst moet de balbezitter ook een korte optie hebben.",
+        "transitionCoaching": "Geen kans? Herstel. Na balwinst: help!",
+        "variations": "",
+        "rulesScoring": "",
+        "id": "training-rm-do-w39-deel-1"
+      },
+      {
+        "name": "Activeren met bal en korte reacties",
+        "duration": 12,
+        "type": "Warming-up",
+        "organization": "Tweetallen op 12×5 m met bal; oneven aantal één drietal.",
+        "flow": "4 min rustig bewegen en passen, 4 min kijken en open aannemen, 4 min pass gevolgd door korte reactie op beweging partner. Wissel rollen iedere minuut.",
+        "transitionCoaching": "Tempo geleidelijk omhoog; kwaliteit boven veel herhalingen.",
+        "variations": "Vermoeide spelers kortere afstand.",
+        "rulesScoring": "",
+        "id": "training-rm-do-w39-deel-2"
+      },
+      {
+        "name": "Omschakelen herhalen: 4v4 + 2",
+        "duration": 15,
+        "type": "Positiespel",
+        "organization": "10 spelers: 4v4 + 2 neutraal in 26×22 m.",
+        "flow": "2 min uitleg; 3×3 min spel met 1 min herstel ertussen; 2 min drinken. Bal kwijt: nieuwe rollen. Neutralen helpen balbezit. Wissel neutrale spelers per reeks.",
+        "transitionCoaching": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+        "variations": "8: 3v3 + 2. 12: 5v5 + 2 in 30×24 m. 14: 6v6 + 2 in 34×26 m. Geen verplichte contactlimiet.",
+        "rulesScoring": "5 passes = 1 punt; na balwinst begint de telling opnieuw.",
+        "id": "training-rm-do-w39-deel-3"
+      },
+      {
+        "name": "7v7 met uitbraakzones: terugwinnen of vertragen",
+        "duration": 25,
+        "type": "Partijvorm",
+        "organization": "14 spelers: 7v7 inclusief keepers op 45×34 m. Aan beide uiteinden een uitbraakzone van 5 m vóór de doellijn. Groot doel aan één zijde en twee mini-doelen aan andere zijde kan ook.",
+        "flow": "3 min uitleg en voorbeeld; 4×4 min spel met 1 min rust na de eerste drie reeksen; 3 min drinken. Beide ploegen vallen een eigen kant aan. Na balwinst probeer je met bal of pass gecontroleerd de uitbraakzone aan de overkant te bereiken; daarna doorspelen naar doel. De ploeg die verliest reageert direct. Als de eerste druk is uitgespeeld, terug naar binnen en tussen bal en doel.",
+        "transitionCoaching": "Dichtste speler geeft druk; tweede speler sluit de pass naar binnen; 6 bewaakt de as. Is de eerste druk uitgespeeld: terug tussen bal en eigen doel. Na balwinst komt één van 8/10 schuin onder de bal, de ander blijft hoger. Niet allebei voorin blijven.",
+        "variations": "12: 6v6 op 40×34 m. 10: 5v5 op 36×28 m. 8: 4v4 op 30×24 m met zones van 4 m. Keeper telt mee. Geen keeper: mini-doelen/poortjes. Veel vermoeidheid: één reeks inkorten; geen extra loopwerk.",
+        "rulesScoring": "Doelpunt = 1. Alleen direct na een balverovering: uitbraakzone gecontroleerd bereiken vóór nieuw balverlies geeft 1 extra punt, maximaal één uitbraakpunt per balbezit. Niet heen en weer punten verzamelen.",
+        "id": "training-rm-do-w39-deel-4"
+      },
+      {
+        "name": "Ingooi + tegenaanval: restbezetting testen",
+        "duration": 10,
+        "type": "Spelvorm",
+        "organization": "Zelfde teams en veld. Herstart afwisselend links en rechts op aanvallende helft.",
+        "flow": "2 min afspraken; 6 min ingooien en doorspelen; 2 min drinken. Verdedigers mogen na balwinst direct uitbreken. Controleer vóór de ingooi wie kort komt, wie diepte geeft en wie as/diepte beveiligt.",
+        "transitionCoaching": "6 blijft binnen en achter de bal; laatste speler bewaakt rug. Eerste druk alleen door dichtste speler.",
+        "variations": "8: ingooier + korte optie + asbewaker + dieptedekking per ploeg; met meer spelers extra loopopties.",
+        "rulesScoring": "Gewone doelpunten. Geen verplichte risicopass; terugspelen mag.",
+        "id": "training-rm-do-w39-deel-5"
+      },
+      {
+        "name": "Vrije wedstrijd: lukt het zonder trainer?",
+        "duration": 18,
+        "type": "Partijvorm",
+        "organization": "Zelfde veld en teams, uitbraakbonus vervalt.",
+        "flow": "2×7 min partij met 2 min zelfoverleg/drinken ertussen; 2 min overgang. Coach zo weinig mogelijk. Turf bij tien balverliezen de reactie en bij vijf balwinsten de steun van het middenveld.",
+        "transitionCoaching": "Laat spelers zelf eerste druk en herstel organiseren. Bespreek pas in de pauze.",
+        "variations": "8: 4v4; 10: 5v5; 12–14: 6v6/7v7. Oneven aantal: één neutrale speler.",
+        "rulesScoring": "Alleen normale doelpunten; vooruit spelen zodra het kan.",
+        "id": "training-rm-do-w39-deel-6"
+      },
+      {
+        "name": "Afronden: drie afspraken voor zaterdag",
+        "duration": 5,
+        "type": "Afsluiting",
+        "organization": "Rustig bewegen en korte kring.",
+        "flow": "2 min rustig uitlopen; 3 min spelers laten benoemen: dichtste druk, anderen as/diepte, na balwinst korte steun. Noteer observaties en vermoeidheid.",
+        "transitionCoaching": "Eerste druk — as dicht — geen kans? Herstel.",
+        "variations": "",
+        "rulesScoring": "",
+        "id": "training-rm-do-w39-deel-7"
+      }
+    ],
+    "createdAt": "2026-09-21T08:00:00.000Z",
+    "updatedAt": "2026-09-21T08:00:00.000Z"
+  }
+];
