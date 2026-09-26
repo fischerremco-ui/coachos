@@ -2719,7 +2719,7 @@ h3 {
 
 .match-minutes-controls {
   display: grid;
-  grid-template-columns: 82px 78px;
+  grid-template-columns: 82px 68px 70px;
   gap: 7px;
 }
 
@@ -2742,6 +2742,36 @@ h3 {
   font-size: 0.65rem;
   transform: translateY(-50%);
   pointer-events: none;
+}
+
+.goals-input-wrap {
+  position: relative;
+}
+
+.goals-input-wrap input {
+  min-height: 48px;
+  padding: 9px 27px 9px 8px;
+  text-align: right;
+  font-weight: 900;
+}
+
+.goals-input-wrap > span {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  color: var(--muted);
+  font-size: 0.58rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.match-registration-details,
+.match-reflection-card {
+  margin-bottom: 12px;
+}
+
+.match-score-grid {
+  margin-top: 10px;
 }
 
 .starting-eleven-toggle {
