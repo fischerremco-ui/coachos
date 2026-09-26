@@ -4807,7 +4807,7 @@ function renderMatchMinutes(id) {
           <div class="minutes-quick-actions" aria-label="Snel speelminuten invullen">
             <span>Snel invullen voor geselecteerde speler</span>
             <div>
-              ${[0, 45, 60, 90].map((minutes) => `
+              ${[0, 40, 60, 80].map((minutes) => `
                 <button type="button" data-set-match-minutes="${minutes}">${minutes}</button>
               `).join("")}
             </div>
@@ -4826,7 +4826,7 @@ function renderMatchMinutes(id) {
                         name="minutes"
                         type="number"
                         min="0"
-                        max="120"
+                        max="80"
                         step="1"
                         inputmode="numeric"
                         value="${record ? record.minutes : ""}"
@@ -8064,8 +8064,8 @@ function saveMatchMinutesForm(event) {
 
     const minutes = Number(rawValue);
     const player = getPlayer(row.dataset.matchMinutesPlayer);
-    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 120) {
-      errors.push(`Vul voor ${player ? player.displayName : "iedere speler"} hele minuten tussen 0 en 120 in.`);
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 80) {
+      errors.push(`Vul voor ${player ? player.displayName : "iedere speler"} hele minuten tussen 0 en 80 in.`);
       return;
     }
 
