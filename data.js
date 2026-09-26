@@ -82,8 +82,38 @@ const SEASON_WEEKS = [
   updatedAt: "2026-08-04T00:00:00.000Z"
 }));
 
-// Wedstrijd bij de bestaande speelweek; registraties blijven aan die week gekoppeld.
-SEASON_WEEKS.find((week) => week.id === "speelweek-2026-2027-05").matchTitle = "DIOS O16-2 – VSV O16-1";
+// Bekende wedstrijden in fase 1. De speelweek blijft het anker voor
+// speelminuten, doelpunten en de korte wedstrijdreflectie.
+const KNOWN_MATCHES = {
+  "speelweek-2026-2027-04": {
+    matchTitle: "VSV O16-1 – Alliance '22 sv. O16-3",
+    matchGoalsFor: 5,
+    matchGoalsAgainst: 2
+  },
+  "speelweek-2026-2027-05": {
+    matchTitle: "DIOS sv. O16-2 – VSV O16-1",
+    matchGoalsFor: 3,
+    matchGoalsAgainst: 5
+  },
+  "speelweek-2026-2027-06": {
+    matchTitle: "VSV O16-1 – HBC O16-3",
+    matchGoalsFor: 10,
+    matchGoalsAgainst: 3
+  },
+  "speelweek-2026-2027-07": {
+    matchTitle: "Geel Wit '20 sv. O16-2 – VSV O16-1",
+    matchGoalsFor: 2,
+    matchGoalsAgainst: 1
+  },
+  "speelweek-2026-2027-08": {
+    matchTitle: "Overbos sv. O16-3 – VSV O16-1"
+  }
+};
+
+Object.entries(KNOWN_MATCHES).forEach(([weekId, match]) => {
+  const week = SEASON_WEEKS.find((item) => item.id === weekId);
+  if (week) Object.assign(week, match);
+});
 
 const TRAININGS = [
   {
