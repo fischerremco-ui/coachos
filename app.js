@@ -553,12 +553,16 @@ function matchMinutesKey(record) {
 
 function normalizeMatchMinutes(record = {}) {
   const minutes = Number(record.minutes);
+  const goals = Number(record.goals);
   return {
     id: record.id || createUniqueId("speelminuten"),
     seasonWeekId: String(record.seasonWeekId || ""),
     playerId: String(record.playerId || ""),
     minutes: Number.isInteger(minutes) && minutes >= 0 && minutes <= 120
       ? minutes
+      : 0,
+    goals: Number.isInteger(goals) && goals >= 0 && goals <= 20
+      ? goals
       : 0,
     startingEleven: record.startingEleven === true,
     note: String(record.note || "").trim(),
@@ -659,11 +663,13 @@ function calculatePlayerMatchStats(playerId, records = getMatchMinutes()) {
     && record.minutes > 0
   ));
   const totalMinutes = playerRecords.reduce((sum, record) => sum + record.minutes, 0);
+  const totalGoals = playerRecords.reduce((sum, record) => sum + (record.goals || 0), 0);
 
   return {
     appearances: playerRecords.length,
     starts: playerRecords.filter((record) => record.startingEleven).length,
     totalMinutes,
+    totalGoals,
     averageMinutes: playerRecords.length ? Math.round(totalMinutes / playerRecords.length) : 0
   };
 }
@@ -751,6 +757,12 @@ function normalizeSeason(season = {}) {
   };
 }
 
+function normalizeOptionalScore(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const score = Number(value);
+  return Number.isInteger(score) && score >= 0 && score <= 99 ? score : null;
+}
+
 function normalizeSeasonWeek(week = {}) {
   // Enrich the existing week without changing its ID or writing stored data.
   const scheduledWeek = SEASON_WEEKS.find((item) => item.id === week.id
@@ -758,6 +770,9 @@ function normalizeSeasonWeek(week = {}) {
   const trainingIds = Array.isArray(week.trainingIds)
     ? [...new Set(week.trainingIds.filter((id) => typeof id === "string" && id))]
     : [];
+  const scheduledTitle = scheduledWeek && scheduledWeek.matchTitle;
+  const scheduledGoalsFor = scheduledWeek && scheduledWeek.matchGoalsFor;
+  const scheduledGoalsAgainst = scheduledWeek && scheduledWeek.matchGoalsAgainst;
 
   return {
     id: week.id || createUniqueId("speelweek"),
@@ -772,11 +787,18 @@ function normalizeSeasonWeek(week = {}) {
       : week.trainingWeekNumber || "",
     status: SEASON_WEEK_STATUSES.includes(week.status) ? week.status : "Gepland",
     trainingIds,
-    matchTitle: String(week.matchTitle ?? (scheduledWeek && scheduledWeek.matchTitle) ?? ""),
+    matchTitle: String(week.matchTitle || scheduledTitle || ""),
+    matchGoalsFor: normalizeOptionalScore(week.matchGoalsFor ?? scheduledGoalsFor),
+    matchGoalsAgainst: normalizeOptionalScore(week.matchGoalsAgainst ?? scheduledGoalsAgainst),
+    matchReflection: String(week.matchReflection || "").trim(),
     matchId: typeof week.matchId === "string" && week.matchId ? week.matchId : null,
     createdAt: week.createdAt || "",
     updatedAt: week.updatedAt || ""
   };
+}
+
+function weekSupportsMatchRegistration(week) {
+  return Boolean(week && (MATCH_MINUTES_WEEK_TYPES.includes(week.type) || week.matchTitle));
 }
 
 function getSeasons() {
@@ -853,6 +875,9 @@ function duplicateSeasonWeek(id) {
     trainingIds: [],
     matchId: null,
     matchTitle: "",
+    matchGoalsFor: null,
+    matchGoalsAgainst: null,
+    matchReflection: "",
     createdAt: now,
     updatedAt: now
   };
@@ -2394,7 +2419,7 @@ async function exportData(options = {}) {
   const includeAttachments = options.includeAttachments !== false;
   return {
     app: "CoachOS",
-    version: 9,
+    version: 10,
     exportedAt: new Date().toISOString(),
     trainings: getTrainings(),
     reflections: getReflections(),
@@ -2681,11 +2706,16 @@ function validateImport(data) {
       || typeof record.id !== "string"
       || !record.id
       || !week
-      || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)
+      || !weekSupportsMatchRegistration(normalizeSeasonWeek(week))
       || !playerIdSet.has(record.playerId)
       || !Number.isInteger(record.minutes)
       || record.minutes < 0
       || record.minutes > 120
+      || (record.goals !== undefined && (
+        !Number.isInteger(record.goals)
+        || record.goals < 0
+        || record.goals > 20
+      ))
       || typeof record.startingEleven !== "boolean"
       || typeof record.note !== "string"
       || typeof record.createdAt !== "string"
@@ -3903,6 +3933,7 @@ function renderPlayerDetail(id) {
           <div><span>Trainingsopkomst</span><strong>${formatPercentage(attendanceStats.trainingPercentage)}</strong></div>
           <div><span>Wedstrijden</span><strong>${matchStats.appearances}</strong><small>${matchStats.starts}× basis</small></div>
           <div><span>Speelminuten</span><strong>${matchStats.totalMinutes}</strong><small>${matchStats.averageMinutes} gemiddeld</small></div>
+          <div><span>Doelpunten</span><strong>${matchStats.totalGoals}</strong><small>dit seizoen</small></div>
         </div>
       </section>
 
@@ -4229,6 +4260,7 @@ function renderAttendanceStatistics() {
                   <div><dt>Wedstrijden gespeeld</dt><dd>${matchStats.appearances}</dd></div>
                   <div><dt>Basisplaatsen</dt><dd>${matchStats.starts}</dd></div>
                   <div><dt>Speelminuten</dt><dd>${matchStats.totalMinutes}</dd></div>
+                  <div><dt>Doelpunten</dt><dd>${matchStats.totalGoals}</dd></div>
                 </dl>
               </article>
             `;
@@ -4779,7 +4811,7 @@ function renderSeasonWeekReflections(trainings) {
 
 function renderMatchMinutes(id) {
   const week = getSeasonWeek(id);
-  if (!week || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)) {
+  if (!week || !weekSupportsMatchRegistration(week)) {
     goTo("seizoen");
     return;
   }
@@ -4795,14 +4827,54 @@ function renderMatchMinutes(id) {
     <section class="screen editor-screen" aria-labelledby="match-minutes-title">
       <header class="screen-header screen-header-compact">
         <p class="eyebrow">${escapeHtml(week.type)} · ${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
-        <h1 id="match-minutes-title">Speelminuten</h1>
+        <h1 id="match-minutes-title">Wedstrijdregistratie</h1>
         ${week.matchTitle ? `<p>${escapeHtml(week.matchTitle)}</p>` : ""}
-        <p class="lead">Registreer de wedstrijdbelasting als basis voor herstel en extra prikkels.</p>
+        <p class="lead">Leg in één keer speelminuten, doelpunten en een korte reflectie vast.</p>
       </header>
 
       ${players.length ? `
         <form class="match-minutes-form" id="match-minutes-form" data-season-week-id="${escapeHtml(week.id)}">
           <div class="form-errors" id="match-minutes-form-errors" role="alert" hidden></div>
+
+          <section class="content-card match-registration-details">
+            <div class="field">
+              <label for="match-title-input">Wedstrijd</label>
+              <input
+                id="match-title-input"
+                name="matchTitle"
+                value="${escapeHtml(week.matchTitle)}"
+                placeholder="Bijvoorbeeld: VSV O16-1 – Overbos O16-3"
+              >
+            </div>
+            <div class="form-grid two-columns match-score-grid">
+              <div class="field">
+                <label for="match-goals-for">Doelpunten VSV</label>
+                <input
+                  id="match-goals-for"
+                  name="matchGoalsFor"
+                  type="number"
+                  min="0"
+                  max="99"
+                  step="1"
+                  inputmode="numeric"
+                  value="${week.matchGoalsFor === null ? "" : week.matchGoalsFor}"
+                >
+              </div>
+              <div class="field">
+                <label for="match-goals-against">Doelpunten tegenstander</label>
+                <input
+                  id="match-goals-against"
+                  name="matchGoalsAgainst"
+                  type="number"
+                  min="0"
+                  max="99"
+                  step="1"
+                  inputmode="numeric"
+                  value="${week.matchGoalsAgainst === null ? "" : week.matchGoalsAgainst}"
+                >
+              </div>
+            </div>
+          </section>
 
           <div class="minutes-quick-actions" aria-label="Snel speelminuten invullen">
             <span>Snel invullen voor geselecteerde speler</span>
@@ -4836,9 +4908,23 @@ function renderMatchMinutes(id) {
                       >
                       <span>min</span>
                     </div>
+                    <div class="goals-input-wrap">
+                      <input
+                        name="goals"
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="1"
+                        inputmode="numeric"
+                        aria-label="Doelpunten ${escapeHtml(player.displayName)}"
+                        value="${record && record.goals ? record.goals : ""}"
+                        data-match-goals-input
+                      >
+                      <span>goals</span>
+                    </div>
                     <label class="starting-eleven-toggle">
                       <input name="startingEleven" type="checkbox" ${record && record.startingEleven ? "checked" : ""}>
-                      <span>Basiself</span>
+                      <span>Basis</span>
                     </label>
                   </div>
                 </div>
@@ -4846,9 +4932,21 @@ function renderMatchMinutes(id) {
             }).join("")}
           </div>
 
+          <section class="content-card match-reflection-card">
+            <div class="field">
+              <label for="match-reflection">Korte wedstrijdreflectie</label>
+              <textarea
+                id="match-reflection"
+                name="matchReflection"
+                rows="4"
+                placeholder="Wat ging goed, wat viel op en wat nemen we mee?"
+              >${escapeHtml(week.matchReflection)}</textarea>
+            </div>
+          </section>
+
           <div class="form-sticky-actions match-minutes-actions">
             <button class="secondary-button" type="button" data-cancel-form data-cancel-route="speelweek" data-cancel-id="${escapeHtml(week.id)}">Annuleren</button>
-            <button class="primary-button" type="submit">Speelminuten opslaan</button>
+            <button class="primary-button" type="submit">Wedstrijd opslaan</button>
           </div>
         </form>
       ` : `
@@ -4993,6 +5091,7 @@ function renderSeasonWeekDetail(id) {
     </article>
   `).join("");
   const matchMinutes = getMatchMinutesForWeek(week.id);
+  const registeredGoals = matchMinutes.reduce((sum, record) => sum + (record.goals || 0), 0);
 
   app.innerHTML = `
     <article class="screen" aria-labelledby="season-week-title">
@@ -5019,17 +5118,17 @@ function renderSeasonWeekDetail(id) {
           ${week.note ? `<p class="season-note">${escapeHtml(week.note)}</p>` : ""}
         </section>
 
-        ${MATCH_MINUTES_WEEK_TYPES.includes(week.type) ? `
+        ${weekSupportsMatchRegistration(week) ? `
           <section class="content-card match-minutes-entry-card">
             <div>
-              <p class="eyebrow">Wedstrijdbelasting</p>
-              <h2>Speelminuten</h2>
+              <p class="eyebrow">Wedstrijd</p>
+              <h2>Wedstrijdregistratie</h2>
               <p>${matchMinutes.length
-                ? `${matchMinutes.length} ${matchMinutes.length === 1 ? "speler" : "spelers"} geregistreerd.`
-                : "Nog geen speelminuten geregistreerd."}</p>
+                ? `${matchMinutes.length} ${matchMinutes.length === 1 ? "speler" : "spelers"} · ${registeredGoals} spelersdoelpunten geregistreerd.`
+                : "Nog geen spelersstatistieken geregistreerd."}</p>
             </div>
             <button class="primary-button" type="button" data-match-minutes="${escapeHtml(week.id)}">
-              ${matchMinutes.length ? "Speelminuten bewerken" : "Speelminuten invoeren"}
+              ${matchMinutes.length || week.matchReflection ? "Wedstrijd bewerken" : "Wedstrijd registreren"}
             </button>
           </section>
         ` : ""}
@@ -5082,11 +5181,23 @@ function renderSeasonWeekDetail(id) {
           ${week.matchTitle ? `
             <p><strong>${escapeHtml(week.matchTitle)}</strong></p>
             <p>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</p>
+            ${week.matchGoalsFor !== null && week.matchGoalsAgainst !== null
+              ? `<p><strong>Uitslag vanuit VSV: ${week.matchGoalsFor}-${week.matchGoalsAgainst}</strong></p>`
+              : ""}
+            ${week.matchReflection
+              ? `<p class="season-note">${escapeHtml(week.matchReflection)}</p>`
+              : ""}
+            ${weekSupportsMatchRegistration(week)
+              ? `<button class="secondary-button compact-button" type="button" data-match-minutes="${escapeHtml(week.id)}">Wedstrijd bewerken</button>`
+              : ""}
           ` : `
             <div class="empty-history compact-empty">
-              <strong>Geen wedstrijd gekoppeld</strong>
-              Wedstrijdbeheer is nog niet beschikbaar.
+              <strong>Nog geen wedstrijd ingevuld</strong>
+              Registreer de wedstrijd om minuten, doelpunten en reflectie bij elkaar te bewaren.
             </div>
+            ${weekSupportsMatchRegistration(week)
+              ? `<button class="secondary-button compact-button" type="button" data-match-minutes="${escapeHtml(week.id)}">Wedstrijd registreren</button>`
+              : ""}
           `}
         </section>
 
@@ -8042,7 +8153,7 @@ function saveMatchMinutesForm(event) {
   const form = event.target;
   const seasonWeekId = form.dataset.seasonWeekId;
   const week = getSeasonWeek(seasonWeekId);
-  if (!week || !MATCH_MINUTES_WEEK_TYPES.includes(week.type)) return;
+  if (!week || !weekSupportsMatchRegistration(week)) return;
 
   const now = new Date().toISOString();
   const activePlayerIds = new Set(getActivePlayers().map((player) => player.id));
@@ -8050,12 +8161,30 @@ function saveMatchMinutesForm(event) {
     .filter((record) => !activePlayerIds.has(record.playerId));
   const records = [];
   const errors = [];
+  const rawGoalsFor = form.elements.matchGoalsFor.value.trim();
+  const rawGoalsAgainst = form.elements.matchGoalsAgainst.value.trim();
+  const hasGoalsFor = rawGoalsFor !== "";
+  const hasGoalsAgainst = rawGoalsAgainst !== "";
+  const matchGoalsFor = hasGoalsFor ? Number(rawGoalsFor) : null;
+  const matchGoalsAgainst = hasGoalsAgainst ? Number(rawGoalsAgainst) : null;
+
+  if (hasGoalsFor !== hasGoalsAgainst) {
+    errors.push("Vul beide kanten van de uitslag in, of laat beide leeg.");
+  }
+  if (
+    (hasGoalsFor && (!Number.isInteger(matchGoalsFor) || matchGoalsFor < 0 || matchGoalsFor > 99))
+    || (hasGoalsAgainst && (!Number.isInteger(matchGoalsAgainst) || matchGoalsAgainst < 0 || matchGoalsAgainst > 99))
+  ) {
+    errors.push("Vul een geldige uitslag in.");
+  }
 
   form.querySelectorAll("[data-match-minutes-player]").forEach((row) => {
     const input = row.querySelector("[data-match-minutes-input]");
+    const goalsInput = row.querySelector("[data-match-goals-input]");
     const startingEleven = row.querySelector('[name="startingEleven"]').checked;
     const rawValue = input.value.trim();
-    if (!rawValue && !startingEleven) return;
+    const rawGoals = goalsInput.value.trim();
+    if (!rawValue && !rawGoals && !startingEleven) return;
     if (!rawValue) {
       const player = getPlayer(row.dataset.matchMinutesPlayer);
       errors.push(`Vul speelminuten in voor ${player ? player.displayName : "de geselecteerde speler"}.`);
@@ -8063,9 +8192,14 @@ function saveMatchMinutesForm(event) {
     }
 
     const minutes = Number(rawValue);
+    const goals = rawGoals ? Number(rawGoals) : 0;
     const player = getPlayer(row.dataset.matchMinutesPlayer);
     if (!Number.isInteger(minutes) || minutes < 0 || minutes > 80) {
       errors.push(`Vul voor ${player ? player.displayName : "iedere speler"} hele minuten tussen 0 en 80 in.`);
+      return;
+    }
+    if (!Number.isInteger(goals) || goals < 0 || goals > 20) {
+      errors.push(`Vul voor ${player ? player.displayName : "iedere speler"} een geldig aantal doelpunten in.`);
       return;
     }
 
@@ -8074,6 +8208,7 @@ function saveMatchMinutesForm(event) {
       seasonWeekId,
       playerId: row.dataset.matchMinutesPlayer,
       minutes,
+      goals,
       startingEleven,
       note: (getMatchMinutesForWeek(seasonWeekId)
         .find((record) => record.playerId === row.dataset.matchMinutesPlayer) || {}).note || "",
@@ -8091,9 +8226,18 @@ function saveMatchMinutesForm(event) {
     [...retainedInactiveRecords, ...records]
   )) return;
 
+  if (!updateSeasonWeek({
+    ...week,
+    matchTitle: form.elements.matchTitle.value.trim(),
+    matchGoalsFor,
+    matchGoalsAgainst,
+    matchReflection: form.elements.matchReflection.value.trim(),
+    updatedAt: now
+  })) return;
+
   focusedMinutesInput = null;
   formDirty = false;
-  showToast("Speelminuten opgeslagen");
+  showToast("Wedstrijd opgeslagen");
   goTo("speelweek", seasonWeekId);
 }
 
@@ -8286,6 +8430,9 @@ function saveSeasonWeekForm(event) {
     id: form.dataset.weekId || createUniqueId("speelweek"),
     trainingIds: existing ? existing.trainingIds : [],
     matchTitle: existing ? existing.matchTitle : "",
+    matchGoalsFor: existing ? existing.matchGoalsFor : null,
+    matchGoalsAgainst: existing ? existing.matchGoalsAgainst : null,
+    matchReflection: existing ? existing.matchReflection : "",
     matchId: existing ? existing.matchId : null,
     createdAt: form.dataset.createdAt || now,
     updatedAt: now
