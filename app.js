@@ -325,6 +325,41 @@ function seedWeek39Trainings() {
   }
 }
 
+function seedWeek40Trainings() {
+  const marker = "coachos-week40-trainings-2026-v1";
+  try {
+    if (localStorage.getItem(marker)) return;
+    const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
+    const rawWeeks = localStorage.getItem(SEASON_WEEKS_STORAGE_KEY);
+    const existing = rawTrainings ? JSON.parse(rawTrainings) : TRAININGS;
+    if (!Array.isArray(existing) || (rawWeeks && !Array.isArray(JSON.parse(rawWeeks)))) {
+      showToast("Week 40 kon niet worden toegevoegd: controleer je opgeslagen gegevens.");
+      return;
+    }
+    const card = getWeekCard("weekkaart-vsv-jo16-1-2026-2027-2026-w40");
+    if (!card || !getPrimaryCalendarWeek(card)) return;
+    const additions = [];
+    const selected = WEEK40_TRAININGS.map((source) => {
+      const current = existing.find((training) => (
+        training.id === source.id
+        || (training.plannerWeekKey === source.plannerWeekKey && training.plannerDay === source.plannerDay)
+        || training.date === source.date
+      ));
+      if (current) return current;
+      additions.push(normalizeTraining(source));
+      return source;
+    });
+    if (additions.length && !writeStorage(TRAININGS_STORAGE_KEY, [...existing, ...additions])) return;
+    for (const training of selected) {
+      if (!linkTrainingToWeekCard(card, training.id)) return;
+    }
+    writeStorage(marker, true);
+  } catch (error) {
+    console.warn("Week 40 kon niet veilig worden toegevoegd.", error);
+    showToast("Week 40 kon niet worden toegevoegd. Bestaande gegevens zijn behouden.");
+  }
+}
+
 function getTrainings() {
   try {
     const saved = localStorage.getItem(TRAININGS_STORAGE_KEY);
@@ -8760,6 +8795,7 @@ window.addEventListener("afterprint", () => {
 migrateWeekCards();
 seedWeek38Trainings();
 seedWeek39Trainings();
+seedWeek40Trainings();
 migrateLegacyAttachments();
 seedLibraryExercisesIfEmpty();
 setupInstallExperience();
