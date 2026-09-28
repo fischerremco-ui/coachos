@@ -971,24 +971,11 @@ const WEEK40_TRAININGS = [
     "block": "Blok 2 — Druk zetten en reageren na balverlies",
     "totalDuration": 90,
     "mainGoal": "De ploeg verdedigt vanuit het centrum: de eerste verdediger stuurt de balbezitter naar buiten, de rest sluit aan en houdt de as bezet. Wordt de eerste druk uitgespeeld, dan stopt het blind doorjagen en herstelt het team compact tussen bal en eigen doel.",
-    "desiredBehavior": "Dichtste speler benadert van binnen naar buiten en geeft richting.
-Spelers achter de druk sluiten door en bewaken de as.
-Back en buitenspeler werken aan de flank samen.
-Is de druk weg: herstel compact, niet één voor één blijven jagen.
-Na balwinst eerst vooruit kijken; lukt dat niet, speel uit de druk.",
-    "evaluationCriteria": "Turf 10 verdedigende momenten: wordt de tegenstander bij minstens 7 naar buiten gestuurd?
-Bij doorbroken eerste druk: staat de as binnen enkele seconden weer bezet?
-In de eindpartij: herkennen spelers zelfstandig wanneer ze doorjagen en wanneer ze herstellen?",
-    "coachWords": "As dicht
-Stuur naar buiten
-Sluit aan
-Druk weg? Herstel",
+    "desiredBehavior": "Dichtste speler benadert van binnen naar buiten en geeft richting.\nSpelers achter de druk sluiten door en bewaken de as.\nBack en buitenspeler werken aan de flank samen.\nIs de druk weg: herstel compact, niet één voor één blijven jagen.\nNa balwinst eerst vooruit kijken; lukt dat niet, speel uit de druk.",
+    "evaluationCriteria": "Turf 10 verdedigende momenten: wordt de tegenstander bij minstens 7 naar buiten gestuurd?\nBij doorbroken eerste druk: staat de as binnen enkele seconden weer bezet?\nIn de eindpartij: herkennen spelers zelfstandig wanneer ze doorjagen en wanneer ze herstellen?",
+    "coachWords": "As dicht\nStuur naar buiten\nSluit aan\nDruk weg? Herstel",
     "expectedLoad": "Middel. Twee dagen na de wedstrijd: veel balacties en korte intensieve reeksen, geen conditionele finisher. Spelers met veel wedstrijdminuten kunnen in de hoofdvorm één reeks korter; spelers met weinig minuten doen alle reeksen.",
-    "materials": "16–20 pionnen
-Hesjes in 2 of 3 kleuren
-8–10 ballen
-2 mini-doelen en bij voorkeur 1 groot doel
-Drinken naast het veld",
+    "materials": "16–20 pionnen\nHesjes in 2 of 3 kleuren\n8–10 ballen\n2 mini-doelen en bij voorkeur 1 groot doel\nDrinken naast het veld",
     "setPiece": "Geen apart spelhervattingsblok; focus op teamafstand en herstel na balverlies.",
     "plannerDay": "monday",
     "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W40",
