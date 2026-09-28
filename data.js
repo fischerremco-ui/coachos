@@ -959,3 +959,94 @@ const WEEK39_TRAININGS = [
     "updatedAt": "2026-09-21T08:00:00.000Z"
   }
 ];
+
+// Week 40: as sluiten, naar buiten sturen en verbonden blijven.
+const WEEK40_TRAININGS = [
+  {
+    "id": "training-rm-ma-w40",
+    "code": "W40-MA",
+    "title": "As dicht, stuur naar buiten",
+    "date": "2026-09-28",
+    "theme": "As sluiten en naar buiten sturen",
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "totalDuration": 90,
+    "mainGoal": "De ploeg verdedigt vanuit het centrum: de eerste verdediger stuurt de balbezitter naar buiten, de rest sluit aan en houdt de as bezet. Wordt de eerste druk uitgespeeld, dan stopt het blind doorjagen en herstelt het team compact tussen bal en eigen doel.",
+    "desiredBehavior": "Dichtste speler benadert van binnen naar buiten en geeft richting.
+Spelers achter de druk sluiten door en bewaken de as.
+Back en buitenspeler werken aan de flank samen.
+Is de druk weg: herstel compact, niet één voor één blijven jagen.
+Na balwinst eerst vooruit kijken; lukt dat niet, speel uit de druk.",
+    "evaluationCriteria": "Turf 10 verdedigende momenten: wordt de tegenstander bij minstens 7 naar buiten gestuurd?
+Bij doorbroken eerste druk: staat de as binnen enkele seconden weer bezet?
+In de eindpartij: herkennen spelers zelfstandig wanneer ze doorjagen en wanneer ze herstellen?",
+    "coachWords": "As dicht
+Stuur naar buiten
+Sluit aan
+Druk weg? Herstel",
+    "expectedLoad": "Middel. Twee dagen na de wedstrijd: veel balacties en korte intensieve reeksen, geen conditionele finisher. Spelers met veel wedstrijdminuten kunnen in de hoofdvorm één reeks korter; spelers met weinig minuten doen alle reeksen.",
+    "materials": "16–20 pionnen
+Hesjes in 2 of 3 kleuren
+8–10 ballen
+2 mini-doelen en bij voorkeur 1 groot doel
+Drinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok; focus op teamafstand en herstel na balverlies.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W40",
+    "parts": [
+      {
+        "id": "training-rm-ma-w40-deel-1",
+        "name": "Met bal activeren + 1v1 naar buiten sturen",
+        "duration": 15,
+        "type": "Warming-up",
+        "organization": "Tweetallen in banen van 12×6 m. Na 6 min passen en bewegen maak je per baan een 1v1 met twee kleine poortjes aan de buitenzijde. Verdediger start centraal en probeert de aanvaller naar één kant te dwingen.",
+        "flow": "6 min dynamisch met bal: passen, open aannemen, korte versnelling en gecontroleerd remmen. Daarna 3×2 min 1v1, telkens van rol wisselen, met korte drink-/wisselmomenten.",
+        "attackingCoaching": "Eerste aanname vooruit als het kan; gebruik tempoverandering.",
+        "defendingCoaching": "Kom niet recht op de man af. Binnenkant dicht, lichaam halfopen, stuur naar buiten en blijf op je voeten.",
+        "transitionCoaching": "Na balwinst meteen uit de druk wegspelen of indribbelen.",
+        "rulesScoring": "Aanvaller scoort door een poortje; verdediger scoort bij balwinst door over de startlijn te dribbelen.",
+        "variations": "Oneven aantal: één drietal. Bij weinig spelers meerdere korte banen; bij veel spelers parallelle 1v1-vakken."
+      },
+      {
+        "id": "training-rm-ma-w40-deel-2",
+        "name": "4v4 + 2: centrum dicht, bal naar buiten",
+        "duration": 20,
+        "type": "Positiespel",
+        "organization": "10 spelers: 4v4 + 2 neutrale spelers in 28×22 m. Neutralen staan aan de korte zijden en spelen met balbezit. Met 12: 5v5 + 2 in 32×24 m; met 8: 3v3 + 2 in 24×20 m.",
+        "flow": "2 min uitleg; 4×3 min spel met 1 min rust/coachmoment na iedere reeks; laatste 2 min drinken en ombouwen.",
+        "attackingCoaching": "Maak veld breed, speel door de as als die echt open is, anders via buitenkant.",
+        "defendingCoaching": "Eerste verdediger stuurt van binnen naar buiten. Tweede en derde speler sluiten naar de balzijde zonder de as open te laten.",
+        "transitionCoaching": "Bal kwijt: dichtste speler geeft richting, rest eerst centrum dicht. Druk mislukt: samen herstellen.",
+        "rulesScoring": "6 passes = 1 punt. Verdedigende ploeg krijgt een coachpunt als de balbezittende ploeg onder druk naar de zijlijn wordt gedwongen en daar balverlies lijdt.",
+        "variations": "Te makkelijk in balbezit: 26×20 m. Te veel flipperkast: 30×24 m. Geen verplichte contactlimiet."
+      },
+      {
+        "id": "training-rm-ma-w40-deel-3",
+        "name": "Richtingsspel: buiten vastzetten of compact herstellen",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "12 spelers: 6v6 op 42×34 m, drie verticale stroken gemarkeerd. Met keeper: groot doel tegenover twee mini-doelen. Zonder keeper: twee mini-doelen per kant. Met 14: 7v7 op 46×36 m; met 10: 5v5 op 36×30 m.",
+        "flow": "3 min uitleg; 4×4 min spelen met 1 min herstel na de eerste drie reeksen; 3 min drinken/overgang. Gewoon richtingsvoetbal. Bij balverlies bepaalt de eerste verdediger de kant; de rest sluit aan. Wordt de druk uitgespeeld, eerst weer compact worden.",
+        "attackingCoaching": "Herken de vrije kant en speel uit de druk. Niet verplicht door het centrum.",
+        "defendingCoaching": "9/10 schermen de binnenkant af. Aan de flank sluiten buitenspeler en back samen. Achterste lijn blijft verbonden en bewaakt diepte.",
+        "transitionCoaching": "Dichtste druk, as dicht. Geen echte druk meer? Herstel en organiseer opnieuw.",
+        "rulesScoring": "Gewoon doelpunt = 1. Extra punt voor een balverovering in een buitenstrook die binnen 8 seconden tot doelpoging leidt.",
+        "variations": "Veel wedstrijdminuten: één reeks rust of neutrale rol. Weinig wedstrijdminuten: alle reeksen actief."
+      },
+      {
+        "id": "training-rm-ma-w40-deel-4",
+        "name": "Vrije partij: herkennen zonder trainer",
+        "duration": 30,
+        "type": "Partijvorm",
+        "organization": "Zelfde teams, zo groot mogelijk passend veld. Richtlijn: 6v6 op 45×35 m, 7v7 op 50×38 m. Gebruik keepers als beschikbaar.",
+        "flow": "Eerste 12 min: speel door en coach alleen met de vier coachwoorden. 2 min teamoverleg. Daarna 14 min volledig vrij spel waarin de trainer vooral observeert. Laatste 2 min korte terugvraag en opruimen.",
+        "attackingCoaching": "Voetbal vooruit als het kan; anders behoud en nieuwe ruimte zoeken.",
+        "defendingCoaching": "Niet allemaal naar de bal. Centrum eerst, dan druk. Flank is de val, niet de as.",
+        "transitionCoaching": "Spelers bepalen zelf: doorjagen of herstellen.",
+        "rulesScoring": "Gewone wedstrijdregels. Geen bonuspunten in het laatste blok.",
+        "variations": "Oneven aantal: één neutrale speler die met balbezit meespeelt. Bij 8 spelers 4v4 op 30×24 m."
+      }
+    ],
+    "createdAt": "2026-09-28T16:15:00.000Z",
+    "updatedAt": "2026-09-28T16:15:00.000Z"
+  }
+];
