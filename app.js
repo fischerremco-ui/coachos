@@ -326,7 +326,7 @@ function seedWeek39Trainings() {
 }
 
 function seedWeek40Trainings() {
-  const marker = "coachos-week40-trainings-2026-v1";
+  const marker = "coachos-week40-trainings-2026-v2";
   try {
     if (localStorage.getItem(marker)) return;
     const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
@@ -343,7 +343,6 @@ function seedWeek40Trainings() {
       const current = existing.find((training) => (
         training.id === source.id
         || (training.plannerWeekKey === source.plannerWeekKey && training.plannerDay === source.plannerDay)
-        || training.date === source.date
       ));
       if (current) return current;
       additions.push(normalizeTraining(source));
