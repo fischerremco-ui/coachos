@@ -1035,5 +1035,112 @@ const WEEK40_TRAININGS = [
     ],
     "createdAt": "2026-09-28T16:15:00.000Z",
     "updatedAt": "2026-09-28T16:15:00.000Z"
+  },
+  {
+    "id": "training-rm-do-w40",
+    "code": "W40-DO",
+    "title": "5 seconden: druk, aansluiten, compact",
+    "date": "2026-10-01",
+    "theme": "Omschakelen na balverlies en compact blijven",
+    "block": "Blok 2 — Druk zetten en reageren na balverlies",
+    "totalDuration": 82,
+    "mainGoal": "Na balverlies reageert de ploeg direct als één geheel: de dichtstbijzijnde speler zet druk, de rest sluit aan en houdt het centrum dicht. Is de bal binnen vijf seconden niet terug, dan herstelt het team samen compact. De training blijft scherp en wedstrijdgericht zonder de benen twee dagen voor Overbos zwaar te belasten.",
+    "desiredBehavior": "Bal kwijt: dichtstbijzijnde speler zet direct druk.\nDe rest sluit meteen aan en houdt de as dicht.\nBinnen vijf seconden bal terugwinnen als het moment er is.\nIs de eerste druk weg: niet blijven doorjagen, maar samen compact herstellen.\nNa balwinst eerst vooruit kijken en snel aansluiten.",
+    "evaluationCriteria": "Bij minimaal 7 van 10 balverliezen volgt direct herkenbare eerste druk.\nMiddenveld en achterste lijn sluiten zichtbaar mee aan in plaats van achter te blijven.\nSpelers herkennen zelfstandig wanneer de vijf-secondenactie voorbij is en herstellen compact.\nIn de eindpartij blijft de onderlinge coaching hoorbaar zonder voortdurende sturing van de trainer.",
+    "coachWords": "Eerste druk\nSluit aan\nAs dicht\nVijf seconden\nDruk weg? Herstel",
+    "expectedLoad": "Licht-middel. Korte intensieve blokken, veel balcontacten en geen conditionele finisher. Twee dagen voor de wedstrijd tegen Overbos blijft de totale belasting bewust beheerst.",
+    "materials": "16–20 pionnen\nHesjes in 2 of 3 kleuren\n8–10 ballen\n2 grote doelen indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Focus ligt op omschakelen, onderlinge afstanden en compactheid richting zaterdag.",
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W40",
+    "parts": [
+      {
+        "id": "training-rm-do-w40-deel-1",
+        "name": "Dynamische warming-up met bal",
+        "duration": 10,
+        "type": "Warming-up",
+        "organization": "Vak van circa 20×20 m. Iedereen met bal of per tweetal. Genoeg ruimte om te dribbelen, draaien en kort te versnellen.",
+        "flow": "Rustig starten met dribbelen, draaien en binnen-/buitenkant voet. Daarna per tweetal inspelen, kaatsen, open draaien en meenemen. Laatste 2 min: op signaal 5 sec maximale actie met bal, daarna terug naar rustig tempo.",
+        "attackingCoaching": "Open lichaam, eerste aanname uit de druk en na de pass meteen opnieuw aanspeelbaar worden.",
+        "defendingCoaching": "",
+        "transitionCoaching": "Na het signaal direct schakelen: vijf seconden scherp, daarna controle.",
+        "rulesScoring": "Geen score; kwaliteit en tempo staan voorop.",
+        "variations": "Bij weinig ruimte in twee kleinere vakken werken. Bij oneven aantal één drietal."
+      },
+      {
+        "id": "training-rm-do-w40-deel-2",
+        "name": "Positiespel 5v2 / 6v2",
+        "duration": 15,
+        "type": "Positiespel",
+        "organization": "Twee of drie vakken, afhankelijk van het aantal spelers. 5v2 of 6v2. Richtlijn 12×12 tot 15×15 m.",
+        "flow": "Maximaal twee keer raken. Acht passes is een punt. Winnen verdedigers de bal, dan proberen zij direct uit het vak te dribbelen. Bal kwijt? De ploeg in balbezit jaagt onmiddellijk terug.",
+        "attackingCoaching": "Vooruit denken, goede lichaamshouding, tempo in de bal en direct opnieuw vrijlopen.",
+        "defendingCoaching": "Eerste verdediger zet echte druk; tweede verdediger leest de volgende pass.",
+        "transitionCoaching": "Bal kwijt: eerste speler druk, anderen sluiten aan. Niet automatisch allemaal achteruit.",
+        "rulesScoring": "8 passes = 1 punt. Verdedigers: bal winnen en uit het vak dribbelen = 1 punt.",
+        "variations": "Te makkelijk: vak kleiner of één keer raken voor buitenste spelers. Te wild: vak iets groter en vrij aantal contacten."
+      },
+      {
+        "id": "training-rm-do-w40-deel-3",
+        "name": "4v4 + 3: vijf-secondenjacht",
+        "duration": 20,
+        "type": "Spelvorm",
+        "organization": "Vak circa 30×25 m. 4v4 met 3 neutrale spelers die altijd met de ploeg in balbezit spelen. Bij andere aantallen schaal je naar 3v3+2 of 5v5+3.",
+        "flow": "De ploeg in balbezit probeert acht passes te halen. Bij balverlies start direct de vijf-secondenjacht. Win je de bal binnen vijf seconden terug, dan volgt een bonuspunt en speelt het spel direct door.",
+        "attackingCoaching": "Gebruik de overtalspeler, speel uit de druk en blijf na een pass bewegen.",
+        "defendingCoaching": "Eerste druk moet richting geven. Spelers achter de druk maken afstanden klein en houden het centrum dicht.",
+        "transitionCoaching": "Vijf seconden volle actie. Lukt heroveren niet, organiseer meteen compact in plaats van individueel door te jagen.",
+        "rulesScoring": "Bal binnen 5 sec terug = 2 punten. Acht passes in balbezit = 1 punt.",
+        "variations": "Te makkelijk in balbezit: vak kleiner. Te veel balverlies: groter vak. Neutrale spelers eventueel maximaal twee contacten."
+      },
+      {
+        "id": "training-rm-do-w40-deel-4",
+        "name": "Tactisch partijspel: samen vooruit verdedigen",
+        "duration": 17,
+        "type": "Partijvorm",
+        "organization": "7v7 of 8v8 richting twee doelen. Gebruik een passend veld van circa 50×40 m en keepers als die beschikbaar zijn.",
+        "flow": "Vrij partijspel met één bonusregel: een doelpunt binnen 10 sec na balverovering telt dubbel. Leg alleen kort stil wanneer de voorste spelers druk zetten maar middenveld of laatste lijn niet aansluit.",
+        "attackingCoaching": "Na balwinst hoofd omhoog: kan de eerste of tweede pass vooruit? Voorste spelers maken direct diepte en breedte.",
+        "defendingCoaching": "Buitenspeler en 9 zetten richting in de eerste druk. Middenveld stapt door, 6 bewaakt het centrum en de laatste lijn sluit aan.",
+        "transitionCoaching": "Geen losse eilanden. De hele ploeg beweegt mee met de eerste druk. Wordt die uitgespeeld, samen herstellen.",
+        "rulesScoring": "Normaal doelpunt = 1. Doelpunt binnen 10 sec na balverovering = 2.",
+        "variations": "Bij 12 spelers 6v6; bij 10 spelers 5v5 op kleiner veld. Eventueel één neutrale speler bij een oneven aantal."
+      },
+      {
+        "id": "training-rm-do-w40-deel-5",
+        "name": "Winnaar blijft staan",
+        "duration": 15,
+        "type": "Partijvorm",
+        "organization": "Klein veld. 5v5 of 6v6; bij voldoende spelers drie teams. Wedstrijdjes van 2,5–3 min.",
+        "flow": "Winnaar blijft staan. Bij gelijkspel gaat het team dat het langst staat eruit. Coach zo weinig mogelijk en laat spelers zelf druk, herstel en coaching organiseren.",
+        "attackingCoaching": "Speel met lef en zoek het doel zodra de tegenstander open staat.",
+        "defendingCoaching": "Samen druk zetten. Geen speler alleen laten doorjagen.",
+        "transitionCoaching": "Bal binnen vijf seconden teruggewonnen = direct doorvoetballen met vrije aanval.",
+        "rulesScoring": "Winnaar blijft. Bij gelijkspel wisselt het langst staande team.",
+        "variations": "Met twee teams speel je korte blokken en houd je de score over meerdere rondes bij."
+      },
+      {
+        "id": "training-rm-do-w40-deel-6",
+        "name": "Korte afsluiting",
+        "duration": 5,
+        "type": "Afsluiting",
+        "organization": "Rustig bewegen, ballen verzamelen en korte kring.",
+        "flow": "Vraag spelers in één zin te benoemen wat na balverlies eerst moet gebeuren. Sluit af met de drie woorden voor zaterdag: eerste druk, aansluiten, herstellen.",
+        "attackingCoaching": "",
+        "defendingCoaching": "",
+        "transitionCoaching": "Eerste druk — aansluiten — druk weg? herstellen.",
+        "rulesScoring": "",
+        "variations": ""
+      }
+    ],
+    "observationPoints": [
+      "Wie neemt spontaan de eerste druk na balverlies?",
+      "Sluit de 6 mee aan zonder het centrum open te laten?",
+      "Schuift de laatste lijn mee of blijft die hangen?",
+      "Herkennen spelers zelfstandig wanneer de vijf seconden voorbij zijn?",
+      "Blijft het team in de laatste partij coachen zonder veel interventie?"
+    ],
+    "createdAt": "2026-10-01T15:40:00.000Z",
+    "updatedAt": "2026-10-01T15:40:00.000Z"
   }
 ];
