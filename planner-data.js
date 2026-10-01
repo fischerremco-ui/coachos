@@ -656,10 +656,10 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-01",
-        "objective": "As sluiten en naar buiten sturen",
-        "suggestedContent": "8v8 met centrale verboden doorbraakzone voor aanvallers.",
-        "load": "Middel.",
-        "duration": 90
+        "objective": "Na balverlies direct druk, aansluiten en compact herstellen",
+        "suggestedContent": "Warming-up met bal; 5v2/6v2; 4v4+3 met vijf-secondenjacht; tactisch partijspel; winnaar blijft.",
+        "load": "Licht-middel, wedstrijdgericht richting Overbos.",
+        "duration": 82
       }
     },
     "setPiece": "Verdedigende corner: zones, tegenstander en uitloop.",
