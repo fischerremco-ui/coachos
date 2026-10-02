@@ -106,7 +106,11 @@ const KNOWN_MATCHES = {
     matchGoalsAgainst: 1
   },
   "speelweek-2026-2027-08": {
-    matchTitle: "Overbos sv. O16-3 – VSV O16-1"
+    matchId: "wedstrijd-2026-10-03-overbos-vsv",
+    matchTitle: "Overbos sv. O16-3 – VSV O16-1",
+    matchGoalsFor: null,
+    matchGoalsAgainst: null,
+    matchReflection: ""
   }
 };
 
