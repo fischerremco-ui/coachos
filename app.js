@@ -807,6 +807,7 @@ function normalizeSeasonWeek(week = {}) {
   const scheduledTitle = scheduledWeek && scheduledWeek.matchTitle;
   const scheduledGoalsFor = scheduledWeek && scheduledWeek.matchGoalsFor;
   const scheduledGoalsAgainst = scheduledWeek && scheduledWeek.matchGoalsAgainst;
+  const scheduledMatchId = scheduledWeek && scheduledWeek.matchId;
 
   return {
     id: week.id || createUniqueId("speelweek"),
@@ -825,7 +826,9 @@ function normalizeSeasonWeek(week = {}) {
     matchGoalsFor: normalizeOptionalScore(week.matchGoalsFor ?? scheduledGoalsFor),
     matchGoalsAgainst: normalizeOptionalScore(week.matchGoalsAgainst ?? scheduledGoalsAgainst),
     matchReflection: String(week.matchReflection || "").trim(),
-    matchId: typeof week.matchId === "string" && week.matchId ? week.matchId : null,
+    matchId: typeof week.matchId === "string" && week.matchId
+      ? week.matchId
+      : (typeof scheduledMatchId === "string" && scheduledMatchId ? scheduledMatchId : null),
     createdAt: week.createdAt || "",
     updatedAt: week.updatedAt || ""
   };
