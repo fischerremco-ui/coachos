@@ -1148,3 +1148,91 @@ const WEEK40_TRAININGS = [
     "updatedAt": "2026-10-01T15:40:00.000Z"
   }
 ];
+
+// Week 41: na Overbos terug naar aanvallen/opbouwen.
+// Wedstrijdprobleem: te veel door de as, te weinig breedte en te weinig meebewegen.
+const WEEK41_TRAININGS = [
+  {
+    "id": "training-rm-ma-w41",
+    "code": "W41-MA",
+    "title": "Maak het veld groot: vrije kant vinden",
+    "date": "2026-10-05",
+    "theme": "Opbouwen: veld groot maken en vrije kant herkennen",
+    "block": "Blok 1 — Opbouwen en de vrije man vinden",
+    "totalDuration": 90,
+    "mainGoal": "Spelers herkennen tijdens de opbouw rond de middenlijn waar de vrije ruimte ligt. Is de as open, dan spelen we erdoorheen; is de as vol, dan gebruiken we de buitenkant of verplaatsen we naar de vrije kant. Na een pass of positiewisseling wordt de vrijgekomen ruimte opnieuw bezet.",
+    "desiredBehavior": "In balbezit maken we het veld breed en diep.\nBal beweegt = spelers bewegen mee en worden opnieuw aanspeelbaar.\nKomt een buitenspeler naar binnen, dan bewaakt een andere speler de breedte.\nBij drukte aan één kant herkennen we de vrije kant en verplaatsen we de bal.\nNa balverlies blijft de bekende afspraak gelden: dichtste speler druk, rest sluit aan; lukt heroveren niet, dan compact herstellen.",
+    "evaluationCriteria": "Observeer 10 opbouwmomenten: is aan beide kanten voldoende breedte in minstens 7 momenten?\nObserveer 5 momenten waarin één kant volloopt: wordt in minstens 3 gevallen de vrije kant gevonden?\nZie je in de eindpartij dat spelers na hun pass opnieuw positie kiezen in plaats van stil blijven staan?\nBij positiewisselingen: blijft de veldbezetting herkenbaar zonder dat iedereen naar de bal komt?",
+    "coachWords": "Maak groot\nKijk andere kant\nBal beweegt, jij beweegt\nWie houdt breedte?\nAs open? Door. As dicht? Buiten.",
+    "expectedLoad": "Middel. Twee dagen na Overbos: veel voetbalhandelingen en beslissingen, geen losse conditionele finisher. Spelers met zware benen kunnen in de hoofdvorm een korte reeks als steunspeler doen.",
+    "materials": "12–18 pionnen\n8–10 ballen\nHesjes in 2 kleuren + eventueel 2 neutrale hesjes\n4 mini-doelen\n1 groot doel en keeper indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Het accent is veldbezetting, vrije kant herkennen en opnieuw positie kiezen.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W41",
+    "parts": [
+      {
+        "id": "training-rm-ma-w41-deel-1",
+        "name": "Kriskrassen: aanbieden, scannen en weer bewegen",
+        "duration": 10,
+        "type": "Warming-up",
+        "organization": "Hoofdvorm 20×20 m. Bij 8–10 spelers 18×18 m; bij 11–14 spelers 20×20 m. Ongeveer de helft staat met bal rondom het vak, de andere helft beweegt zonder bal in het vak.",
+        "flow": "Spelers binnen bieden zich aan bij een speler buiten, ontvangen een grondpass, spelen terug en zoeken direct een nieuwe vrije zijde. Werk in blokken van 45 sec met 15 sec wissel. Varieer looprichting en laat in de laatste blokken vóór ontvangst over de schouder kijken. Geen kopballen nodig.",
+        "attackingCoaching": "Kijk vóór je krijgt. Kom niet allemaal naar dezelfde bal. Na terugspelen meteen een nieuwe ruimte zoeken.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen score. Kwaliteit, oriëntatie en continu bewegen.",
+        "variations": "Laat buitenste spelers na een pass één positie doorschuiven, zodat ook zij voortdurend moeten scannen."
+      },
+      {
+        "id": "training-rm-ma-w41-deel-2",
+        "name": "4v3 / 5v4 naar zijkantdoelen: waar is de vrije kant?",
+        "duration": 20,
+        "type": "Positiespel",
+        "organization": "Basis uit de KNVB-vorm: 40×30 m met 4 mini-doelen, twee per achterlijn en ongeveer 5 m vanaf de zijlijn. 7–8 spelers: 4v3 op 36×28 m. 9–10 spelers: 5v4 op 40×30 m. 11–12 spelers: 5v5 + 1 of 2 neutrale zijspelers op 42×32 m.",
+        "flow": "Beide teams kunnen scoren op één van de twee doelen aan de overzijde. Start steeds bij een team in balbezit. Speel 4×4 min met 1 min korte feedback na reeks 2 en 3. Laat het spel vooral doorlopen; stop alleen als iedereen structureel naar de balzijde trekt.",
+        "attackingCoaching": "As open? Gebruik hem. Staat het midden vol, kijk dan vóór ontvangst naar de andere kant. Na je pass opnieuw positie kiezen. Buitenspeler naar binnen? Iemand anders houdt breedte.",
+        "defendingCoaching": "Verdedig compact genoeg om het aanvallende team echt te dwingen de vrije kant te herkennen.",
+        "transitionCoaching": "Bal kwijt: dichtste speler direct druk; anderen sluiten aan. Bal gewonnen: eerste blik naar vrije zijde.",
+        "rulesScoring": "Normaal doelpunt = 1. Doelpunt nadat de bal zichtbaar van de ene helft van de veldbreedte naar de andere is verplaatst = 2.",
+        "variations": "Te makkelijk: 2–3 m smaller. Te druk en veel toevalsballen: 2–3 m breder. Bij neutralen maximaal 2 contacten."
+      },
+      {
+        "id": "training-rm-ma-w41-deel-3",
+        "name": "Opbouwen rond de middenlijn: keeper naar vrije kant",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Schaalbaar vanaf de KNVB-vorm 6+K tegen 5 op 55×35 m. Met 10 totaal: 5+K tegen 4 op 48×32 m. Met 11: 5+K tegen 5 op 50×34 m. Met 12: 6+K tegen 5 op 55×35 m. Groot doel met keeper aan de startzijde, één klein doel centraal aan de overzijde.",
+        "flow": "Iedere herstart begint bij de keeper van het opbouwteam. Opbouwteam probeert via verzorgd positiespel het kleine doel te bereiken. Verdedigers counteren na balwinst direct richting het grote doel. Speel 4×4 min met circa 1 min herstel/feedback en gebruik de laatste minuten voor overgang en drinken.",
+        "attackingCoaching": "Centrum niet automatisch zoeken. Maak eerst breedte, lok druk en herken daarna: door de as, buitenom of verplaatsen. De 6 scant vóór ontvangst en helpt de bal van drukke naar vrije kant.",
+        "defendingCoaching": "Verdedigers mogen echt druk zetten. Zo moet het opbouwteam informatie gebruiken in plaats van een patroon aflopen.",
+        "transitionCoaching": "Na balverlies meteen eerste druk. Is de counter niet direct te stoppen, herstel tussen bal en doel.",
+        "rulesScoring": "Opbouwteam scoort in klein doel = 1. Verdedigers scoren in groot doel na verovering = 1. Geen verplichte contactlimiet.",
+        "variations": "Wordt de vrije kant te makkelijk gevonden, zet het kleine doel 4–5 m uit het midden. Halverwege verplaats je het naar de andere kant. Zo moeten spelers opnieuw kijken."
+      },
+      {
+        "id": "training-rm-ma-w41-deel-4",
+        "name": "Vrije partij: veldbezetting behouden zonder trainer",
+        "duration": 35,
+        "type": "Partijvorm",
+        "organization": "Kies op basis van opkomst. Twee keepers: 5+K tegen 5+K op 50×34 m; alleen bij voldoende spelers 6+K tegen 6+K op circa 55×38 m. Eén keeper: 5+K tegen 5 op 50×35 m, groot doel tegenover 2 mini-doelen; na iedere reeks rollen/richting wisselen. Geen keeper: 5v5 op 45×35 m of 6v6 op 50×38 m, met 2 mini-doelen per achterlijn.",
+        "flow": "Eerste 12 min coach je alleen met de vaste woorden. Daarna 2 min teamoverleg: waar ligt de ruimte en wie bewaakt breedte? Vervolgens 16 min zo vrij mogelijk spelen. Laatste 5 min blijven onderdeel van de partij: weinig coachen, daarna direct een korte terugvraag bij het opruimen.",
+        "attackingCoaching": "Niet 'verplicht buitenom'. Herken wat de tegenstander weggeeft. Bal beweegt = wij bewegen. Na een positiewisseling moet de ruimte opnieuw bezet zijn.",
+        "defendingCoaching": "Compact verdedigen mag juist; dat maakt zichtbaar of de aanvallende ploeg kan verplaatsen en de vrije kant herkennen.",
+        "transitionCoaching": "Ons oude principe blijft leven: bal kwijt, eerste druk en aansluiten; druk weg, samen herstellen.",
+        "rulesScoring": "Eerste 12 min: doelpunt na duidelijke kantwissel telt dubbel. Daarna gewone wedstrijdregels en geen bonuspunten.",
+        "variations": "Bij oneven aantal één neutrale speler die altijd met balbezit meespeelt. Zet die bij voorkeur centraal zodat breedte door eigen spelers moet worden gemaakt."
+      }
+    ],
+    "observationPoints": [
+      "Blijven beide buitenkanten beschikbaar of trekt iedereen naar de bal?",
+      "Wie kijkt vóór ontvangst al naar de vrije kant?",
+      "Beweegt een speler opnieuw nadat hij heeft ingespeeld?",
+      "Wordt breedte overgenomen wanneer een buitenspeler naar binnen komt?",
+      "Kiest de ploeg door de as als die open is, maar buitenom als die dicht staat?",
+      "Blijft de reactie na balverlies herkenbaar zonder dat dit het hoofdthema wordt?"
+    ],
+    "createdAt": "2026-10-05T09:30:00.000Z",
+    "updatedAt": "2026-10-05T09:30:00.000Z"
+  }
+];
+
