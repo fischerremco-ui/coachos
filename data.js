@@ -1233,6 +1233,88 @@ const WEEK41_TRAININGS = [
     ],
     "createdAt": "2026-10-05T09:30:00.000Z",
     "updatedAt": "2026-10-05T09:30:00.000Z"
+  },
+  {
+    "id": "training-rm-do-w41",
+    "code": "W41-DO",
+    "title": "Vrije man herkennen: bewegen na de pass",
+    "date": "2026-10-08",
+    "theme": "Opbouwen: vrije man herkennen en opnieuw positie kiezen",
+    "block": "Blok 1 — Opbouwen en de vrije man vinden",
+    "totalDuration": 90,
+    "mainGoal": "Spelers herkennen hoe druk een vrije speler ergens anders creëert. Na een pass blijven ze niet staan, maar maken opnieuw een aanspeelhoek. In balbezit houden we breedte en zoeken we de vrije kant; na balverlies reageert de dichtstbijzijnde speler direct.",
+    "desiredBehavior": "Kijk vóór je de bal krijgt.\nNa je pass opnieuw bewegen en een nieuwe hoek maken.\nAls een verdediger bijsluit, herkennen we welke speler daardoor vrijkomt.\nNiet allemaal naar de bal: bezet verschillende ruimtes.\nBal kwijt: eerste druk; rest sluit aan of herstelt compact.",
+    "evaluationCriteria": "In het 4v4+1-positiespel wordt bij minimaal 6 van 10 bijsluitmomenten de vrijgekomen speler binnen twee passes gevonden.\nSpelers bewegen na hun pass zichtbaar opnieuw naar een aanspeelbare positie.\nIn het richtingsspel blijft aan beide kanten breedte beschikbaar en wordt de vrije zijde regelmatig gevonden.\nIn de vrije partij blijft het gedrag herkenbaar zonder voortdurende sturing van de trainer.",
+    "coachWords": "Kijk vóór je krijgt\nPass? Beweeg weer\nWie komt vrij?\nMaak een hoek\nAndere kant?",
+    "expectedLoad": "Middel. Veel balcontacten en korte intensieve beslissingen, zonder losse conditionele finisher. Nieuwe speler draait normaal mee; beoordeel vooral coachbaarheid, oriëntatie, keuzes en gedrag zonder hem apart te zetten.",
+    "materials": "16–20 pionnen\n8–10 ballen\nHesjes in 2 kleuren + 1 neutraal hesje\n4 mini-doelen\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. De nadruk ligt op opbouwen, vrijlopen en de vrije man herkennen.",
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W41",
+    "parts": [
+      {
+        "id": "training-rm-do-w41-deel-1",
+        "name": "Technische start: aannemen, open draaien en opnieuw aanbieden",
+        "duration": 15,
+        "type": "Warming-up",
+        "organization": "Werk in tweetallen in banen van 12×5 m. Eén bal per tweetal, aan beide uiteinden een pion. Bij 11–14 spelers maak je 6–7 banen naast elkaar. Koppel de mogelijke nieuwe speler aan een rustige speler die de afspraken kent.",
+        "flow": "Eerste 5 min: strak over de grond inspelen, eerste aanname links/rechts uit de voeten en terugspelen. Volgende 5 min: vóór ontvangst over de schouder kijken en halfopen aannemen. Laatste 5 min: na de pass 2–3 m van positie veranderen zodat de ontvanger steeds een nieuwe hoek moet herkennen. Houd uitleg kort en tempo hoog.",
+        "attackingCoaching": "Kijk vóór je krijgt. Eerste aanname uit de druk. Na je pass niet blijven staan: maak opnieuw een lijn.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen score. Kwaliteit van pass, eerste aanname en direct opnieuw bewegen.",
+        "variations": "Gaat het te makkelijk, vergroot naar 14 m of laat de ontvanger met maximaal twee contacten spelen. Geen trucjes of lange wachtrijen."
+      },
+      {
+        "id": "training-rm-do-w41-deel-2",
+        "name": "4v4+1 in vier vakken: herken wie vrijkomt",
+        "duration": 25,
+        "type": "Positiespel",
+        "organization": "Veld 36×28 m, verdeeld in vier gelijke vakken van 18×14 m. Eén speler van elk team start in ieder vak. Eén neutrale speler mag overal komen. Heb je precies 9 spelers, speel je 4v4+1. Met 10–11 spelers wisselt één of twee spelers elke 2–3 min door als neutraal/rust. Met 12–14 spelers maak je 5v5+1 en laat je per team één extra speler vrij tussen twee aangrenzende vakken bewegen, of speel je korte reeksen met snelle wissels.",
+        "flow": "Start eenvoudig: in elk vak blijft één aanvaller en één verdediger; de neutrale speler creëert lokaal 2v1. Na 6–8 min mag één verdediger uit een aangrenzend vak bijsluiten. Zodra dat gebeurt, moet de ploeg in balbezit herkennen welke speler elders vrij komt en die zo snel mogelijk zoeken. Speel 4×4 min met korte coachmomenten; resttijd voor uitleg, wisselen en drinken.",
+        "attackingCoaching": "Lichaam halfopen. Maak een goede hoek ten opzichte van bal en medespeler. Kijk niet alleen naar waar druk komt, maar vooral naar wie daardoor vrij komt.",
+        "defendingCoaching": "Bijsluiten alleen met duidelijke intentie. Als jij doorschuift, laat je ergens ruimte achter.",
+        "transitionCoaching": "Bal kwijt? Dichtste speler direct druk. Bal gewonnen? Eerste blik naar de speler die door het verschuiven vrij is.",
+        "rulesScoring": "8 opeenvolgende passes = 1 punt. Bonuspunt als na het bijsluiten van een extra verdediger de vrijgekomen speler binnen twee passes wordt gevonden.",
+        "variations": "Is het technisch te moeilijk, vergroot naar 40×30 m en stel het bijsluiten uit. Is het te makkelijk, verklein naar 32×24 m of geef de neutrale speler maximaal twee contacten."
+      },
+      {
+        "id": "training-rm-do-w41-deel-3",
+        "name": "Richtingsspel naar vier mini-doelen: speel waar ruimte ontstaat",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "10 spelers: 5v5 op 40×30 m. 12 spelers: 6v6 op 44×32 m. 14 spelers: 7v7 op 48×34 m. Zet twee mini-doelen op iedere achterlijn, circa 5 m vanaf de zijlijn.",
+        "flow": "Vrij richtingsspel. Ieder team verdedigt twee doelen en valt twee doelen aan. Speel 4×4 min met korte herstelmomenten. Coach vooral wanneer één kant volloopt: kunnen spelers de bal vasthouden, opnieuw positie kiezen en de andere kant vinden?",
+        "attackingCoaching": "As open? Speel erdoorheen. As dicht? Verplaats. Na de pass opnieuw aanspeelbaar worden. Breedte blijft bezet, ook als iemand naar binnen komt.",
+        "defendingCoaching": "Verdedig compact en dwing de aanvallers echt een keuze te maken. Niet passief wachten.",
+        "transitionCoaching": "Na balwinst hoofd omhoog: waar ligt direct de vrije ruimte? Na balverlies eerste druk en aansluiten.",
+        "rulesScoring": "Normaal doelpunt = 1. Doelpunt na een duidelijke verplaatsing van de drukke naar de vrije kant = 2.",
+        "variations": "Bij oneven aantal speelt één neutrale speler mee met balbezit. Bij 9 spelers 4v4+1 op 36×28 m."
+      },
+      {
+        "id": "training-rm-do-w41-deel-4",
+        "name": "Vrije partij: kan het zonder regels?",
+        "duration": 25,
+        "type": "Partijvorm",
+        "organization": "Gebruik hetzelfde veld of maak het 3–4 m langer. Bij 10 spelers 5v5 op ongeveer 42×30 m; bij 12 6v6 op 46×34 m; bij 14 7v7 op 50×36 m. Vier mini-doelen blijven staan. Als één keeper aanwezig is, kan één team op groot doel spelen en het andere op twee mini-doelen; wissel halverwege van richting.",
+        "flow": "Eerste 8 min coach je alleen met de vijf coachwoorden. Daarna 2 min teamoverleg zonder oplossingen voor te zeggen. Speel vervolgens 13 min zo vrij mogelijk. Laatste 2 min korte terugvraag tijdens opruimen: wanneer kwam iemand vrij doordat de tegenstander verschoof?",
+        "attackingCoaching": "Geen verplichte kantwissels meer. Spelers moeten zelf herkennen waar ruimte en vrije man ontstaan.",
+        "defendingCoaching": "Samen druk, niet individueel blijven jagen. Geef de tegenstander een echt probleem om op te lossen.",
+        "transitionCoaching": "Bal kwijt: eerste druk. Lukt het niet, samen herstellen. Bal gewonnen: eerste blik vooruit of naar vrije kant.",
+        "rulesScoring": "Gewone doelpunten. Geen bonusregels in deze laatste vorm.",
+        "variations": "Nieuwe speler gewoon in één team laten meedraaien. Zet hem niet automatisch neutraal; zo zie je zijn positiegedrag, communicatie, reactie op balverlies en samenwerking in een normale context."
+      }
+    ],
+    "observationPoints": [
+      "Nieuwe speler: luistert hij, pakt hij aanwijzingen op en blijft hij actief na een fout?",
+      "Nieuwe speler: kijkt hij vóór ontvangst en maakt hij zich opnieuw aanspeelbaar na een pass?",
+      "Nieuwe speler: welke positie lijkt natuurlijk zonder hem voortdurend te sturen?",
+      "Team: herkennen spelers welke medespeler vrijkomt als een verdediger doorschuift?",
+      "Team: blijft breedte bestaan of trekt iedereen naar de bal?",
+      "Team: blijft de trainingsnorm goed wanneer de trainer minder coacht?"
+    ],
+    "createdAt": "2026-10-08T11:55:00.000Z",
+    "updatedAt": "2026-10-08T11:55:00.000Z"
   }
 ];
 
