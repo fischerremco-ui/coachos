@@ -19,6 +19,29 @@ const SEASONS = [
   }
 ];
 
+const COMPETITION_PHASES = [
+  {
+    id: "vsv-jo16-1-2026-2027-fase-2",
+    seasonId: "vsv-jo16-1-2026-2027",
+    phase: "Fase 2",
+    competition: "3e klasse",
+    pool: "03",
+    displayName: "3e klasse (2e fase)-03",
+    status: "Indeling bekend · wedstrijdprogramma nog niet gekoppeld",
+    updatedAt: "2026-10-16",
+    teams: [
+      { name: "Reiger Boys O16-2", preferredTime: "10:30" },
+      { name: "VSV O16-1", preferredTime: "14:00" },
+      { name: "Velsen Rkvv O16-1", preferredTime: "10:30" },
+      { name: "Foresters O16-2", preferredTime: "11:45" },
+      { name: "DEM (RKVV) O16-2", preferredTime: "10:30" },
+      { name: "SVA O16-2", preferredTime: "12:00" },
+      { name: "Alcmaria Victrix O16-2", preferredTime: "13:00" },
+      { name: "Schoten vv. O16-1", preferredTime: "12:30" }
+    ]
+  }
+];
+
 // Handmatig gecontroleerd tegen de KNVB-kolom voor junioren categorie B.
 const SEASON_WEEKS = [
   ["2026-08-15", "2026-08-16", "Vrij", "", ""],
