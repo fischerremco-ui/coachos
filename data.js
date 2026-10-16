@@ -1383,3 +1383,86 @@ const WEEK41_TRAININGS = [
   }
 ];
 
+// Extra training zaterdag 17 oktober 2026: kleine groep van acht spelers.
+const OCT17_SMALL_GROUP_TRAINING = {
+  "id": "training-rm-za-w42",
+  "code": "W42-ZA",
+  "title": "8 man: kijken, spelen, weer bewegen",
+  "date": "2026-10-17",
+  "theme": "Vrije man vinden en bewegen na de pass",
+  "block": "Blok 3 — Compact verdedigen en verbinden",
+  "totalDuration": 75,
+  "mainGoal": "Met acht spelers veel balcontacten en weinig stilstand creëren. Spelers kijken vóór ontvangst, spelen zuiver, bewegen direct opnieuw en herkennen in kleine partijvormen waar de vrije ruimte ontstaat.",
+  "desiredBehavior": "Kijk vóór je krijgt.\nEerste aanname heeft richting.\nNa je pass direct opnieuw bewegen.\nMaak het veld groot wanneer we de bal hebben.\nBal kwijt: dichtste speler reageert direct, anderen sluiten aan.",
+  "evaluationCriteria": "In de technische start blijft het tempo hoog zonder lange wachtrijen.\nIn 3v3+2 bewegen spelers na hun pass opnieuw en wordt de vrije buitenkant regelmatig gevonden.\nIn 4v4 naar vier mini-doelen herkennen spelers zelfstandig welk doel of welke kant vrij ligt.\nIn de vrije partij blijft hetzelfde gedrag zichtbaar zonder veel coaching.",
+  "coachWords": "Kijk vóór je krijgt\nPass? Beweeg weer\nMaak groot\nAndere kant?\nEerste druk",
+  "expectedLoad": "Middel. Zaterdagochtendtraining zonder competitiewedstrijd: veel voetbalhandelingen en korte intensieve spelblokken, geen losse conditionele finisher.",
+  "materials": "12–16 pionnen\n8 ballen\nHesjes in 2 kleuren + 2 neutrale hesjes\n4 mini-doelen\nDrinken naast het veld",
+  "setPiece": "Geen apart spelhervattingsblok.",
+  "plannerDay": "",
+  "plannerWeekKey": "",
+  "parts": [
+    {
+      "id": "training-rm-za-w42-deel-1",
+      "name": "Techniek in beweging",
+      "duration": 15,
+      "type": "Warming-up",
+      "organization": "Vier tweetallen. Per tweetal een baan van ongeveer 12×5 m met één bal.",
+      "flow": "Eerste 5 min: strak inspelen en open aannemen. Volgende 5 min: inspelen, kaatsen en na de pass 2–3 m van positie veranderen. Laatste 5 min: ontvanger kiest zelf tussen open draaien of terugkaatsen; sluit af met een korte uitdaging van 20 zuivere passes zonder stilvallende bal.",
+      "attackingCoaching": "Kijk vóór je krijgt. Eerste aanname uit de voeten. Na je pass meteen weer een nieuwe lijn maken.",
+      "defendingCoaching": "",
+      "transitionCoaching": "",
+      "rulesScoring": "Tweetal scoort een punt bij 20 zuivere passes zonder onderbreking.",
+      "variations": "Gaat het te makkelijk, vergroot de afstand naar 14 m of speel maximaal twee contacten."
+    },
+    {
+      "id": "training-rm-za-w42-deel-2",
+      "name": "3v3 + 2 neutralen: vrije kant vinden",
+      "duration": 20,
+      "type": "Positiespel",
+      "organization": "Vak 28×22 m. Drie tegen drie binnen het vak. Twee neutralen aan tegenoverliggende buitenzijden en altijd met de ploeg in balbezit.",
+      "flow": "6 passes = 1 punt. Na balverlies rollen direct om. Wissel de neutralen iedere 4–5 min zodat iedereen beide rollen krijgt.",
+      "attackingCoaching": "Maak aanspeelhoeken, gebruik de neutralen en beweeg direct na je pass. Als één kant volloopt: zie je de andere?",
+      "defendingCoaching": "Eerste verdediger zet echte druk, tweede en derde sluiten aan zonder blind naar de bal te lopen.",
+      "transitionCoaching": "Bal kwijt: direct reageren. Bal gewonnen: eerste blik naar ruimte of vrije neutraal.",
+      "rulesScoring": "6 passes = 1 punt.",
+      "variations": "Te veel balverlies: vergroot naar 30×24 m. Te makkelijk: verklein naar 26×20 m."
+    },
+    {
+      "id": "training-rm-za-w42-deel-3",
+      "name": "4v4 naar vier mini-doelen",
+      "duration": 25,
+      "type": "Spelvorm",
+      "organization": "Veld 38×28 m. Twee mini-doelen per achterlijn, ongeveer 4–5 m vanaf beide zijlijnen.",
+      "flow": "Eerste 10 min vrij spelen. Daarna 7 min: doelpunt na duidelijke verplaatsing van drukke naar vrije kant telt dubbel. Laatste 8 min bonusregel weer weg en observeer of spelers het principe zelfstandig meenemen.",
+      "attackingCoaching": "Niet automatisch door de as. Kijk welk doel vrij is. Maak breedte en beweeg na de pass opnieuw.",
+      "defendingCoaching": "Samen compact genoeg verdedigen om de aanvallers echt te laten kiezen.",
+      "transitionCoaching": "Na balwinst direct kijken of één van de twee doelen snel bereikbaar is. Na balverlies eerste druk.",
+      "rulesScoring": "Normaal doelpunt = 1. Middenblok: doelpunt na duidelijke kantwissel = 2.",
+      "variations": "Wordt het te ruim, maak 36×26 m. Wordt het te druk, maak 40×30 m."
+    },
+    {
+      "id": "training-rm-za-w42-deel-4",
+      "name": "Vrije 4v4 wedstrijd",
+      "duration": 15,
+      "type": "Partijvorm",
+      "organization": "Veld ongeveer 42×30 m. Vier mini-doelen blijven staan.",
+      "flow": "Gewoon voetballen en score bijhouden. Trainer coacht zo weinig mogelijk en observeert vooral bewegen na de pass, breedte, communicatie en reactie op balverlies.",
+      "attackingCoaching": "Herken zelf waar ruimte ligt. Geen verplichte kantwissel.",
+      "defendingCoaching": "Samen druk zetten en elkaar helpen.",
+      "transitionCoaching": "Bal kwijt: eerste druk. Bal gewonnen: hoofd omhoog.",
+      "rulesScoring": "Gewone doelpunten. Winnaar over de hele slotpartij.",
+      "variations": "Speel eventueel 3×4 min met 1 min korte pauze en houd totaalscore bij."
+    }
+  ],
+  "observationPoints": [
+    "Wie scant vóór ontvangst?",
+    "Wie blijft na een pass staan en wie beweegt opnieuw?",
+    "Wie herkent als eerste de vrije kant?",
+    "Wie coacht medespelers zonder dat de trainer daarom vraagt?",
+    "Blijft het trainingsgedrag scherp in een kleine groep?"
+  ],
+  "createdAt": "2026-10-16T20:00:00.000Z",
+  "updatedAt": "2026-10-16T20:00:00.000Z"
+};
+
