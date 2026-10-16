@@ -4644,6 +4644,34 @@ function renderPlannerBlockDetail(id) {
   `;
 }
 
+function renderCompetitionPhaseSummary(seasonId) {
+  const phase = Array.isArray(COMPETITION_PHASES)
+    ? COMPETITION_PHASES.find((item) => item.seasonId === seasonId && item.phase === "Fase 2")
+    : null;
+  if (!phase) return "";
+
+  return `
+    <section class="content-card" aria-labelledby="competition-phase-title">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Nieuwe indeling</p>
+          <h2 id="competition-phase-title">${escapeHtml(phase.displayName)}</h2>
+        </div>
+        <span>${phase.teams.length} teams</span>
+      </div>
+      <p class="section-intro">${escapeHtml(phase.status)}. De tijden hieronder zijn voorkeurtijden uit de indeling, geen vastgestelde wedstrijdtijden.</p>
+      <ul class="planner-detail-list">
+        ${phase.teams.map((team) => `
+          <li>
+            <strong>${escapeHtml(team.name)}</strong>
+            ${team.preferredTime ? ` · voorkeur ${escapeHtml(team.preferredTime)} uur` : ""}
+          </li>
+        `).join("")}
+      </ul>
+    </section>
+  `;
+}
+
 function renderSeasonOverview() {
   const season = getTeamSeason();
   if (!season) {
@@ -4684,6 +4712,8 @@ function renderSeasonOverview() {
           <strong>${weeks.length} speelweken</strong>
         </div>
       </section>
+
+      ${renderCompetitionPhaseSummary(season.id)}
 
       ${renderCalendarConflicts(calendarConflicts)}
 
