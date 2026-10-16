@@ -393,6 +393,31 @@ function seedWeek41Trainings() {
   }
 }
 
+function seedOct17SmallGroupTraining() {
+  const marker = "coachos-oct17-small-group-training-2026-v1";
+  try {
+    if (localStorage.getItem(marker)) return;
+    const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
+    const rawWeeks = localStorage.getItem(SEASON_WEEKS_STORAGE_KEY);
+    const existing = rawTrainings ? JSON.parse(rawTrainings) : TRAININGS;
+    if (!Array.isArray(existing) || (rawWeeks && !Array.isArray(JSON.parse(rawWeeks)))) {
+      showToast("Training van 17 oktober kon niet worden toegevoegd: controleer je opgeslagen gegevens.");
+      return;
+    }
+
+    const current = existing.find((training) => training.id === OCT17_SMALL_GROUP_TRAINING.id);
+    const selected = current || normalizeTraining(OCT17_SMALL_GROUP_TRAINING);
+
+    if (!current && !writeStorage(TRAININGS_STORAGE_KEY, [...existing, selected])) return;
+    if (!linkTrainingToSeasonWeek("speelweek-2026-2027-10", selected.id)) return;
+
+    writeStorage(marker, true);
+  } catch (error) {
+    console.warn("Training van 17 oktober kon niet veilig worden toegevoegd.", error);
+    showToast("Training van 17 oktober kon niet worden toegevoegd. Bestaande gegevens zijn behouden.");
+  }
+}
+
 function getTrainings() {
   try {
     const saved = localStorage.getItem(TRAININGS_STORAGE_KEY);
@@ -8878,6 +8903,7 @@ seedWeek38Trainings();
 seedWeek39Trainings();
 seedWeek40Trainings();
 seedWeek41Trainings();
+seedOct17SmallGroupTraining();
 migrateLegacyAttachments();
 seedLibraryExercisesIfEmpty();
 setupInstallExperience();
