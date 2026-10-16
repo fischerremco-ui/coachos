@@ -842,6 +842,8 @@ function normalizeSeasonWeek(week = {}) {
   const scheduledGoalsFor = scheduledWeek && scheduledWeek.matchGoalsFor;
   const scheduledGoalsAgainst = scheduledWeek && scheduledWeek.matchGoalsAgainst;
   const scheduledMatchId = scheduledWeek && scheduledWeek.matchId;
+  const scheduledMatchTime = scheduledWeek && scheduledWeek.matchTime;
+  const scheduledMatchLocation = scheduledWeek && scheduledWeek.matchLocation;
 
   return {
     id: week.id || createUniqueId("speelweek"),
@@ -860,6 +862,8 @@ function normalizeSeasonWeek(week = {}) {
     matchGoalsFor: normalizeOptionalScore(week.matchGoalsFor ?? scheduledGoalsFor),
     matchGoalsAgainst: normalizeOptionalScore(week.matchGoalsAgainst ?? scheduledGoalsAgainst),
     matchReflection: String(week.matchReflection || "").trim(),
+    matchTime: String(week.matchTime || scheduledMatchTime || "").trim(),
+    matchLocation: String(week.matchLocation || scheduledMatchLocation || "").trim(),
     matchId: typeof week.matchId === "string" && week.matchId
       ? week.matchId
       : (typeof scheduledMatchId === "string" && scheduledMatchId ? scheduledMatchId : null),
@@ -949,6 +953,8 @@ function duplicateSeasonWeek(id) {
     matchGoalsFor: null,
     matchGoalsAgainst: null,
     matchReflection: "",
+    matchTime: "",
+    matchLocation: "",
     createdAt: now,
     updatedAt: now
   };
@@ -4446,7 +4452,14 @@ function renderSeasonWeekCard(week) {
         <span class="season-timeline-marker" aria-hidden="true"></span>
         <span class="season-week-copy">
           <span class="season-week-date">${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</span>
-          <span class="season-week-title">${escapeHtml(week.type)}</span>
+          <span class="season-week-title">${escapeHtml(week.matchTitle || week.type)}</span>
+          ${week.matchTime || week.matchLocation ? `
+            <span class="season-week-training-count">
+              ${week.matchTime ? `${escapeHtml(week.matchTime)} uur` : ""}
+              ${week.matchTime && week.matchLocation ? " · " : ""}
+              ${week.matchLocation ? escapeHtml(week.matchLocation) : ""}
+            </span>
+          ` : ""}
           <span class="season-week-meta">
             ${phase}
             <span class="season-chip status-${escapeHtml(week.status.toLowerCase())}">${escapeHtml(week.status)}</span>
@@ -5211,6 +5224,8 @@ function renderSeasonWeekDetail(id) {
           <h2>Planning</h2>
           <dl class="season-detail-list">
             <div><dt>Datum</dt><dd>${escapeHtml(formatSeasonDateRange(week.dateFrom, week.dateTo))}</dd></div>
+            ${week.matchTime ? `<div><dt>Aanvang</dt><dd>${escapeHtml(week.matchTime)} uur</dd></div>` : ""}
+            ${week.matchLocation ? `<div><dt>Locatie</dt><dd>${escapeHtml(week.matchLocation)}</dd></div>` : ""}
             <div><dt>Type</dt><dd>${escapeHtml(week.type)}</dd></div>
             ${week.phase ? `<div><dt>Fase</dt><dd>${escapeHtml(week.phase)}</dd></div>` : ""}
             ${week.trainingWeekNumber !== "" ? `<div><dt>Trainingsweek</dt><dd>${escapeHtml(week.trainingWeekNumber)}</dd></div>` : ""}
