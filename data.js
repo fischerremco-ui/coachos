@@ -27,7 +27,7 @@ const COMPETITION_PHASES = [
     competition: "3e klasse",
     pool: "03",
     displayName: "3e klasse (2e fase)-03",
-    status: "Indeling bekend · wedstrijdprogramma nog niet gekoppeld",
+    status: "Indeling en wedstrijdprogramma bekend",
     updatedAt: "2026-10-16",
     teams: [
       { name: "Reiger Boys O16-2", preferredTime: "10:30" },
@@ -55,7 +55,7 @@ const SEASON_WEEKS = [
   ["2026-10-10", "2026-10-11", "Inhaalweekend", "", ""],
   ["2026-10-17", "2026-10-18", "Vrij", "", ""],
   ["2026-10-24", "2026-10-25", "Vrij", "", ""],
-  ["2026-10-31", "2026-11-01", "Start nieuwe fase", "Fase 2", "Start fase 2"],
+  ["2026-10-31", "2026-11-01", "Competitiewedstrijd", "Fase 2", "Start fase 2 · 3e klasse (2e fase)-03"],
   ["2026-11-07", "2026-11-08", "Competitiewedstrijd", "Fase 2", ""],
   ["2026-11-14", "2026-11-15", "Competitiewedstrijd", "Fase 2", ""],
   ["2026-11-21", "2026-11-22", "Competitiewedstrijd", "Fase 2", ""],
@@ -134,6 +134,48 @@ const KNOWN_MATCHES = {
     matchGoalsFor: null,
     matchGoalsAgainst: null,
     matchReflection: ""
+  },
+  "speelweek-2026-2027-12": {
+    matchId: "wedstrijd-2026-10-31-vsv-sva",
+    matchTitle: "VSV O16-1 – SVA O16-2",
+    matchTime: "14:00",
+    matchLocation: "Sportpark Hofgeest"
+  },
+  "speelweek-2026-2027-13": {
+    matchId: "wedstrijd-2026-11-07-dem-vsv",
+    matchTitle: "DEM (RKVV) O16-2 – VSV O16-1",
+    matchTime: "10:30",
+    matchLocation: "Sportpark DEM"
+  },
+  "speelweek-2026-2027-14": {
+    matchId: "wedstrijd-2026-11-14-vsv-foresters",
+    matchTitle: "VSV O16-1 – Foresters O16-2",
+    matchTime: "14:00",
+    matchLocation: "Sportpark Hofgeest"
+  },
+  "speelweek-2026-2027-15": {
+    matchId: "wedstrijd-2026-11-21-velsen-vsv",
+    matchTitle: "Velsen Rkvv O16-1 – VSV O16-1",
+    matchTime: "12:15",
+    matchLocation: "Sportpark Driehuis"
+  },
+  "speelweek-2026-2027-16": {
+    matchId: "wedstrijd-2026-11-28-schoten-vsv",
+    matchTitle: "Schoten vv. O16-1 – VSV O16-1",
+    matchTime: "12:30",
+    matchLocation: "Sportpark Vergierdeweg"
+  },
+  "speelweek-2026-2027-17": {
+    matchId: "wedstrijd-2026-12-05-vsv-reiger-boys",
+    matchTitle: "VSV O16-1 – Reiger Boys O16-2",
+    matchTime: "14:00",
+    matchLocation: "Sportpark Hofgeest"
+  },
+  "speelweek-2026-2027-18": {
+    matchId: "wedstrijd-2026-12-12-alcmaria-vsv",
+    matchTitle: "Alcmaria Victrix O16-2 – VSV O16-1",
+    matchTime: "13:00",
+    matchLocation: "Sportpark Egmonderhout"
   }
 };
 
