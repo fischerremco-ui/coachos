@@ -394,7 +394,7 @@ function seedWeek41Trainings() {
 }
 
 function seedOct17SmallGroupTraining() {
-  const marker = "coachos-oct17-small-group-training-2026-v1";
+  const marker = "coachos-oct17-small-group-training-2026-v2";
   try {
     if (localStorage.getItem(marker)) return;
     const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
@@ -405,10 +405,12 @@ function seedOct17SmallGroupTraining() {
       return;
     }
 
-    const current = existing.find((training) => training.id === OCT17_SMALL_GROUP_TRAINING.id);
-    const selected = current || normalizeTraining(OCT17_SMALL_GROUP_TRAINING);
+    const selected = normalizeTraining(OCT17_SMALL_GROUP_TRAINING);
+    const nextTrainings = existing.some((training) => training.id === selected.id)
+      ? existing.map((training) => training.id === selected.id ? selected : training)
+      : [...existing, selected];
 
-    if (!current && !writeStorage(TRAININGS_STORAGE_KEY, [...existing, selected])) return;
+    if (!writeStorage(TRAININGS_STORAGE_KEY, nextTrainings)) return;
     if (!linkTrainingToSeasonWeek("speelweek-2026-2027-10", selected.id)) return;
 
     writeStorage(marker, true);
