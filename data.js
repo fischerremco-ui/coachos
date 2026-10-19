@@ -1466,3 +1466,88 @@ const OCT17_SMALL_GROUP_TRAINING = {
   "updatedAt": "2026-10-17T08:25:00.000Z"
 }
 
+// Week 43: eerste blik vooruit na balwinst. Donderdag 22 oktober geen training.
+const WEEK43_TRAININGS = [
+  {
+    "id": "training-rm-ma-w43",
+    "code": "W43-MA",
+    "title": "Bal gewonnen: eerste blik vooruit",
+    "date": "2026-10-19",
+    "theme": "Omschakelen na balwinst: eerste blik vooruit",
+    "block": "Blok 4 — Vooruit spelen en samenspel",
+    "totalDuration": 90,
+    "mainGoal": "Na balverovering herkennen spelers direct of de diepte open ligt. Als vooruit spelen kan, volgt een diepe loopactie en een gerichte eerste pass. Is de directe aanval niet mogelijk, dan wordt de bal veilig uit de drukte gespeeld en sluit het team opnieuw aan.",
+    "desiredBehavior": "Speler scant direct na en liefst al vóór balverovering.\nMinimaal één speler start onmiddellijk in de diepte.\nEen tweede speler biedt korte steun onder de bal.\nEerste pass vooruit als het kan, maar niet blind forceren.\nNa balverlies reageert de dichtstbijzijnde speler direct en sluit de rest aan.",
+    "evaluationCriteria": "Bij minimaal 7 van 10 balveroveringen is de eerste blik zichtbaar vooruit.\nIn het schakelspel start na balwinst direct minimaal één diepe loopactie.\nDe eerste pass na balwinst wordt vooruit gespeeld als daar een echte optie ligt; anders wordt bewust behouden.\nIn de eindpartij blijft het team aansluiten na de eerste vooruitactie.",
+    "coachWords": "Eerste blik vooruit\nStart diepte\nSteun eronder\nNiet forceren\nEerste druk",
+    "expectedLoad": "Middel-hoog in korte voetbalblokken. Omdat donderdag geen training is, mag de trainingsprikkel stevig zijn, maar zonder aparte conditionele finisher.",
+    "materials": "18–24 pionnen/dopjes\n8–10 ballen\nHesjes in 2 kleuren\n4 mini-doelen\n1 groot doel + keeper indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Donderdag 22 oktober vervalt de training.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W43",
+    "parts": [
+      {
+        "id": "training-rm-ma-w43-deel-1",
+        "name": "Technische start: kijken, open aannemen, versnellen",
+        "duration": 15,
+        "type": "Warming-up",
+        "organization": "Werk in drietallen in vakken van ongeveer 12×8 m. Twee spelers buiten, één speler beweegt ertussen. Maak bij 12 spelers vier groepen van drie.",
+        "flow": "Eerste 2 min: korte norm voor de avond: fouten mogen, half meedoen of niet luisteren niet. Daarna inspelen, open aannemen, kaatsen en doorbewegen. Na 5 min krijgt de ontvanger op signaal de opdracht open te draaien en 4–5 m met bal te versnellen. Laatste 5 min geeft de middelste speler lichte druk zodat de ontvanger vóór de aanname moet kijken.",
+        "attackingCoaching": "Kijk vóór je krijgt. Lichaam halfopen. Eerste aanname vooruit als het kan. Na je pass weer bewegen.",
+        "defendingCoaching": "Lichte maar echte druk in het laatste blok.",
+        "transitionCoaching": "Na onderschepping of fout direct omschakelen en nieuwe positie zoeken.",
+        "rulesScoring": "Geen score; kwaliteit en tempo.",
+        "variations": "Bij 10–11 spelers één drietal minder en één viertal met twee ballen. Bij 13–14 spelers een viertal toevoegen."
+      },
+      {
+        "id": "training-rm-ma-w43-deel-2",
+        "name": "Schakelspel 4(+2) tegen 4(+2): direct diepte na balwinst",
+        "duration": 25,
+        "type": "Positiespel",
+        "organization": "Voor 12 spelers: 4v4 in een cirkel van circa 20–22 m doorsnee. Van ieder team staan 2 spelers buiten de cirkel aan de eigen aanvalsrichting. Zet per richting 2 mini-doelen. Markeer op circa 10–12 m buiten de cirkel een scoringslijn; pas ná die lijn mag worden afgewerkt.",
+        "flow": "Start 6 min met de basisregel: na 5 opeenvolgende passes mag een ploeg één van de twee diepe spelers aanspelen. Wordt de bal ín de cirkel veroverd, dan mag de diepe speler direct worden gezocht, zonder eerst passes te maken. Daarna verlaag je de gewone opbouwregel naar 3 passes, maar de directe diepte na balwinst blijft altijd toegestaan. Wissel de 2 diepe spelers iedere 3–4 min met spelers uit de cirkel.",
+        "attackingCoaching": "Na balwinst meteen hoofd omhoog: wie loopt diep? Diepe spelers anticiperen al vóór de verovering en sprinten weg zodra het moment komt. Speler onder de bal sluit mee aan voor steun.",
+        "defendingCoaching": "Probeer echt te veroveren in de cirkel en wees na balverlies klaar om direct terug druk te geven.",
+        "transitionCoaching": "Bal gewonnen = eerste blik vooruit. Diepte open? Meteen spelen. Diepte dicht? Niet forceren, behoud en opnieuw verbinden.",
+        "rulesScoring": "Bij normaal balbezit eerst 5 passes, later 3, voordat een diepe speler mag worden gezocht. Na een echte balverovering mag direct diep. Afwerken pas voorbij de scoringslijn.",
+        "variations": "Te druk: cirkel 22–24 m. Te makkelijk in balbezit: 18–20 m. Met minder dan 12: originele 3(+2) tegen 3(+2) uitvoeren. Met 13: één neutrale speler in de cirkel die altijd met balbezit meespeelt maar niet scoort."
+      },
+      {
+        "id": "training-rm-ma-w43-deel-3",
+        "name": "6+K tegen 5: na winst richting groot doel",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Bij 12 spelers: 6 veldspelers + keeper tegen 5 veldspelers op ongeveer 48×36 m. Groot doel met keeper aan één zijde, twee mini-doelen aan de andere zijde. Bij 10 spelers: 5+K tegen 4 op 44×34 m. Bij 11: 5+K tegen 5 op 46×35 m.",
+        "flow": "Het overtalteam bouwt op en probeert in één van de mini-doelen te scoren. Het ondertal verdedigt en valt na balverovering direct het grote doel aan. Speel 4×4 min met korte herstelmomenten. Halverwege wisselen de veldspelers van taak zodat iedereen beide transities ervaart.",
+        "attackingCoaching": "Bij balwinst eerste blik naar groot doel. Eén speler start diep, één biedt steun. Geen vrije lijn? Dan veilig uit de druk en opnieuw opbouwen.",
+        "defendingCoaching": "Verdedig actief, zodat het balbezitteam echte keuzes moet maken.",
+        "transitionCoaching": "Doelpoging binnen 8 sec na verovering is mooi, maar alleen als de situatie het toelaat.",
+        "rulesScoring": "Eerste twee reeksen: doelpunt binnen 8 sec na balwinst telt dubbel. Laatste twee reeksen gewone score.",
+        "variations": "Geen keeper: speel 6v6 naar twee mini-doelen per achterlijn op 44×34 m met dezelfde 8-secondenprikkel."
+      },
+      {
+        "id": "training-rm-ma-w43-deel-4",
+        "name": "Vrije partij: vooruit als het kan, veilig als het moet",
+        "duration": 25,
+        "type": "Partijvorm",
+        "organization": "Bij 12 spelers 6v6 op circa 46×34 m. Bij 14 spelers 7v7 op 50×38 m. Gebruik twee grote doelen als mogelijk; anders twee mini-doelen per achterlijn.",
+        "flow": "Eerste 8 min coach je alleen met de vaste woorden. Daarna 2 min teamoverleg: wanneer was direct vooruit goed en wanneer forceerden we? Speel vervolgens 13 min vrijwel vrij. Laatste 2 min korte terugvraag tijdens opruimen.",
+        "attackingCoaching": "Eerste blik vooruit. Start diepte. Steun eronder. Niet forceren.",
+        "defendingCoaching": "Na balverlies direct reageren en als team aansluiten.",
+        "transitionCoaching": "Spelers kiezen zelf: direct aanvallen of uit de druk spelen.",
+        "rulesScoring": "Gewone wedstrijdregels. Geen bonuspunten.",
+        "variations": "Bij oneven aantal één neutrale speler die altijd met balbezit meespeelt."
+      }
+    ],
+    "observationPoints": [
+      "Wie kijkt al vóór de balverovering naar voren?",
+      "Wie start vanzelf de diepte in?",
+      "Wie geeft steun onder de eerste vooruitpass?",
+      "Wie forceert te vaak terwijl behoud beter is?",
+      "Sluit de rest van het team mee aan na de eerste vooruitactie?"
+    ],
+    "createdAt": "2026-10-19T14:15:00.000Z",
+    "updatedAt": "2026-10-19T14:15:00.000Z"
+  }
+];
+
