@@ -818,10 +818,10 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-22",
-        "objective": "Eerste blik vooruit na balwinst",
-        "suggestedContent": "8v8: na winst keuze tussen counterdoel en behoudzone.",
-        "load": "Middel-hoog in korte sets.",
-        "duration": 90
+        "objective": "Geen training",
+        "suggestedContent": "Trainer afwezig; training vervalt.",
+        "load": "Geen.",
+        "duration": 0
       }
     },
     "setPiece": "Snelle vrije trap: vooruit of veilig.",
