@@ -1216,6 +1216,115 @@ const PLANNER_WEEK_CARDS = [
     "trainerNotes": ""
   },
   {
+    "id": "weekkaart-vsv-jo16-1-2026-2027-2027-w02",
+    "seasonId": "vsv-jo16-1-2026-2027",
+    "year": 2027,
+    "weekNumber": 2,
+    "dateFrom": "2027-01-11",
+    "dateTo": "2027-01-17",
+    "competitionBlock": "Toepassen",
+    "matchContext": "Trainingsherstart · nieuw complex Oostlaan",
+    "mainPrinciple": "Ritme terugvinden en weer verbinden",
+    "supportingPrinciples": [],
+    "desiredBehaviours": [
+      "Veel balcontacten en opnieuw wennen aan wedstrijdtempo",
+      "Na de pass direct weer bewegen en elkaar coachen"
+    ],
+    "phaseCycle": {
+      "attack": "vrije man vinden en tempo opbouwen",
+      "lossTransition": "eerste reactie terugbrengen",
+      "defend": "compacte afstanden hervinden",
+      "winTransition": "eerste blik vooruit zonder te forceren",
+      "setPieces": "basisafspraken kort herhalen."
+    },
+    "sessions": {
+      "monday": {
+        "day": "monday",
+        "date": "2027-01-11",
+        "objective": "Ritme terugvinden en weer verbinden",
+        "suggestedContent": "Techniek in beweging; 4v4+3 positiespel; korte partijvormen.",
+        "load": "Laag tot middel.",
+        "duration": 75
+      },
+      "thursday": {
+        "day": "thursday",
+        "date": "2027-01-14",
+        "objective": "Tempo en onderlinge afstanden terugbrengen",
+        "suggestedContent": "Positiespel met richting; 5v5/6v6 en korte omschakelmomenten.",
+        "load": "Middel.",
+        "duration": 80
+      }
+    },
+    "setPiece": "Alleen basis: doeltrap en één cornerafspraak.",
+    "coachWords": [
+      "Kijk",
+      "Beweeg weer",
+      "Blijf verbonden"
+    ],
+    "matchCriteria": [
+      "Spelers bewegen weer vanzelf na de pass",
+      "intensiteit groeit zonder technisch verval."
+    ],
+    "expectedLoad": "Rustige herstart na winterstop.",
+    "lowAttendanceAlternative": "6-10 spelers: 3v3/4v4 + 2 steunspelers met veel korte reeksen.",
+    "trainerNotes": "Eerste trainingsweek op Oostlaan; rekening houden met mogelijk beperkte veld- en kleedkamerbeschikbaarheid."
+  },
+  {
+    "id": "weekkaart-vsv-jo16-1-2026-2027-2027-w03",
+    "seasonId": "vsv-jo16-1-2026-2027",
+    "year": 2027,
+    "weekNumber": 3,
+    "dateFrom": "2027-01-18",
+    "dateTo": "2027-01-24",
+    "competitionBlock": "Toepassen",
+    "matchContext": "Start fase 3 · eerste officiële speelweekend Oostlaan",
+    "mainPrinciple": "Volledige cyclus terug naar wedstrijdtempo",
+    "supportingPrinciples": [],
+    "desiredBehaviours": [
+      "Opbouw, drukzetten en omschakelen weer in één geheel herkennen",
+      "Spelers nemen verantwoordelijkheid voor tempo en coaching"
+    ],
+    "phaseCycle": {
+      "attack": "veld groot, vrije man en vooruit spelen",
+      "lossTransition": "eerste druk en aansluiten",
+      "defend": "as bewaken en samen kantelen",
+      "winTransition": "eerste blik vooruit",
+      "setPieces": "wedstrijdafspraken activeren."
+    },
+    "sessions": {
+      "monday": {
+        "day": "monday",
+        "date": "2027-01-18",
+        "objective": "Volledige cyclus op wedstrijdtempo",
+        "suggestedContent": "5v5/6v6 met richting; opbouw naar grote partij en transities.",
+        "load": "Middel.",
+        "duration": 90
+      },
+      "thursday": {
+        "day": "thursday",
+        "date": "2027-01-21",
+        "objective": "Wedstrijdklaar zonder overbelasting",
+        "suggestedContent": "Korte intensieve partijvormen; opbouwafspraken; spelhervattingen; vrije partij.",
+        "load": "Middel, volume lager.",
+        "duration": 75
+      }
+    },
+    "setPiece": "Doeltrap, corner voor/tegen en één vrije-trapafspraak.",
+    "coachWords": [
+      "Maak groot",
+      "Eerste druk",
+      "Eerste blik vooruit",
+      "Blijf verbonden"
+    ],
+    "matchCriteria": [
+      "Principes blijven herkenbaar onder wedstrijdtempo",
+      "spelers coachen elkaar zonder voortdurende sturing."
+    ],
+    "expectedLoad": "Wedstrijdgerichte tweede herstartweek.",
+    "lowAttendanceAlternative": "6-10 spelers: 4v4 met richting en twee doelen, korte blokken op hoog tempo.",
+    "trainerNotes": "Eerste officiële speelweekend op het nieuwe complex: 23/24 januari 2027."
+  },
+  {
     "id": "weekkaart-vsv-jo16-1-2026-2027-2027-w04",
     "seasonId": "vsv-jo16-1-2026-2027",
     "year": 2027,
@@ -1223,7 +1332,7 @@ const PLANNER_WEEK_CARDS = [
     "dateFrom": "2027-01-25",
     "dateTo": "2027-01-31",
     "competitionBlock": "Toepassen",
-    "matchContext": "Herstart competitie",
+    "matchContext": "Fase 3 · nieuw complex · officiële opening",
     "mainPrinciple": "As sluiten vanuit medium blok",
     "supportingPrinciples": [],
     "desiredBehaviours": [
