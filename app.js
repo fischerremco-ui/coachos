@@ -4749,6 +4749,31 @@ function renderCompetitionPhaseSummary(seasonId) {
   `;
 }
 
+function renderSeasonMilestones() {
+  if (!Array.isArray(SEASON_MILESTONES) || !SEASON_MILESTONES.length) return "";
+
+  return `
+    <section class="content-card" aria-labelledby="season-milestones-title">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Winterstop & verhuizing</p>
+          <h2 id="season-milestones-title">Oostlaan 2027</h2>
+        </div>
+        <span>${SEASON_MILESTONES.length} mijlpalen</span>
+      </div>
+      <div class="evaluation-summary-list">
+        ${SEASON_MILESTONES.map((item) => `
+          <article>
+            <strong>${escapeHtml(formatShortDate(item.date))}${item.dateTo ? ` – ${escapeHtml(formatShortDate(item.dateTo))}` : ""}</strong>
+            <span>${escapeHtml(item.title)}</span>
+            <p>${escapeHtml(item.detail)}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderSeasonOverview() {
   const season = getTeamSeason();
   if (!season) {
@@ -4791,6 +4816,8 @@ function renderSeasonOverview() {
       </section>
 
       ${renderCompetitionPhaseSummary(season.id)}
+
+      ${renderSeasonMilestones()}
 
       ${renderCalendarConflicts(calendarConflicts)}
 
