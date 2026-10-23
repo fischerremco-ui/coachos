@@ -19,6 +19,37 @@ const SEASONS = [
   }
 ];
 
+const SEASON_MILESTONES = [
+  {
+    date: "2026-12-15",
+    title: "Laatste training huidige complex",
+    detail: "Laatste trainingsmogelijkheid op het huidige VSV-complex."
+  },
+  {
+    date: "2027-01-11",
+    title: "Eerste training Oostlaan",
+    detail: "Vanaf deze maandag kan VSV naar verwachting trainen op het nieuwe complex aan de Oostlaan; beschikbaarheid van velden en kleedkamers kan nog beperkt zijn."
+  },
+  {
+    date: "2027-01-23",
+    dateTo: "2027-01-24",
+    title: "Start fase 3 op Oostlaan",
+    detail: "Eerste officiële speelweekend op het nieuwe complex en start van fase 3."
+  },
+  {
+    date: "2027-01-29",
+    dateTo: "2027-01-30",
+    title: "Officiële opening Oostlaan",
+    detail: "29 januari voor genodigden, 30 januari voor alle leden."
+  },
+  {
+    date: "2026-12-16",
+    dateTo: "2027-01-31",
+    title: "Geen oefenwedstrijden thuis",
+    detail: "Tot en met minimaal januari 2027 geen oefenwedstrijden thuis."
+  }
+];
+
 const COMPETITION_PHASES = [
   {
     id: "vsv-jo16-1-2026-2027-fase-2",
@@ -63,11 +94,11 @@ const SEASON_WEEKS = [
   ["2026-12-05", "2026-12-06", "Competitiewedstrijd", "Fase 2", ""],
   ["2026-12-12", "2026-12-13", "Competitiewedstrijd", "Fase 2", ""],
   ["2026-12-19", "2026-12-20", "Inhaalweekend", "", "Ook bekerweekend volgens KNVB-kalender."],
-  ["2027-01-09", "2027-01-10", "Vrij", "", ""],
-  ["2027-01-16", "2027-01-17", "Inhaalweekend", "", ""],
-  ["2027-01-23", "2027-01-24", "Beker", "", ""],
-  ["2027-01-30", "2027-01-31", "Beker", "", ""],
-  ["2027-02-06", "2027-02-07", "Start nieuwe fase", "Fase 3", "Start fase 3"],
+  ["2027-01-09", "2027-01-10", "Vrij", "", "Winterstop · eerste training op nieuwe complex vanaf maandag 11 januari."],
+  ["2027-01-16", "2027-01-17", "Inhaalweekend", "", "Trainingsherstart op nieuwe complex Oostlaan."],
+  ["2027-01-23", "2027-01-24", "Start nieuwe fase", "Fase 3", "Start fase 3 · eerste officiële wedstrijden op nieuwe complex."],
+  ["2027-01-30", "2027-01-31", "Beker", "Fase 3", "Officiële opening nieuwe complex op 29/30 januari."],
+  ["2027-02-06", "2027-02-07", "Competitiewedstrijd", "Fase 3", ""],
   ["2027-02-13", "2027-02-14", "Competitiewedstrijd", "Fase 3", ""],
   ["2027-02-20", "2027-02-21", "Inhaalweekend", "", "Ook bekerweekend volgens KNVB-kalender."],
   ["2027-02-27", "2027-02-28", "Inhaalweekend", "", "Ook bekerweekend volgens KNVB-kalender."],
