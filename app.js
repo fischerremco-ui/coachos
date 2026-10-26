@@ -393,6 +393,43 @@ function seedWeek41Trainings() {
   }
 }
 
+function seedWeek44Trainings() {
+  const marker = "coachos-week44-trainings-2026-v1";
+  try {
+    if (localStorage.getItem(marker)) return;
+    const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
+    const rawWeeks = localStorage.getItem(SEASON_WEEKS_STORAGE_KEY);
+    const existing = rawTrainings ? JSON.parse(rawTrainings) : TRAININGS;
+    if (!Array.isArray(existing) || (rawWeeks && !Array.isArray(JSON.parse(rawWeeks)))) {
+      showToast("Week 44 kon niet worden toegevoegd: controleer je opgeslagen gegevens.");
+      return;
+    }
+
+    const card = getWeekCard("weekkaart-vsv-jo16-1-2026-2027-2026-w44");
+    if (!card || !getPrimaryCalendarWeek(card)) return;
+
+    const additions = [];
+    const selected = WEEK44_TRAININGS.map((source) => {
+      const current = existing.find((training) => (
+        training.id === source.id
+        || (training.plannerWeekKey === source.plannerWeekKey && training.plannerDay === source.plannerDay)
+      ));
+      if (current) return current;
+      additions.push(normalizeTraining(source));
+      return source;
+    });
+
+    if (additions.length && !writeStorage(TRAININGS_STORAGE_KEY, [...existing, ...additions])) return;
+    for (const training of selected) {
+      if (!linkTrainingToWeekCard(card, training.id)) return;
+    }
+    writeStorage(marker, true);
+  } catch (error) {
+    console.warn("Week 44 kon niet veilig worden toegevoegd.", error);
+    showToast("Week 44 kon niet worden toegevoegd. Bestaande gegevens zijn behouden.");
+  }
+}
+
 function seedWeek43Trainings() {
   const marker = "coachos-week43-trainings-2026-v1";
   try {
@@ -8970,6 +9007,7 @@ seedWeek39Trainings();
 seedWeek40Trainings();
 seedWeek41Trainings();
 seedWeek43Trainings();
+seedWeek44Trainings();
 seedOct17SmallGroupTraining();
 migrateLegacyAttachments();
 seedLibraryExercisesIfEmpty();
