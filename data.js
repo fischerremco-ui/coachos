@@ -1582,3 +1582,88 @@ const WEEK43_TRAININGS = [
   }
 ];
 
+// Week 44: uit de drukte spelen en de vrije kant openen.
+const WEEK44_TRAININGS = [
+  {
+    "id": "training-rm-ma-w44",
+    "code": "W44-MA",
+    "title": "Druk hier? Ruimte daar",
+    "date": "2026-10-26",
+    "theme": "Opbouwen: uit de drukte spelen en vrije kant openen",
+    "block": "Blok 4 — Vooruit spelen en samenspel",
+    "totalDuration": 90,
+    "mainGoal": "Spelers herkennen wanneer één kant volloopt en spelen dan via een vrije speler naar de andere kant. In balbezit maken we het veld groot, gebruiken we de 6 of een steunspeler als ontsnappingspunt en bewegen we na de pass opnieuw.",
+    "desiredBehavior": "Kijk vóór ontvangst waar de druk vandaan komt.\nEerste aanname weg van druk als dat kan.\nNa de pass opnieuw bewegen en een nieuwe hoek maken.\nVerre back of buitenspeler blijft beschikbaar aan de vrije kant.\nAls één kant vastloopt, zoeken we rust en openen we de andere kant.",
+    "evaluationCriteria": "In het positiespel wordt de vrije buitenkant regelmatig gevonden zodra één zijde volloopt.\nDe 6 of centrale steunspeler biedt zich zichtbaar aan als ontsnappingspunt.\nSpelers blijven na hun pass niet staan maar kiezen opnieuw positie.\nIn de vrije partij wordt de andere kant gevonden zonder dat de trainer dit voortdurend hoeft te roepen.",
+    "coachWords": "Druk hier? Ruimte daar\nMaak groot\nAndere kant?\nWie helpt eruit?\nRust",
+    "expectedLoad": "Middel. Veel voetbalhandelingen en beslissingen, geen losse conditionele finisher.",
+    "materials": "16–20 pionnen\n8–10 ballen\nHesjes in 3 kleuren\n4 mini-doelen\n2 grote doelen indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Eventueel kort ingooien onder druk meenemen in de eindpartij.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W44",
+    "parts": [
+      {
+        "id": "training-rm-ma-w44-deel-1",
+        "name": "Technische start: open aannemen en weg van druk",
+        "duration": 15,
+        "type": "Warming-up",
+        "organization": "Werk in groepjes van 3 of 4 in ruiten of rechthoeken van circa 12×10 m. Eén bal per groep.",
+        "flow": "Speler A speelt B in. B kijkt vóór ontvangst, neemt open aan en speelt naar C. Daarna doorbewegen naar de volgende positie. Na enkele minuten voeg je een passieve verdediger toe die één kant afsluit, waardoor de ontvanger zelf de vrije zijde moet herkennen.",
+        "attackingCoaching": "Kijk vóór je krijgt. Neem weg van druk. Speel zuiver. Na je pass weer bewegen.",
+        "defendingCoaching": "Passieve verdediger geeft richting zonder direct te veroveren.",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen score; kwaliteit en tempo.",
+        "variations": "Te makkelijk: twee contacten. Te moeilijk: verdediger weer passief of vak iets groter."
+      },
+      {
+        "id": "training-rm-ma-w44-deel-2",
+        "name": "4v4+3: uit de drukte naar de vrije kant",
+        "duration": 20,
+        "type": "Positiespel",
+        "organization": "Basisveld 30×24 m. Vier tegen vier binnen. Drie neutralen spelen altijd met balbezit: één aan iedere korte zijde en één centraal. Bij 10–11 spelers speel 4v4+2 of 4v4+3 met korte wissels. Bij 13–14 spelers 5v5+3 op 34×26 m.",
+        "flow": "6 opeenvolgende passes = 1 punt. Extra accent: probeer van de ene buitenste neutraal via het veld naar de andere buitenste neutraal te spelen. Speel 4×4 min met korte feedbackmomenten.",
+        "attackingCoaching": "Lok druk, gebruik de centrale neutraal en herken de vrije kant. Na je pass opnieuw een hoek maken.",
+        "defendingCoaching": "Verdedig compact en dwing het balbezitteam echt een oplossing te zoeken.",
+        "transitionCoaching": "Bal kwijt: direct eerste druk. Bal gewonnen: hoofd omhoog, uit de druk als dat nodig is.",
+        "rulesScoring": "6 passes = 1 punt. Van buitenste neutraal naar tegenoverliggende buitenste neutraal = bonuspunt.",
+        "variations": "Te makkelijk: 28×22 m. Te druk: 32×25 m. Eventueel centrale neutraal maximaal 2 contacten."
+      },
+      {
+        "id": "training-rm-ma-w44-deel-3",
+        "name": "6v6 naar vier mini-doelen: vrije kant herkennen",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Bij 12 spelers 6v6 op 44×32 m. Bij 10 spelers 5v5 op 40×30 m. Bij 14 spelers 7v7 op 48×34 m. Zet twee mini-doelen op iedere achterlijn, circa 5 m vanaf de zijlijn.",
+        "flow": "Eerste 8 min vrij spelen. Daarna 10 min telt een doelpunt dubbel als de aanval zichtbaar van een drukke naar de vrije kant is verplaatst. Laatste 7 min vervalt de bonusregel weer en observeer je of spelers het principe zelfstandig blijven toepassen.",
+        "attackingCoaching": "As open? Speel erdoorheen. As dicht of kant vol? Verplaats. Verre speler blijft beschikbaar.",
+        "defendingCoaching": "Verdedig compact en schuif samen, zodat de aanvallende ploeg moet herkennen waar ruimte ontstaat.",
+        "transitionCoaching": "Na balwinst eerste blik vooruit; is dat dicht, speel uit de drukte.",
+        "rulesScoring": "Normaal doelpunt = 1. Middenblok: doelpunt na duidelijke verplaatsing naar vrije kant = 2.",
+        "variations": "Te makkelijk: 2–3 m smaller. Te veel toevalsballen: 2–3 m breder."
+      },
+      {
+        "id": "training-rm-ma-w44-deel-4",
+        "name": "Vrije partij: lukt het zonder aanwijzing?",
+        "duration": 30,
+        "type": "Partijvorm",
+        "organization": "Bij 12 spelers 6v6 op circa 48×36 m. Bij 14 spelers 7v7 op 50×38 m. Twee grote doelen als mogelijk; anders twee mini-doelen per achterlijn.",
+        "flow": "Eerste 10 min coach je alleen met de vaste woorden. Daarna 2 min teamoverleg: wanneer lopen we vast en hoe komen we eruit? Speel vervolgens 16 min vrijwel vrij. Laatste 2 min korte evaluatie tijdens opruimen.",
+        "attackingCoaching": "Maak groot. Gebruik steun als ontsnappingspunt. Andere kant vinden zonder te forceren.",
+        "defendingCoaching": "Compact verdedigen en gezamenlijk schuiven.",
+        "transitionCoaching": "Na balverlies eerste druk. Na balwinst vooruit als het kan, vrije kant als het moet.",
+        "rulesScoring": "Gewone wedstrijdregels, geen bonuspunten.",
+        "variations": "Bij oneven aantal één neutrale speler die altijd met balbezit meespeelt."
+      }
+    ],
+    "observationPoints": [
+      "Wie kijkt vóór ontvangst al naar de vrije kant?",
+      "Biedt de 6 of centrale steunspeler zich aan als ontsnappingspunt?",
+      "Blijft de verre buitenspeler of back beschikbaar?",
+      "Bewegen spelers opnieuw na hun pass?",
+      "Herkennen spelers zelfstandig wanneer de bal moet worden verplaatst?"
+    ],
+    "createdAt": "2026-10-26T06:35:00.000Z",
+    "updatedAt": "2026-10-26T06:35:00.000Z"
+  }
+];
+
