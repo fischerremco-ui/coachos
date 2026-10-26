@@ -865,7 +865,7 @@ const PLANNER_WEEK_CARDS = [
         "day": "monday",
         "date": "2026-10-26",
         "objective": "Uit de drukte en vrije kant openen",
-        "suggestedContent": "4v4+3 met wisselen van speelrichting; extra loopvolume voor weinig minuten.",
+        "suggestedContent": "Technische start; 4v4+3 positiespel; 6v6 naar vier mini-doelen; vrije partij. Coachzin: Druk hier? Ruimte daar.",
         "load": "Middel.",
         "duration": 90
       },
