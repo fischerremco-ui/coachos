@@ -1664,6 +1664,100 @@ const WEEK44_TRAININGS = [
     ],
     "createdAt": "2026-10-26T06:35:00.000Z",
     "updatedAt": "2026-10-26T06:35:00.000Z"
+  },
+  {
+    "id": "training-rm-do-w44",
+    "code": "W44-DO",
+    "title": "Vrije kant vinden: scherp richting SVA",
+    "date": "2026-10-29",
+    "theme": "Wedstrijdgericht opbouwen: uit de drukte en vrije kant openen",
+    "block": "Blok 4 — Vooruit spelen en samenspel",
+    "totalDuration": 80,
+    "mainGoal": "Twee dagen voor SVA brengen we het weekprincipe terug naar wedstrijdgedrag: onder druk de vrije kant herkennen, de 6 als ontsnappingspunt gebruiken en vanuit de 4-1-4-1 verbonden blijven.",
+    "desiredBehavior": "Kijk vóór ontvangst waar druk en ruimte liggen.\nAs open? Speel vooruit. Kant dicht? Gebruik steun en open de andere kant.\nDe 6 blijft beschikbaar onder de bal.\nBuitenspelers en backs bewaken samen de breedte.\nNa balverlies direct eerste druk en aansluiten.",
+    "evaluationCriteria": "Spelers herkennen zonder veel trainersturing wanneer een kant vastloopt.\nDe 6 wordt gebruikt als ontsnappingspunt wanneer vooruit spelen niet kan.\nDe verre kant blijft bezet en wordt tijdig gevonden.\nDe 4-1-4-1-afstanden blijven herkenbaar in de wedstrijdvorm.\nDe training eindigt scherp en energiek zonder onnodig volume.",
+    "coachWords": "Maak groot\nDruk hier? Ruimte daar\nGebruik de 6\nAndere kant\nVooruit als het kan",
+    "expectedLoad": "Laag tot middel. Wedstrijdgericht en scherp, met beperkt volume twee dagen voor de eerste wedstrijd in de 3e klasse.",
+    "materials": "16–20 pionnen\n8–10 ballen\nHesjes in 3 kleuren\n4 mini-doelen\n2 grote doelen indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Laatste 10 minuten: doeltrap/opbouw, één corner voor en één corner tegen; daarna korte vrije partij.",
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W44",
+    "parts": [
+      {
+        "id": "training-rm-do-w44-deel-1",
+        "name": "Activeren met bal: kijken, open aannemen, doorbewegen",
+        "duration": 10,
+        "type": "Warming-up",
+        "organization": "Drietallen of viertallen in vakken van circa 12×10 m. Eén bal per groep.",
+        "flow": "Passen, open aannemen en direct doorbewegen. Na enkele minuten geeft één speler lichte druk en sluit één kant af. Tempo rustig opbouwen, weinig stilstand.",
+        "attackingCoaching": "Kijk vóór je krijgt. Neem weg van druk. Na je pass meteen weer bewegen.",
+        "defendingCoaching": "Geef lichte, gerichte druk zodat de ontvanger echt moet kijken.",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen score; kwaliteit en ritme.",
+        "variations": "Bij kleine groep: tweetallen met kaats en doordraaien. Te makkelijk: maximaal twee contacten."
+      },
+      {
+        "id": "training-rm-do-w44-deel-2",
+        "name": "4v4+3: vrije kant openen",
+        "duration": 15,
+        "type": "Positiespel",
+        "organization": "4v4+3 op circa 30×24 m. Eén neutraal centraal en twee neutralen aan de korte zijden. Bij 10–11 spelers 4v4+2; bij 13–14 spelers 5v5+3 op circa 34×26 m.",
+        "flow": "Speel korte blokken. Balbezitteam probeert via de centrale steunspeler van de ene zijde naar de andere te komen. Geen verplichte kantwissel: de keuze moet uit de druk ontstaan.",
+        "attackingCoaching": "Waar is de druk? Wie helpt eruit? Gebruik de centrale speler als dat nodig is en beweeg na de pass.",
+        "defendingCoaching": "Compact drukzetten en één kant bewust dichtspelen.",
+        "transitionCoaching": "Na winst eerst vooruit kijken; is dat dicht, direct uit de druk spelen.",
+        "rulesScoring": "6 passes = 1 punt. Van ene buitenste neutraal naar de andere = bonuspunt.",
+        "variations": "Te makkelijk: veld 28×22 m. Te druk: 32×25 m."
+      },
+      {
+        "id": "training-rm-do-w44-deel-3",
+        "name": "Richtingsspel: vrije kant herkennen",
+        "duration": 20,
+        "type": "Spelvorm",
+        "organization": "6v6 op circa 45×35 m; bij 14 spelers 7v7 op 48×36 m. Twee mini-doelen per achterlijn.",
+        "flow": "Eerste 8 min normaal. Daarna 6 min telt een doelpunt na een duidelijke verplaatsing van drukke naar vrije kant dubbel. Laatste 6 min vervalt de bonus en observeer je of het gedrag blijft.",
+        "attackingCoaching": "As open? Door. Kant dicht? Eruit en andere kant. Verre speler blijft beschikbaar.",
+        "defendingCoaching": "Schuif als team en maak één zijde druk, zodat de aanvallers een echte keuze krijgen.",
+        "transitionCoaching": "Na balverlies eerste druk. Na winst vooruit als het kan.",
+        "rulesScoring": "Normale score; middenblok dubbel na herkenbare verplaatsing naar de vrije kant.",
+        "variations": "Bij minder spelers 5v5 op 40×30 m."
+      },
+      {
+        "id": "training-rm-do-w44-deel-4",
+        "name": "Wedstrijdvorm 4-1-4-1: opbouw richting SVA",
+        "duration": 25,
+        "type": "Partijvorm",
+        "organization": "7v7 of 8v8 op circa 55×40 m, liefst met grote doelen. Richt één team zo veel mogelijk in volgens de 4-1-4-1-principes: achterlijn, één 6, twee hogere middenvelders en breedte voorin.",
+        "flow": "Start regelmatig opnieuw bij keeper of centrale verdediger. Verdedigend team zet bewust één kant vast. Aanvallend team kiest: door de druk, via de 6 terug verbinden of vrije kant openen. Laatste deel zo vrij mogelijk spelen.",
+        "attackingCoaching": "Gebruik de 6. Buitenspeler naar binnen? Dan bewaakt iemand anders de breedte. Niet automatisch wisselen: eerst herkennen wat open is.",
+        "defendingCoaching": "Eerste lijn stuurt, rest sluit aan en bewaakt de as.",
+        "transitionCoaching": "Bal kwijt: eerste druk en aansluiten. Bal gewonnen: eerste blik vooruit.",
+        "rulesScoring": "Gewone wedstrijdregels. Geen bonuspunten in het laatste blok.",
+        "variations": "Bij 12 spelers 6v6 op 48×36 m. Zonder twee keepers: één groot doel tegenover twee mini-doelen."
+      },
+      {
+        "id": "training-rm-do-w44-deel-5",
+        "name": "Spelhervattingen en korte vrije partij",
+        "duration": 10,
+        "type": "Wedstrijdvoorbereiding",
+        "organization": "Gebruik dezelfde veldhelft. Zet de verwachte basisstructuur neer.",
+        "flow": "Kort één doeltrap/opbouw, één corner voor en één corner tegen herhalen. Sluit af met circa 5 min vrij spel op tempo.",
+        "attackingCoaching": "Heldere rollen, snel klaarstaan, daarna voetballen.",
+        "defendingCoaching": "Organisatie eerst, tweede bal bewaken.",
+        "transitionCoaching": "Na de eerste actie direct door naar wedstrijdgedrag.",
+        "rulesScoring": "Geen extra regels.",
+        "variations": "Bij tijdgebrek alleen doeltrap/opbouw en één corner tegen."
+      }
+    ],
+    "observationPoints": [
+      "Wordt de 6 vanzelf gebruikt wanneer een kant vastloopt?",
+      "Blijft de verre kant bezet?",
+      "Herkennen spelers wanneer de as juist wél open is?",
+      "Blijven de afstanden in de 4-1-4-1 verbonden?",
+      "Is de intensiteit scherp zonder dat de training zwaar wordt?"
+    ],
+    "createdAt": "2026-10-29T16:25:00.000Z",
+    "updatedAt": "2026-10-29T16:25:00.000Z"
   }
 ];
 
