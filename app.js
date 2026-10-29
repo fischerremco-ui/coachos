@@ -394,7 +394,7 @@ function seedWeek41Trainings() {
 }
 
 function seedWeek44Trainings() {
-  const marker = "coachos-week44-trainings-2026-v1";
+  const marker = "coachos-week44-trainings-2026-v2";
   try {
     if (localStorage.getItem(marker)) return;
     const rawTrainings = localStorage.getItem(TRAININGS_STORAGE_KEY);
