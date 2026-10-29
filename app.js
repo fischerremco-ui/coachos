@@ -3216,7 +3216,6 @@ async function importData(data, mode) {
       mergeWeekCards
     ))) return false;
     migrateWeekCards();
-seedSebastianMosqueraAgudelo();
   }
   if (hasMatchMinutesData && !saveMatchMinutes(
     replaceOrMerge(mode, getMatchMinutes(), importedMatchMinutes, mergeMatchMinutes)
@@ -9060,6 +9059,7 @@ window.addEventListener("afterprint", () => {
 });
 
 migrateWeekCards();
+seedSebastianMosqueraAgudelo();
 seedWeek38Trainings();
 seedWeek39Trainings();
 seedWeek40Trainings();
