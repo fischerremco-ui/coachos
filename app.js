@@ -393,6 +393,63 @@ function seedWeek41Trainings() {
   }
 }
 
+function seedSebastianMosqueraAgudelo() {
+  const marker = "coachos-player-sebastian-mosquera-agudelo-2026-v1";
+  try {
+    if (localStorage.getItem(marker)) return;
+
+    const players = getPlayers();
+    const existing = players.find((player) => (
+      player.id === "speler-sebastian-mosquera-agudelo"
+      || (
+        player.firstName.toLocaleLowerCase("nl") === "sebastián"
+        && player.lastName.toLocaleLowerCase("nl") === "mosquera agudelo"
+      )
+      || (
+        player.firstName.toLocaleLowerCase("nl") === "sebastian"
+        && player.lastName.toLocaleLowerCase("nl") === "mosquera agudelo"
+      )
+    ));
+
+    if (!existing) {
+      const now = new Date().toISOString();
+      const player = normalizePlayer({
+        id: "speler-sebastian-mosquera-agudelo",
+        teamId: TEAM_ID,
+        firstName: "Sebastián",
+        lastName: "Mosquera Agudelo",
+        displayName: "Sebastián Mosquera Agudelo",
+        shirtNumber: "",
+        primaryPosition: "",
+        secondaryPosition: "",
+        preferredFoot: "Onbekend",
+        quality: "",
+        developmentPoint: "",
+        developmentReviewDate: "",
+        observations: [
+          {
+            id: "observatie-sebastian-instroom-2026-10-29",
+            date: "2026-10-29",
+            text: "Nieuwe speler bij VSV O16-1. 14 jaar bij instroom. Positie en spelersprofiel nog observeren.",
+            blockId: ""
+          }
+        ],
+        heightMeasurements: [],
+        isActive: true,
+        createdAt: now,
+        updatedAt: now
+      });
+
+      if (!savePlayers([...players, player])) return;
+    }
+
+    writeStorage(marker, true);
+  } catch (error) {
+    console.warn("Sebastián Mosquera Agudelo kon niet veilig worden toegevoegd.", error);
+    showToast("Nieuwe speler kon niet automatisch worden toegevoegd. Bestaande gegevens zijn behouden.");
+  }
+}
+
 function seedWeek44Trainings() {
   const marker = "coachos-week44-trainings-2026-v2";
   try {
@@ -3159,6 +3216,7 @@ async function importData(data, mode) {
       mergeWeekCards
     ))) return false;
     migrateWeekCards();
+seedSebastianMosqueraAgudelo();
   }
   if (hasMatchMinutesData && !saveMatchMinutes(
     replaceOrMerge(mode, getMatchMinutes(), importedMatchMinutes, mergeMatchMinutes)
