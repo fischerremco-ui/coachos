@@ -872,10 +872,10 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-29",
-        "objective": "Uit de drukte en vrije kant openen",
-        "suggestedContent": "8v8 met brede eindzones en bonus na kantwissel.",
-        "load": "Middel.",
-        "duration": 90
+        "objective": "Wedstrijdgericht: uit de drukte en vrije kant openen",
+        "suggestedContent": "10 min activeren; 15 min 4v4+3; 20 min richtingsspel; 25 min wedstrijdvorm 4-1-4-1; 10 min spelhervattingen en vrij spel.",
+        "load": "Laag tot middel richting SVA.",
+        "duration": 80
       }
     },
     "setPiece": "Ingooi onder druk: terug, kaats, vrije kant.",
