@@ -1761,3 +1761,102 @@ const WEEK44_TRAININGS = [
   }
 ];
 
+// Week 45: samenspel 8, 10 en 9. Onderlaag: kijken, spelen en weer bewegen.
+const WEEK45_TRAININGS = [
+  {
+    "id": "training-rm-ma-w45",
+    "code": "W45-MA",
+    "title": "Kijk, speel, beweeg weer",
+    "date": "2026-11-02",
+    "theme": "Samenspel 8, 10 en 9: vrije speler vinden en ruimte maken",
+    "block": "Blok 4 — Vooruit spelen en samenspel",
+    "totalDuration": 90,
+    "mainGoal": "Spelers leren vóór ontvangst te kijken, na hun pass opnieuw positie te kiezen en door verschillende bewegingen van 8, 10 en 9 een vrije speler vooruit te vinden.",
+    "desiredBehavior": "Kijk vóór ontvangst waar ruimte, druk en medespelers zijn.\nSpeel door zodra een medespeler vrij staat.\nNa iedere pass direct opnieuw bewegen en een nieuwe aanspeellijn maken.\n8, 10 en 9 bezetten niet dezelfde ruimte: één komt, één gaat.\nIn balbezit maken we het veld groot; bij balverlies volgt direct eerste druk.",
+    "evaluationCriteria": "Spelers scannen zichtbaar vóór ontvangst.\nNa passes blijven spelers minder vaak stilstaan.\n8, 10 en 9 maken verschillende bewegingen in plaats van allemaal naar de bal te komen.\nIn de eindpartij ontstaat vaker een vrije speler vooruit zonder aanwijzing van de trainer.\nDe korte partijblokken worden met wedstrijdintensiteit uitgevoerd.",
+    "coachWords": "KIJK\nSPEEL\nBEWEEG WEER\nÉén komt, één gaat",
+    "expectedLoad": "Middel. Veel voetbalacties en beslissingen in korte blokken; geen losse conditievorm.",
+    "materials": "18–24 pionnen\n8–10 ballen\nHesjes in 3 kleuren\n4 mini-doelen of 2 grote doelen indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Focus volledig op samenspel, ruimte herkennen en trainingsintensiteit.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W45",
+    "parts": [
+      {
+        "id": "training-rm-ma-w45-deel-1",
+        "name": "Activeren: kijken, passen, bewegen",
+        "duration": 12,
+        "type": "Warming-up",
+        "organization": "Eén vak van circa 28×28 m. Bij 12 spelers drie kleuren van vier; iedere kleur heeft één bal en beweegt door hetzelfde vak. Spelers spelen alleen naar hun eigen kleur.",
+        "flow": "Vrij inspelen met nadruk op scannen vóór ontvangst, open aannemen en direct doorbewegen. Na 5 min maximaal twee contacten. De drie ballen blijven tegelijk in het vak zodat spelers voortdurend informatie moeten verzamelen.",
+        "attackingCoaching": "Kijk vóór je krijgt. Speel zuiver. Pass? Beweeg weer. Maak een nieuwe hoek.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen score; kwaliteit, scanmoment en tempo.",
+        "variations": "Bij 10–11 spelers twee of drie kleuren met aangepaste aantallen. Te chaotisch: vak 30×30 m. Te makkelijk: één kleur speelt maximaal één contact."
+      },
+      {
+        "id": "training-rm-ma-w45-deel-2",
+        "name": "4v4+4: vrije man herkennen",
+        "duration": 18,
+        "type": "Positiespel",
+        "organization": "Bij 12 spelers 4v4 binnen op circa 30×24 m met 4 neutralen rondom het vak die altijd met balbezit meespelen. Bij 10 spelers 4v4+2; 11 spelers 4v4+3; 13 spelers 5v5+3; 14 spelers 5v5+4.",
+        "flow": "Speel 4×4 min met korte resets van 30–45 sec. Buitenste neutralen maximaal twee contacten. Doel is balbezit houden en herkennen wanneer een speler aan de andere zijde vrij staat.",
+        "attackingCoaching": "Waar is de vrije man? Waarom kom je ook naar de bal? Wat gebeurt er als jij daar blijft? Speel en maak daarna opnieuw ruimte.",
+        "defendingCoaching": "Verdedig actief en compact zodat het balbezitteam echt oplossingen moet herkennen.",
+        "transitionCoaching": "Na balverlies direct eerste druk; na winst hoofd omhoog en vrije speler zoeken.",
+        "rulesScoring": "6 passes = 1 punt. Bonuspunt als de bal via balbezit van de ene zijde naar de andere zijde wordt gebracht.",
+        "variations": "Te makkelijk: 28×22 m. Te druk: 32×25 m. Neutrale spelers eventueel één contact."
+      },
+      {
+        "id": "training-rm-ma-w45-deel-3",
+        "name": "5v5 + twee 9's: één komt, één gaat",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Bij 12 spelers 5v5 op circa 42×30 m met aan iedere korte zijde een eindzone van 4–5 m en één 9 in iedere eindzone. Bij 13 spelers voeg je één neutrale middenvelder toe; bij 14 spelers 6v6 + twee 9's.",
+        "flow": "Eerste blok: een punt ontstaat wanneer de 9 wordt ingespeeld, kaatst en een derde speler de vervolgpass ontvangt. Na circa 10 min mag de 9 uit de eindzone komen. Komt de 9 eruit, dan moet een andere speler de vrijgekomen ruimte aanvallen.",
+        "attackingCoaching": "Wie komt? Wie gaat? 8, 10 en 9 niet in dezelfde ruimte. Speel de vrije speler en beweeg direct weer.",
+        "defendingCoaching": "Verdedig door en rond de as; geef echte druk zodat timing en vrijlopen nodig zijn.",
+        "transitionCoaching": "Bal gewonnen: eerste blik vooruit. Bal kwijt: direct eerste druk en aansluiten.",
+        "rulesScoring": "Punt na 9 inspelen + kaats + derde speler. In tweede deel mag 9 uit de zone, mits iemand anders diepte overneemt.",
+        "variations": "Te moeilijk: 5v5+1 neutraal centraal. Te makkelijk: veld 2–3 m smaller of 9 maximaal twee contacten."
+      },
+      {
+        "id": "training-rm-ma-w45-deel-4",
+        "name": "Korte wedstrijdblokken: lukt het zonder trainer?",
+        "duration": 30,
+        "type": "Partijvorm",
+        "organization": "Bij 12 spelers 6v6 op circa 48×36 m. Bij 14 spelers 7v7 op circa 52×40 m. Gebruik grote doelen indien mogelijk; anders twee mini-doelen per achterlijn.",
+        "flow": "Speel korte wedstrijden van 4 min met circa 1 min reset. Houd de score bij. Eerste twee rondes telt een doelpunt na kaats met de 9 of duidelijke derde-manactie dubbel. Daarna vervalt de bonus. Laatste 8–10 min volledig vrij.",
+        "attackingCoaching": "Kijk. Speel. Beweeg weer. Maak groot en zoek de vrije speler vooruit.",
+        "defendingCoaching": "Wedstrijdintensiteit. Eerste druk en als team aansluiten.",
+        "transitionCoaching": "Na winst vooruit als het kan; na verlies meteen reageren.",
+        "rulesScoring": "Score bijhouden per blok. Eerste twee rondes bonus voor combinatie met 9/derde man; daarna normale score.",
+        "variations": "Bij oneven aantal één neutrale speler met balbezit. Bij lage intensiteit blok direct stoppen, kort resetten en opnieuw starten."
+      },
+      {
+        "id": "training-rm-ma-w45-deel-5",
+        "name": "Korte evaluatie",
+        "duration": 5,
+        "type": "Reflectie",
+        "organization": "Spelers verzamelen kort bij het materiaal.",
+        "flow": "Vraag maximaal twee spelers: wanneer ontstond vandaag ruimte? En wat deed jij na je pass? Sluit af met de drie woorden KIJK, SPEEL, BEWEEG WEER.",
+        "attackingCoaching": "",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "",
+        "variations": "Bij tijdgebrek meenemen tijdens opruimen."
+      }
+    ],
+    "observationPoints": [
+      "Wie kijkt zichtbaar vóór ontvangst?",
+      "Wie blijft na een pass staan en wie maakt direct een nieuwe hoek?",
+      "Maken 8, 10 en 9 verschillende bewegingen?",
+      "Wie herkent de vrije speler vooruit zonder aanwijzing?",
+      "Blijft de intensiteit in de 4-minutenblokken hoog?",
+      "Wie blijft praten of stoeien buiten het voetbal en reageert op de afgesproken consequentie?"
+    ],
+    "createdAt": "2026-11-01T10:50:00.000Z",
+    "updatedAt": "2026-11-01T10:50:00.000Z"
+  }
+];
+
