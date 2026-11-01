@@ -1,4 +1,4 @@
-const CACHE_VERSION = "coachos-v34";
+const CACHE_VERSION = "coachos-v35";
 const CRITICAL_SHELL = [
   "./",
   "./index.html",
