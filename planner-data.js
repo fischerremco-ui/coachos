@@ -918,8 +918,8 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-02",
-        "objective": "Samenspel 8, 10 en 9",
-        "suggestedContent": "Positiecombinaties met actieve verdediger; 5v5 naar twee eindspelers.",
+        "objective": "Samenspel 8, 10 en 9: kijken, spelen en weer bewegen",
+        "suggestedContent": "12 min scan/pas/beweeg; 18 min 4v4+4; 25 min 5v5 + twee 9's; 30 min korte wedstrijdblokken; 5 min evaluatie.",
         "load": "Middel.",
         "duration": 90
       },
