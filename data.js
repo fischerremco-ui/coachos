@@ -1860,3 +1860,117 @@ const WEEK45_TRAININGS = [
   }
 ];
 
+// Week 46: reactie op DEM — opbouw in beweging met breedte, aansluiting en diepte.
+const WEEK46_TRAININGS = [
+  {
+    "id": "training-rm-ma-w46",
+    "code": "W46-MA",
+    "title": "PASS = BEWEEG",
+    "date": "2026-11-09",
+    "theme": "Opbouw in beweging: breedte houden, aansluiten en diepte herkennen",
+    "block": "Blok 5 — Kansen creëren en omschakelen",
+    "totalDuration": 90,
+    "mainGoal": "Spelers verbeteren het vrijlopen en opnieuw positie kiezen na een pass, zodat de opbouw niet statisch wordt, het veld groot blijft en er vaker vooruit of in de diepte kan worden gespeeld.",
+    "desiredBehavior": "Na iedere pass direct opnieuw bewegen en een nieuwe aanspeellijn maken.\nBacks en buitenspelers houden breedte zolang dat ruimte creëert.\n6, 8 en 10 kiezen verschillende hoogtes: niet allemaal naar de bal.\nDe speler aan de bal kijkt eerst vooruit en speelt diep als de situatie dat toelaat.\nBij balverlies direct reageren; lukt eerste druk niet, dan snel aansluiten en herstellen.\nTijdens uitleg en resets: luisteren, reageren en elkaar helpen.",
+    "evaluationCriteria": "Na passes blijven spelers duidelijk minder vaak stilstaan.\nDe speler aan de bal heeft minimaal twee bruikbare afspeelrichtingen doordat medespelers bewegen.\nBacks/buitenspelers bewaken herkenbaar de breedte en middenvelders bezetten verschillende hoogtes.\nVooruit spelen ontstaat uit waarnemen en vrijlopen, niet uit geforceerde ballen.\nDe intensiteit blijft in de korte partijblokken hoog en spelers verwerken coachinformatie zichtbaar.",
+    "coachWords": "PASS = BEWEEG\nGROOT MAKEN\nÉÉN KOMT, ÉÉN GAAT\nEERSTE BLIK VOORUIT\nAANSLUITEN",
+    "expectedLoad": "Middel. Veel korte acties, richtingsveranderingen en herhaalde vrijloopacties. Geen straf- of losse conditievorm na de wedstrijd van zaterdag.",
+    "materials": "20–24 pionnen\n8–10 ballen\nHesjes in 3 kleuren\n4 mini-doelen of 2 grote doelen indien beschikbaar\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. De maandag staat volledig in het teken van opbouw in beweging en teamgedrag.",
+    "plannerDay": "monday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W46",
+    "parts": [
+      {
+        "id": "training-rm-ma-w46-deel-1",
+        "name": "Teamstart: onze norm",
+        "duration": 5,
+        "type": "Reflectie",
+        "organization": "Spelers kort bij elkaar, zonder bal. Maximaal 90 seconden spreken; daarna twee spelers laten herhalen wat de drie teamnormen betekenen.",
+        "flow": "Benoem dat 9-2 niet het trainingsonderwerp is. De norm wel: luisteren als iemand praat, reageren op coaching en je teamgenoot helpen door te bewegen. Vraag: wat gebeurt er met ons voetbal als iedereen na zijn pass blijft staan?",
+        "attackingCoaching": "Koppel het antwoord aan de trainingszin: PASS = BEWEEG.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "Geen discussie over de uitslag; kort, concreet en daarna de bal in.",
+        "variations": "Bij onrust: laat drie spelers ieder één norm in eigen woorden benoemen."
+      },
+      {
+        "id": "training-rm-ma-w46-deel-2",
+        "name": "Rondo-diamant: pass en nieuwe hoek",
+        "duration": 12,
+        "type": "Warming-up",
+        "organization": "Maak 3 diamanten van circa 9×9 m. Per diamant 3 aanvallers op 3 hoeken, 1 lege hoek en 1 verdediger. Bij andere aantallen werk je met 4v1 of 4v2 in een iets groter vak.",
+        "flow": "Na iedere pass moet de passer direct naar de lege hoek bewegen. Daardoor verandert voortdurend de aanspeelhoek. Verdediger wisselt na balwinst of na 60–75 sec. Na 5 min maximaal twee contacten.",
+        "attackingCoaching": "Kijk vóór ontvangst. Open aannemen. Pass? Meteen nieuwe hoek. Niet achter je eigen pass blijven staan.",
+        "defendingCoaching": "Verdediger jaagt actief en probeert de voorspelbare pass af te snijden.",
+        "transitionCoaching": "Bal kwijt? Direct reageren en nieuwe verdediger worden.",
+        "rulesScoring": "8 opeenvolgende passes = 1 punt. Alleen tellen als de passer na elke pass daadwerkelijk verplaatst.",
+        "variations": "Te makkelijk: kleiner veld of maximaal twee contacten. Te moeilijk: diamant 10×10 m of verdediger pas na 3 passes volledig actief."
+      },
+      {
+        "id": "training-rm-ma-w46-deel-3",
+        "name": "4v4+3: breedte, hoogte en aansluiting",
+        "duration": 18,
+        "type": "Positiespel",
+        "organization": "4v4 binnen op circa 30×24 m met 3 neutralen: twee brede buitenste steunspelers en één centrale steunspeler. Bij 10–11 spelers 4v4+2/3; bij 13–14 spelers 5v5+3 op circa 34×26 m.",
+        "flow": "Balbezitteam gebruikt de neutralen om uit druk te spelen. Speel 4×4 min met korte resets. Na een pass moet de passer een andere aanspeellijn zoeken; niet twee spelers naast elkaar in dezelfde lijn.",
+        "attackingCoaching": "Wie houdt breedte? Wie blijft hoger? Waar is de vrije man? Eén komt, één gaat. Pass = beweeg.",
+        "defendingCoaching": "Compact drukzetten en één kant sluiten, zodat aanvallers echt moeten waarnemen en bewegen.",
+        "transitionCoaching": "Na winst eerste blik vooruit; na verlies drie seconden eerste druk en daarna aansluiten.",
+        "rulesScoring": "6 passes = 1 punt. Bonuspunt als de bal via een andere hoogte/lijn naar de overkant wordt gespeeld.",
+        "variations": "Te makkelijk: neutralen maximaal één contact. Te moeilijk: veld iets groter of één neutraal extra."
+      },
+      {
+        "id": "training-rm-ma-w46-deel-4",
+        "name": "Opbouwspel: van breedte naar diepte",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Gebruik circa 50×40 m. Bouwend team start bij coach/keeper met achterste lijn, 6 en hogere middenvelder(s). Tegenpartij zet druk. Aan de overzijde twee mini-doelen of een doelspeler/9 als eindpunt. Schaal naar 6v5, 7v6 of 7v7 afhankelijk van opkomst.",
+        "flow": "Iedere aanval start achterin. Doel: eerst ruimte maken in breedte en verschillende hoogtes bezetten, daarna vooruit spelen zodra een lijn open komt. Verdedigers mogen na start vol drukzetten. Na score of uitbal opnieuw achterin.",
+        "attackingCoaching": "Back breed. 6 verbindend. 8/10 niet naast de 6. Verre kant blijft weg. Eerste blik vooruit. Na inspelen: doorbewegen en opnieuw aansluiten.",
+        "defendingCoaching": "Stuur de opbouw naar één kant en zet echte druk; geen schijnverdediging.",
+        "transitionCoaching": "Na balverlies direct eerste druk. Is de bal weg, herstel aansluiting. Na winst mag de verdedigende ploeg direct scoren op startdoel.",
+        "rulesScoring": "1 punt voor score. Bonuspunt als een speler vooruit wordt vrijgespeeld nadat de passer direct een nieuwe positie heeft gekozen.",
+        "variations": "Geen keeper: coach start iedere bal. Bij weinig spelers 5v4/5v5 op 42×34 m. Bij veel spelers wissel na 3–4 min de drukploeg."
+      },
+      {
+        "id": "training-rm-ma-w46-deel-5",
+        "name": "Korte wedstrijdblokken: blijft iedereen bewegen?",
+        "duration": 25,
+        "type": "Partijvorm",
+        "organization": "6v6 of 7v7 op circa 50×38 tot 55×42 m. Markeer aan beide kanten een brede strook van circa 4 m als visuele referentie; spelers zijn niet verplicht erin te blijven.",
+        "flow": "Speel 4 blokken van circa 5 min met korte reset. Houd de score bij. Eerste twee blokken: doelpunt telt dubbel als de aanval aantoonbaar breedte houdt en daarna diepte vindt of een derde-manactie gebruikt. Laatste twee blokken normale regels: kijk of het gedrag blijft.",
+        "attackingCoaching": "Groot maken. Pass = beweeg. Één komt, één gaat. Niet naar de bal toe kruipen als een medespeler al aanspeelbaar is.",
+        "defendingCoaching": "Wedstrijdintensiteit, duels gecontroleerd maar volledig aangaan. Team sluit aan bij druk.",
+        "transitionCoaching": "Na winst hoofd omhoog; na verlies reageren. Niet wandelen tussen twee momenten.",
+        "rulesScoring": "Score per blok bijhouden. Bij structureel lage intensiteit: blok stoppen, 30 sec reset met één concrete vraag, daarna opnieuw starten.",
+        "variations": "Oneven aantal: één neutrale speler met balbezit. Bij 10 spelers 5v5 op 44×34 m."
+      },
+      {
+        "id": "training-rm-ma-w46-deel-6",
+        "name": "Evaluatie: wat deed jij na je pass?",
+        "duration": 5,
+        "type": "Reflectie",
+        "organization": "Kort verzamelen bij het materiaal.",
+        "flow": "Vraag drie spelers: 1) wat moest je na je pass doen? 2) wanneer hielp breed blijven? 3) wanneer konden we diepte spelen? Laat spelers zelf antwoorden voordat je aanvult.",
+        "attackingCoaching": "Sluit af met: PASS = BEWEEG. Groot maken om vooruit te kunnen.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "",
+        "variations": "Bij tijdgebrek tijdens opruimen uitvoeren."
+      }
+    ],
+    "observationPoints": [
+      "Blijven spelers na een pass staan of maken zij direct een nieuwe aanspeelhoek?",
+      "Heeft de balhouder door beweging van anderen meerdere opties vooruit, breed en terug?",
+      "Blijven backs en buitenspelers breed wanneer dat ruimte opent?",
+      "Kiezen 6, 8 en 10 verschillende hoogtes in plaats van naar dezelfde balruimte te komen?",
+      "Wordt vooruit gespeeld wanneer het kan, zonder diepte te forceren?",
+      "Wie verwerkt een coachpunt zichtbaar in de eerstvolgende acties?",
+      "Blijft de intensiteit hoog zodra vermoeidheid optreedt?",
+      "Worden duels stevig maar gecontroleerd aangegaan?"
+    ],
+    "createdAt": "2026-11-08T20:57:00.000Z",
+    "updatedAt": "2026-11-08T20:57:00.000Z"
+  }
+];
+
