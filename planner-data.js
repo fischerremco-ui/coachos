@@ -980,9 +980,9 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-12",
-        "objective": "Breedte, diepte en cutback",
-        "suggestedContent": "8v8 met brede kanalen en eindzone voor teruggetrokken bal.",
-        "load": "Middel, veel korte versnellingen.",
+        "objective": "Positiespel in de opbouw: PASS = BEWEEG",
+        "suggestedContent": "2v2+neutralen in twee vakken; daarna groter positiespel en 5v5+1 op vier mini-doelen.",
+        "load": "Middel, veel balcontacten en korte vrijloopacties.",
         "duration": 90
       }
     },
