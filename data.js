@@ -1971,6 +1971,115 @@ const WEEK46_TRAININGS = [
     ],
     "createdAt": "2026-11-08T20:57:00.000Z",
     "updatedAt": "2026-11-08T20:57:00.000Z"
+  },
+  {
+    "id": "training-rm-do-w46",
+    "code": "W46-DO",
+    "title": "Positiespel in de opbouw",
+    "date": "2026-11-12",
+    "theme": "Vrijlopen, opnieuw aanspeelbaar worden en vanuit breedte vooruit spelen",
+    "block": "Blok 5 — Kansen creëren en omschakelen",
+    "totalDuration": 90,
+    "mainGoal": "Spelers verbeteren het positie kiezen en vrijlopen in de opbouw, zodat de balhouder meerdere afspeelmogelijkheden heeft en het team vanuit breedte en verschillende hoogtes vaker vooruit kan spelen.",
+    "desiredBehavior": "Na iedere pass direct opnieuw bewegen en een nieuwe aanspeellijn maken.\nSpelers komen niet allemaal naar de bal, maar bezetten verschillende hoogtes en breedtes.\nDe balhouder kijkt vóór ontvangst en heeft als eerste gedachte: kan ik vooruit?\nDe verre kant blijft beschikbaar wanneer de druk naar één zijde trekt.\nBij balverlies direct reageren en aansluiten.",
+    "evaluationCriteria": "De passer maakt na zijn pass zichtbaar een nieuwe aanspeelhoek.\nDe balhouder heeft door beweging van medespelers minimaal twee bruikbare opties.\nSpelers bezetten minder vaak dezelfde lijn of ruimte.\nBreedte blijft behouden wanneer de bal aan één kant is.\nVooruit spelen ontstaat uit waarnemen en vrijlopen, niet uit geforceerde passes.\nHet gedrag blijft zichtbaar in de vrije partijvorm.",
+    "coachWords": "PASS = BEWEEG\nKIJK VOOR JE KRIJGT\nMAAK EEN NIEUWE LIJN\nNIET NAAST ELKAAR\nEERSTE BLIK VOORUIT",
+    "expectedLoad": "Middel. Veel balcontacten en korte vrijloopacties; geen groot doel nodig.",
+    "materials": "18–24 pionnen\n8–10 ballen\nHesjes in 3 kleuren\n4 mini-doelen\nDrinken naast het veld",
+    "setPiece": "Geen apart spelhervattingsblok. Focus op positiespel in de opbouw en toepassing in richtingsspel.",
+    "plannerDay": "thursday",
+    "plannerWeekKey": "vsv-jo16-1-2026-2027:2026:W46",
+    "parts": [
+      {
+        "id": "training-rm-do-w46-deel-1",
+        "name": "Korte start: PASS = BEWEEG",
+        "duration": 5,
+        "type": "Reflectie",
+        "organization": "Spelers kort bij elkaar. Maximaal 60–90 seconden uitleg, daarna direct de bal in.",
+        "flow": "Vraag: wat moet er gebeuren nadat jij de bal hebt gespeeld? Laat één of twee spelers antwoorden. Koppel het antwoord aan de trainingszin PASS = BEWEEG.",
+        "attackingCoaching": "Niet alles voorzeggen; spelers zelf laten benoemen waarom opnieuw bewegen helpt.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "",
+        "variations": "Bij onrust: één speler laat voordoen wat 'nieuwe aanspeellijn' betekent."
+      },
+      {
+        "id": "training-rm-do-w46-deel-2",
+        "name": "Twee vakken: 2v2 + neutralen",
+        "duration": 15,
+        "type": "Positiespel",
+        "organization": "Twee vakken van circa 16–18 × 12–14 m. Bij 11 spelers: vak A 2v2+2 neutralen (6), vak B 2v2+1 neutraal (5). Bij 10 spelers: twee keer 2v2+1. Bij 12 spelers: twee keer 2v2+2.",
+        "flow": "Neutralen spelen altijd met balbezit. Speel blokken van 2,5–3 min en roteer neutralen en vakken. Na een pass moet de passer een nieuwe aanspeelhoek maken; niet op dezelfde plek blijven.",
+        "attackingCoaching": "Kijk vóór je krijgt. Pass = beweeg. Maak een nieuwe lijn. Blijf uit dezelfde lijn als je medespeler.",
+        "defendingCoaching": "Verdedig actief zodat de balbezitters echt moeten vrijlopen en scannen.",
+        "transitionCoaching": "Bal kwijt? Meteen omschakelen en druk op de bal.",
+        "rulesScoring": "6 opeenvolgende passes = 1 punt. Alleen tellen als de passer na zijn pass zichtbaar opnieuw positie kiest.",
+        "variations": "Te makkelijk: neutralen maximaal twee contacten of veld kleiner. Te moeilijk: veld iets groter of vrij aantal contacten."
+      },
+      {
+        "id": "training-rm-do-w46-deel-3",
+        "name": "Positiespel: meerdere afspeellijnen",
+        "duration": 20,
+        "type": "Positiespel",
+        "organization": "Bij 11 spelers 4v4+3 op circa 30×24 m. Bij 10 spelers 4v4+2. Bij 12 spelers 5v5+2 op circa 34×26 m. Neutralen spelen met balbezit.",
+        "flow": "Speel 4 blokken van circa 4 min met korte reset. Doel is niet alleen balbezit, maar de balhouder steeds meerdere richtingen geven. Laat spelers zelf herkennen wanneer iemand te dicht bij de bal komt of in dezelfde lijn staat.",
+        "attackingCoaching": "Wie houdt breedte? Wie blijft hoger? Waar is de vrije man? Niet allemaal naar de bal. Eerste blik vooruit.",
+        "defendingCoaching": "Compact verdedigen en druk richting één zijde sturen zodat de andere zijde herkenbaar vrij kan komen.",
+        "transitionCoaching": "Na winst eerst vooruit kijken; na verlies eerste druk en aansluiten.",
+        "rulesScoring": "6 passes = 1 punt. Bonuspunt wanneer de bal van een drukke naar een vrije zijde wordt gespeeld via een nieuwe aanspeellijn.",
+        "variations": "Te makkelijk: neutralen één contact. Te moeilijk: veld 2–3 m groter."
+      },
+      {
+        "id": "training-rm-do-w46-deel-4",
+        "name": "Richtingsspel op 4 mini-doelen",
+        "duration": 25,
+        "type": "Spelvorm",
+        "organization": "Bij 11 spelers 5v5+1 neutraal op circa 42×32 m met twee mini-doelen per achterlijn. Bij 10 spelers 5v5. Bij 12 spelers 6v6. Zet de doelen breed uit elkaar.",
+        "flow": "De neutrale speler speelt met balbezit. Speel in korte blokken. Door de twee doelen per achterlijn moet het team herkennen welke kant open is. Na een pass opnieuw bewegen om een volgende lijn te openen.",
+        "attackingCoaching": "Maak het veld groot. Pass = beweeg. Verre kant beschikbaar. Kan het vooruit? Dan vooruit. Is het dicht? Verplaats.",
+        "defendingCoaching": "Druk op de bal en samen één kant sluiten.",
+        "transitionCoaching": "Na balwinst eerste blik naar het vrije doel; na balverlies direct reageren.",
+        "rulesScoring": "Normale score. Eerste helft van de vorm: doelpunt telt dubbel na herkenbare verplaatsing van drukke naar vrije kant of een derde-manactie.",
+        "variations": "Bij te weinig succes: veld 3–4 m breder. Bij te veel tijd: veld smaller of neutrale speler maximaal twee contacten."
+      },
+      {
+        "id": "training-rm-do-w46-deel-5",
+        "name": "Vrije partij: blijft het gedrag bestaan?",
+        "duration": 20,
+        "type": "Partijvorm",
+        "organization": "Zelfde veld en dezelfde 4 mini-doelen. 5v5+1 bij 11 spelers, 5v5 bij 10, 6v6 bij 12.",
+        "flow": "Alle bonusregels vervallen. Speel 3 à 4 korte wedstrijdblokken en observeer of spelers uit zichzelf blijven scannen, bewegen en breedte houden.",
+        "attackingCoaching": "Zo min mogelijk stilleggen. Alleen korte vragen: waar is je volgende positie? Wie maakt ruimte? Kan het vooruit?",
+        "defendingCoaching": "Wedstrijdintensiteit en gecontroleerde duels.",
+        "transitionCoaching": "Direct reageren na balverlies en balwinst.",
+        "rulesScoring": "Gewone score. Score per blok bijhouden.",
+        "variations": "Bij lage intensiteit: blok kort stoppen, één vraag stellen en opnieuw starten."
+      },
+      {
+        "id": "training-rm-do-w46-deel-6",
+        "name": "Evaluatie",
+        "duration": 5,
+        "type": "Reflectie",
+        "organization": "Kort bij het materiaal.",
+        "flow": "Vraag drie spelers: wat deed jij na je pass? Wanneer hielp breed blijven? Wanneer konden we vooruit spelen?",
+        "attackingCoaching": "Laat spelers eerst zelf antwoorden. Sluit af met PASS = BEWEEG.",
+        "defendingCoaching": "",
+        "transitionCoaching": "",
+        "rulesScoring": "",
+        "variations": "Bij tijdgebrek tijdens opruimen."
+      }
+    ],
+    "observationPoints": [
+      "Wie maakt na zijn pass direct een nieuwe aanspeelhoek?",
+      "Wie blijft na de pass staan?",
+      "Heeft de balhouder meerdere afspeelrichtingen?",
+      "Blijven spelers uit dezelfde lijn en bezetten zij verschillende hoogtes?",
+      "Blijft de verre kant beschikbaar?",
+      "Wordt vooruit gespeeld wanneer het kan zonder te forceren?",
+      "Blijft dit gedrag overeind in de vrije partijvorm?"
+    ],
+    "createdAt": "2026-11-10T08:10:00.000Z",
+    "updatedAt": "2026-11-10T08:10:00.000Z"
   }
 ];
 
