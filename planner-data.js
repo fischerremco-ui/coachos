@@ -980,8 +980,8 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-12",
-        "objective": "Positiespel in de opbouw: PASS = BEWEEG",
-        "suggestedContent": "2v2+neutralen in twee vakken; daarna groter positiespel en 5v5+1 op vier mini-doelen.",
+        "objective": "Verbinden in de opbouw: PASS = BEWEEG",
+        "suggestedContent": "Klein positiespel → verschillende hoogtes → richtingsspel op 4 mini-doelen → vrije partij zonder bonusregels.",
         "load": "Middel, veel balcontacten en korte vrijloopacties.",
         "duration": 90
       }
