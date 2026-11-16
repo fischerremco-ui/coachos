@@ -228,9 +228,9 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 33,
     "dateFrom": "2026-08-10",
     "dateTo": "2026-08-16",
-    "competitionBlock": "Fundering",
+    "competitionBlock": "Aanvallen / Verdedigen > Opbouwen / Verstoren van het opbouwen",
     "matchContext": "Voorbereiding",
-    "mainPrinciple": "Teamidentiteit & verbonden spelen",
+    "mainPrinciple": "Basisafspraken - verbonden aanvallen en verdedigen",
     "supportingPrinciples": [
       "1-tegen-1 en directe rolwisseling",
       "Opbouw via 1, 3, 4 en 6"
@@ -251,7 +251,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-08-10",
-        "objective": "Teamidentiteit & verbonden spelen",
+        "objective": "Basisafspraken - verbonden aanvallen en verdedigen",
         "suggestedContent": "Activering met bal; scan- en pasvorm met keuzes; 4-tegen-4 + 2 steunspelers; 7-tegen-7 met vrije opbouw.",
         "load": "Laag tot middel: veel balcontacten, korte blokken, geen lange maximale loopacties.",
         "duration": 90
@@ -259,7 +259,7 @@ const PLANNER_WEEK_CARDS = [
       "wednesday": {
         "day": "wednesday",
         "date": "2026-08-12",
-        "objective": "1-tegen-1 en directe rolwisseling",
+        "objective": "Basisafspraken - verbonden aanvallen en verdedigen",
         "suggestedContent": "Coördinatieve activering; 1-tegen-1-dribbelvorm waarbij de aanvaller direct verdediger wordt; 2-tegen-2 naar twee doelen; 5-tegen-5.",
         "load": "Middel: veel remmen en draaien; werk in korte sets met volledig herstel.",
         "duration": 90
@@ -267,7 +267,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-08-13",
-        "objective": "Opbouw via 1, 3, 4 en 6",
+        "objective": "Basisafspraken - verbonden aanvallen en verdedigen",
         "suggestedContent": "Opbouw zonder weerstand; 5-tegen-3 vanuit keeper; 7-tegen-6 naar doel; vrije partij met doeltrapstart.",
         "load": "Middel: tactische belasting groter, fysiek volume beheerst.",
         "duration": 90
@@ -284,7 +284,18 @@ const PLANNER_WEEK_CARDS = [
     "matchCriteria": [],
     "expectedLoad": "Geleidelijk opbouwen; per sessie gespecificeerd.",
     "lowAttendanceAlternative": "",
-    "trainerNotes": ""
+    "trainerNotes": "",
+    "knvbSchemaVersion": 2,
+    "developmentPhase": "Voorseizoen",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Opbouwen / Verstoren van het opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten"
+    ],
+    "trainingObjective": "Het verbeteren van de basisafspraken in aanvallen en verdedigen, waarbij spelers positie kiezen, aanspeelbaar worden, samen druk zetten en als team verbonden blijven."
   },
   {
     "id": "weekkaart-vsv-jo16-1-2026-2027-2026-w34",
@@ -293,9 +304,9 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 34,
     "dateFrom": "2026-08-17",
     "dateTo": "2026-08-23",
-    "competitionBlock": "Fundering",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Voorbereiding",
-    "mainPrinciple": "Door, langs of over de eerste druk",
+    "mainPrinciple": "Opbouwen - door, langs of over de eerste druk",
     "supportingPrinciples": [
       "Derde man, duel en omschakeling",
       "Volledige cyclus & eerste wedstrijdafspraken"
@@ -316,7 +327,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-08-17",
-        "objective": "Door, langs of over de eerste druk",
+        "objective": "Opbouwen - door, langs of over de eerste druk",
         "suggestedContent": "Techniek met scannen; 4-tegen-2 met uitgangen; 6-tegen-4 opbouw; 7-tegen-7 met bonus voor lijnbrekende pass.",
         "load": "Middel: meer weerstand, niet meer totale duur.",
         "duration": 90
@@ -324,7 +335,7 @@ const PLANNER_WEEK_CARDS = [
       "wednesday": {
         "day": "wednesday",
         "date": "2026-08-19",
-        "objective": "Derde man, duel en omschakeling",
+        "objective": "Opbouwen - door, langs of over de eerste druk",
         "suggestedContent": "Driehoeken met actieve verdediger; 2-tegen-1 en 2-tegen-2; 4-tegen-4 + 3 met rolverdeling na balverlies; afwerkcompetitie.",
         "load": "Middel tot hoog in korte blokken; ruime pauzes tussen duelreeksen.",
         "duration": 90
@@ -332,7 +343,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-08-20",
-        "objective": "Volledige cyclus & eerste wedstrijdafspraken",
+        "objective": "Opbouwen - door, langs of over de eerste druk",
         "suggestedContent": "8-tegen-8 met keeper en drie zones; scenario’s na balwinst en balverlies; doeltrap en ingooi; laatste 20 min vrije partij.",
         "load": "Middel: wedstrijdgericht, maar fris afsluiten.",
         "duration": 90
@@ -349,7 +360,18 @@ const PLANNER_WEEK_CARDS = [
     "matchCriteria": [],
     "expectedLoad": "Geleidelijk opbouwen; per sessie gespecificeerd.",
     "lowAttendanceAlternative": "",
-    "trainerNotes": ""
+    "trainerNotes": "",
+    "knvbSchemaVersion": 2,
+    "developmentPhase": "Voorseizoen",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers de eerste druk herkennen en door positie kiezen, aannemen, passen of dribbelen een vrije speler vooruit vinden."
   },
   {
     "id": "weekkaart-vsv-jo16-1-2026-2027-2026-w35",
