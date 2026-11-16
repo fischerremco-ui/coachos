@@ -358,9 +358,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 35,
     "dateFrom": "2026-08-24",
     "dateTo": "2026-08-30",
-    "competitionBlock": "Fundering",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Fundering",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Beker • poulewedstrijd 1",
-    "mainPrinciple": "Opbouwen via keeper en vrije 6",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers door positie te kiezen, aan te nemen en te passen via de keeper en de vrije 6 meerdere mogelijkheden creëren om vooruit te spelen.",
+    "mainPrinciple": "Opbouwen - vrije 6 vinden",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "3/4 lokken de eerste druk uit",
@@ -377,7 +387,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-08-24",
-        "objective": "Opbouwen via keeper en vrije 6",
+        "objective": "Opbouwen - vrije 6 vinden",
         "suggestedContent": "Herstel/extra-groep; scan- en aannamevorm; 5v3 vanuit keeper.",
         "load": "Middel, gedifferentieerd naar minuten.",
         "duration": 90
@@ -385,7 +395,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-08-27",
-        "objective": "Opbouwen via keeper en vrije 6",
+        "objective": "Opbouwen - vrije 6 vinden",
         "suggestedContent": "7v6 opbouw naar middenzone; 8v8 met doeltrapstart.",
         "load": "Middel, gedifferentieerd naar minuten.",
         "duration": 90
@@ -412,9 +422,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 36,
     "dateFrom": "2026-08-31",
     "dateTo": "2026-09-06",
-    "competitionBlock": "Fundering",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Fundering",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Beker • poulewedstrijd 2",
-    "mainPrinciple": "Door, langs of over de druk",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers de vrije man herkennen en door positie te kiezen, aan te nemen, te passen of te dribbelen door, langs of over de druk vooruit spelen.",
+    "mainPrinciple": "Opbouwen - door, langs of over de druk",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Verste vrije speler eerst",
@@ -431,7 +452,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-08-31",
-        "objective": "Door, langs of over de druk",
+        "objective": "Opbouwen - door, langs of over de druk",
         "suggestedContent": "Techniek met richting; 4v4+3 en extra blok voor weinig minuten.",
         "load": "Middel.",
         "duration": 90
@@ -439,7 +460,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-09-03",
-        "objective": "Door, langs of over de druk",
+        "objective": "Opbouwen - door, langs of over de druk",
         "suggestedContent": "8v8 in drie zones; punten voor gecontroleerde lijnbreking.",
         "load": "Middel.",
         "duration": 90
@@ -466,9 +487,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 37,
     "dateFrom": "2026-09-07",
     "dateTo": "2026-09-13",
-    "competitionBlock": "Fundering",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Fundering",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Beker • poulewedstrijd 3",
-    "mainPrinciple": "Restverdediging tijdens aanvallen",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het positie kiezen tijdens het opbouwen, zodat het team vooruit kan spelen en bij balverlies voldoende spelers in positie heeft om direct te kunnen verdedigen.",
+    "mainPrinciple": "Opbouwen - positie kiezen voor restverdediging",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "6 bewaakt de as",
@@ -485,7 +516,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-09-07",
-        "objective": "Restverdediging tijdens aanvallen",
+        "objective": "Opbouwen - positie kiezen voor restverdediging",
         "suggestedContent": "4v4+keepers met directe tegenaanval; positiegesprek 6/backs.",
         "load": "Middel-hoog, korte overgangsblokken.",
         "duration": 90
@@ -493,7 +524,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-09-10",
-        "objective": "Restverdediging tijdens aanvallen",
+        "objective": "Opbouwen - positie kiezen voor restverdediging",
         "suggestedContent": "8v8: minimaal 3 spelers onder de bal bij aanval; counters tellen dubbel.",
         "load": "Middel-hoog, korte overgangsblokken.",
         "duration": 90
@@ -521,9 +552,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 38,
     "dateFrom": "2026-09-14",
     "dateTo": "2026-09-20",
-    "competitionBlock": "Fundering",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Fundering",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Start competitie",
-    "mainPrinciple": "Baldruk stuurt laatste lijn",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw, waarbij de eerste verdediger druk zet op de bal en de overige spelers positie kiezen en aansluiten om diepte en het centrum te beschermen.",
+    "mainPrinciple": "Verstoren opbouw - baldruk en laatste lijn",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste verdediger zet richting",
@@ -540,7 +582,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-09-14",
-        "objective": "Baldruk stuurt laatste lijn",
+        "objective": "Verstoren opbouw - baldruk en laatste lijn",
         "suggestedContent": "Herstel en lijncoördinatie; 5v5 met diepe doelspeler.",
         "load": "Middel.",
         "duration": 90
@@ -548,7 +590,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-09-17",
-        "objective": "Baldruk stuurt laatste lijn",
+        "objective": "Verstoren opbouw - baldruk en laatste lijn",
         "suggestedContent": "8v8 vanaf middellijn; wisselen tussen druk- en geen-drukscenario.",
         "load": "Middel.",
         "duration": 90
@@ -575,9 +617,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 39,
     "dateFrom": "2026-09-21",
     "dateTo": "2026-09-27",
-    "competitionBlock": "Fundering",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Fundering",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Directe reactie na balverlies",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw na balverlies, waarbij spelers direct druk zetten, aansluiten en positie kiezen om de eerste opbouwactie van de tegenstander te voorkomen.",
+    "mainPrinciple": "Verstoren opbouw - direct reageren na balverlies",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste druk, steun sluit",
@@ -594,7 +647,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-09-21",
-        "objective": "Directe reactie na balverlies",
+        "objective": "Verstoren opbouw - direct reageren na balverlies",
         "suggestedContent": "3v3+3 omschakelspel; aparte herstelgroep.",
         "load": "Middel-hoog voor weinig- minutengroep.",
         "duration": 90
@@ -602,7 +655,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-09-24",
-        "objective": "Directe reactie na balverlies",
+        "objective": "Verstoren opbouw - direct reageren na balverlies",
         "suggestedContent": "7v7 met uitbraakzones: bal terug of tegenstander vertragen.",
         "load": "Middel-hoog voor weinig- minutengroep.",
         "duration": 90
@@ -629,9 +682,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 40,
     "dateFrom": "2026-09-28",
     "dateTo": "2026-10-04",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "As sluiten en naar buiten sturen",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het gezamenlijk verstoren van de opbouw, waarbij spelers de as sluiten, druk zetten en door positie te kiezen de tegenstander naar de buitenkant sturen.",
+    "mainPrinciple": "Verstoren opbouw - as sluiten en naar buiten sturen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "9/10 schermen centrum af",
@@ -648,7 +712,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-09-28",
-        "objective": "As sluiten en naar buiten sturen",
+        "objective": "Verstoren opbouw - as sluiten en naar buiten sturen",
         "suggestedContent": "4v4+2 in smal/breed wisselvak; verdedigen van 1v1 richting buiten.",
         "load": "Middel.",
         "duration": 90
@@ -656,7 +720,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-01",
-        "objective": "Na balverlies direct druk, aansluiten en compact herstellen",
+        "objective": "Verstoren opbouw - as sluiten en naar buiten sturen",
         "suggestedContent": "Warming-up met bal; 5v2/6v2; 4v4+3 met vijf-secondenjacht; tactisch partijspel; winnaar blijft.",
         "load": "Licht-middel, wedstrijdgericht richting Overbos.",
         "duration": 82
@@ -683,9 +747,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 41,
     "dateFrom": "2026-10-05",
     "dateTo": "2026-10-11",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie • herfstvakantie start",
-    "mainPrinciple": "Opbouwen onder druk, direct herstellen",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen onder druk, waarbij spelers vóór de ontvangst positie kiezen, open aannemen en via passen of dribbelen een vrije speler vooruit vinden.",
+    "mainPrinciple": "Opbouwen - vrijlopen onder druk",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Vrije man maken vóór ontvangst",
@@ -702,7 +777,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-10-05",
-        "objective": "Opbouwen onder druk, direct herstellen",
+        "objective": "Opbouwen - vrijlopen onder druk",
         "suggestedContent": "Lichte terugblik; 5v3/6v4 met wisselende drukrichting.",
         "load": "Middel, individuele afstemming.",
         "duration": 90
@@ -710,7 +785,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-08",
-        "objective": "Opbouwen onder druk, direct herstellen",
+        "objective": "Opbouwen - vrijlopen onder druk",
         "suggestedContent": "9v9 wedstrijdvorm met doeltrap, vrije opbouw en transitiepunten.",
         "load": "Middel, individuele afstemming.",
         "duration": 90
@@ -737,9 +812,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 42,
     "dateFrom": "2026-10-12",
     "dateTo": "2026-10-18",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen / Verdedigen > Opbouwen / Verstoren van het opbouwen",
     "matchContext": "Inhaal/beker • herfstvakantie",
-    "mainPrinciple": "Evalueren, herstellen, techniek",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Opbouwen / Verstoren van het opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het herkennen en verbeteren van voetbalhandelingen binnen het opbouwen en het verstoren van de opbouw, waarbij spelers zelf benoemen wat goed gaat en welke oplossing beter kan.",
+    "mainPrinciple": "Evalueren - voetbalhandelingen herkennen en verbeteren",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Spelers benoemen oplossingen",
@@ -756,7 +844,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-10-12",
-        "objective": "Evalueren, herstellen, techniek",
+        "objective": "Evalueren - voetbalhandelingen herkennen en verbeteren",
         "suggestedContent": "Lage opkomst-proof: techniekstations en 4v4- competitie.",
         "load": "Laag.",
         "duration": 90
@@ -764,7 +852,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-15",
-        "objective": "Evalueren, herstellen, techniek",
+        "objective": "Evalueren - voetbalhandelingen herkennen en verbeteren",
         "suggestedContent": "Speelse 6v6/7v7; staf observeert zonder veel stilleggen.",
         "load": "Laag.",
         "duration": 90
@@ -791,9 +879,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 43,
     "dateFrom": "2026-10-19",
     "dateTo": "2026-10-25",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Start competitieblok 2",
-    "mainPrinciple": "Eerste blik vooruit na balwinst",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen na balwinst, waarbij spelers vóór de eerste aanname scannen, positie kiezen en herkennen of direct vooruit spelen mogelijk is.",
+    "mainPrinciple": "Opbouwen - eerste blik vooruit na balwinst",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Diepte als die open is",
@@ -810,7 +908,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-10-19",
-        "objective": "Eerste blik vooruit na balwinst",
+        "objective": "Opbouwen - eerste blik vooruit na balwinst",
         "suggestedContent": "4v3 en 5v4 transities; herstelgroep korter.",
         "load": "Middel-hoog in korte sets.",
         "duration": 90
@@ -818,7 +916,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-22",
-        "objective": "Geen training",
+        "objective": "Opbouwen - eerste blik vooruit na balwinst",
         "suggestedContent": "Trainer afwezig; training vervalt.",
         "load": "Geen.",
         "duration": 0
@@ -845,9 +943,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 44,
     "dateFrom": "2026-10-26",
     "dateTo": "2026-11-01",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Uit de drukte en vrije kant openen",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers uit de drukte positie kiezen en de bal via passen en aannemen naar de vrije kant verplaatsen.",
+    "mainPrinciple": "Opbouwen - vrije kant vinden",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "6 of keeper als ontsnappingspunt",
@@ -864,7 +972,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-10-26",
-        "objective": "Uit de drukte en vrije kant openen",
+        "objective": "Opbouwen - vrije kant vinden",
         "suggestedContent": "Technische start; 4v4+3 positiespel; 6v6 naar vier mini-doelen; vrije partij. Coachzin: Druk hier? Ruimte daar.",
         "load": "Middel.",
         "duration": 90
@@ -872,7 +980,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-10-29",
-        "objective": "Wedstrijdgericht: uit de drukte en vrije kant openen",
+        "objective": "Opbouwen - vrije kant vinden",
         "suggestedContent": "10 min activeren; 15 min 4v4+3; 20 min richtingsspel; 25 min wedstrijdvorm 4-1-4-1; 10 min spelhervattingen en vrij spel.",
         "load": "Laag tot middel richting SVA.",
         "duration": 80
@@ -899,9 +1007,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 45,
     "dateFrom": "2026-11-02",
     "dateTo": "2026-11-08",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Samenspel 8, 10 en 9",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen via 8, 10 en 9, waarbij spelers verschillende posities en hoogtes kiezen, inspelen en na de pass opnieuw aanspeelbaar worden.",
+    "mainPrinciple": "Opbouwen - samenspel 8, 10 en 9",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "9 verbindt of trekt ruimte open",
@@ -918,7 +1036,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-02",
-        "objective": "Samenspel 8, 10 en 9: kijken, spelen en weer bewegen",
+        "objective": "Opbouwen - samenspel 8, 10 en 9",
         "suggestedContent": "12 min scan/pas/beweeg; 18 min 4v4+4; 25 min 5v5 + twee 9's; 30 min korte wedstrijdblokken; 5 min evaluatie.",
         "load": "Middel.",
         "duration": 90
@@ -926,7 +1044,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-05",
-        "objective": "Samenspel 8, 10 en 9",
+        "objective": "Opbouwen - samenspel 8, 10 en 9",
         "suggestedContent": "8v8 laatste derde: scoren na kaats, derde man of diepteloop.",
         "load": "Middel.",
         "duration": 90
@@ -953,9 +1071,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 46,
     "dateFrom": "2026-11-09",
     "dateTo": "2026-11-15",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Breedte, diepte en cutback",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers breedte en diepte houden, na de pass opnieuw positie kiezen en herkennen wanneer vooruit spelen of de vrije kant mogelijk is.",
+    "mainPrinciple": "Opbouwen - breedte, diepte en opnieuw vrijlopen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Buitenspeler bedreigt 1v1",
@@ -972,7 +1101,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-09",
-        "objective": "Breedte, diepte en cutback",
+        "objective": "Opbouwen - breedte, diepte en opnieuw vrijlopen",
         "suggestedContent": "2v1 flank + afwerking; belasting differentiëren.",
         "load": "Middel, veel korte versnellingen.",
         "duration": 90
@@ -980,7 +1109,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-12",
-        "objective": "Verbinden in de opbouw: PASS = BEWEEG",
+        "objective": "Opbouwen - breedte, diepte en opnieuw vrijlopen",
         "suggestedContent": "Klein positiespel → verschillende hoogtes → richtingsspel op 4 mini-doelen → vrije partij zonder bonusregels.",
         "load": "Middel, veel balcontacten en korte vrijloopacties.",
         "duration": 90
@@ -1007,9 +1136,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 47,
     "dateFrom": "2026-11-16",
     "dateTo": "2026-11-22",
-    "competitionBlock": "Verbinden",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verbinden",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Herwinnen of reorganiseren",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw na balverlies, waarbij de dichtstbijzijnde speler druk zet en de overige spelers aansluiten of, wanneer directe balverovering niet mogelijk is, gezamenlijk herstellen.",
+    "mainPrinciple": "Verstoren opbouw - herwinnen of herstellen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste druk leest kans op herovering",
@@ -1026,7 +1166,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-16",
-        "objective": "Herwinnen of reorganiseren",
+        "objective": "Verstoren opbouw - herwinnen of herstellen",
         "suggestedContent": "Scenario 3v3+keepers: doorgaan of uitzakken; herstelgroep beperkt.",
         "load": "Middel-hoog, beheerst volume.",
         "duration": 90
@@ -1034,7 +1174,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-19",
-        "objective": "Herwinnen of reorganiseren",
+        "objective": "Verstoren opbouw - herwinnen of herstellen",
         "suggestedContent": "8v8 met coachsignaal “druk weg”: direct terug naar compact blok.",
         "load": "Middel-hoog, beheerst volume.",
         "duration": 90
@@ -1061,9 +1201,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 48,
     "dateFrom": "2026-11-23",
     "dateTo": "2026-11-29",
-    "competitionBlock": "Verdiepen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verdiepen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Compact blijven en tweede bal winnen",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw, waarbij spelers compact positie kiezen, aansluiten op de baldruk en duelleren om de tweede bal te winnen.",
+    "mainPrinciple": "Verstoren opbouw - compact blijven en tweede bal winnen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Afstanden volgen baldruk",
@@ -1080,7 +1231,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-23",
-        "objective": "Compact blijven en tweede bal winnen",
+        "objective": "Verstoren opbouw - compact blijven en tweede bal winnen",
         "suggestedContent": "3v3+3 rond tweede bal; korte duelvorm.",
         "load": "Middel.",
         "duration": 90
@@ -1088,7 +1239,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-11-26",
-        "objective": "Compact blijven en tweede bal winnen",
+        "objective": "Verstoren opbouw - compact blijven en tweede bal winnen",
         "suggestedContent": "9v9 medium blok en lange bal van tegenstander; vervolgactie verplicht.",
         "load": "Middel.",
         "duration": 90
@@ -1115,9 +1266,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 49,
     "dateFrom": "2026-11-30",
     "dateTo": "2026-12-06",
-    "competitionBlock": "Verdiepen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verdiepen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Competitie",
-    "mainPrinciple": "Volledige cyclus met zelfcoaching",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het verbeteren van het zelfstandig herkennen en uitvoeren van passende voetbalhandelingen binnen opbouwen, scoren, verstoren van de opbouw en voorkomen van scoren.",
+    "mainPrinciple": "Volledige cyclus - spelers herkennen de oplossing",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Spelers benoemen één oplossing per fase",
@@ -1134,7 +1298,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-11-30",
-        "objective": "Volledige cyclus met zelfcoaching",
+        "objective": "Volledige cyclus - spelers herkennen de oplossing",
         "suggestedContent": "Korte evaluatie; 6v6 met spelerscoaching en weinig onderbrekingen.",
         "load": "Middel.",
         "duration": 90
@@ -1142,7 +1306,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-12-03",
-        "objective": "Volledige cyclus met zelfcoaching",
+        "objective": "Volledige cyclus - spelers herkennen de oplossing",
         "suggestedContent": "9v9 volledige wedstrijdvorm; staf coacht alleen in pauzes.",
         "load": "Middel.",
         "duration": 90
@@ -1168,9 +1332,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 50,
     "dateFrom": "2026-12-07",
     "dateTo": "2026-12-13",
-    "competitionBlock": "Verdiepen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Verdiepen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Competitie/inhaal • afsluiting najaar",
-    "mainPrinciple": "Consolideren, plezier en evalueren",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het herhalen en evalueren van de voetbalhandelingen binnen alle teamtaken, zodat spelers kunnen benoemen wat goed gaat en welk individueel aandachtspunt zij meenemen.",
+    "mainPrinciple": "Consolideren - herkennen wat werkt",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Herhalen wat werkt",
@@ -1187,7 +1364,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2026-12-07",
-        "objective": "Consolideren, plezier en evalueren",
+        "objective": "Consolideren - herkennen wat werkt",
         "suggestedContent": "Techniekchallenge, gemengde partijen, korte individuele feedback.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -1195,7 +1372,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2026-12-10",
-        "objective": "Consolideren, plezier en evalueren",
+        "objective": "Consolideren - herkennen wat werkt",
         "suggestedContent": "Toernooi met punten voor spelprincipes en sportiviteit.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -1222,9 +1399,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 2,
     "dateFrom": "2027-01-11",
     "dateTo": "2027-01-17",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Aanvallen / Verdedigen > Opbouwen / Verstoren van het opbouwen",
     "matchContext": "Trainingsherstart · nieuw complex Oostlaan",
-    "mainPrinciple": "Ritme terugvinden en weer verbinden",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Opbouwen / Verstoren van het opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het opnieuw verbeteren van positie kiezen, passen, aannemen en druk zetten, zodat de basisafspraken in aanvallen en verdedigen na de winterstop weer herkenbaar worden.",
+    "mainPrinciple": "Herstart - positie kiezen en weer verbinden",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Veel balcontacten en opnieuw wennen aan wedstrijdtempo",
@@ -1241,7 +1431,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-01-11",
-        "objective": "Ritme terugvinden en weer verbinden",
+        "objective": "Herstart - positie kiezen en weer verbinden",
         "suggestedContent": "Techniek in beweging; 4v4+3 positiespel; korte partijvormen.",
         "load": "Laag tot middel.",
         "duration": 75
@@ -1249,7 +1439,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-01-14",
-        "objective": "Tempo en onderlinge afstanden terugbrengen",
+        "objective": "Herstart - positie kiezen en weer verbinden",
         "suggestedContent": "Positiespel met richting; 5v5/6v6 en korte omschakelmomenten.",
         "load": "Middel.",
         "duration": 80
@@ -1276,9 +1466,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 3,
     "dateFrom": "2027-01-18",
     "dateTo": "2027-01-24",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Start fase 3 · eerste officiële speelweekend Oostlaan",
-    "mainPrinciple": "Volledige cyclus terug naar wedstrijdtempo",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het toepassen van voetbalhandelingen binnen alle teamtaken op wedstrijdtempo, waarbij spelers de juiste oplossing herkennen en elkaar daarin ondersteunen.",
+    "mainPrinciple": "Volledige cyclus - terug naar wedstrijdtempo",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Opbouw, drukzetten en omschakelen weer in één geheel herkennen",
@@ -1295,7 +1498,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-01-18",
-        "objective": "Volledige cyclus op wedstrijdtempo",
+        "objective": "Volledige cyclus - terug naar wedstrijdtempo",
         "suggestedContent": "5v5/6v6 met richting; opbouw naar grote partij en transities.",
         "load": "Middel.",
         "duration": 90
@@ -1303,7 +1506,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-01-21",
-        "objective": "Wedstrijdklaar zonder overbelasting",
+        "objective": "Volledige cyclus - terug naar wedstrijdtempo",
         "suggestedContent": "Korte intensieve partijvormen; opbouwafspraken; spelhervattingen; vrije partij.",
         "load": "Middel, volume lager.",
         "duration": 75
@@ -1331,9 +1534,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 4,
     "dateFrom": "2027-01-25",
     "dateTo": "2027-01-31",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Fase 3 · nieuw complex · officiële opening",
-    "mainPrinciple": "As sluiten vanuit medium blok",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw vanuit een medium blok, waarbij de eerste lijn naar buiten stuurt en het middenveld door positie kiezen het centrum afschermt.",
+    "mainPrinciple": "Verstoren opbouw - as sluiten vanuit medium blok",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste lijn stuurt buitenom",
@@ -1350,7 +1564,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-01-25",
-        "objective": "As sluiten vanuit medium blok",
+        "objective": "Verstoren opbouw - as sluiten vanuit medium blok",
         "suggestedContent": "Herintroductie en herstel; 4v4+2 met centrale schermzone.",
         "load": "Middel.",
         "duration": 90
@@ -1358,7 +1572,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-01-28",
-        "objective": "As sluiten vanuit medium blok",
+        "objective": "Verstoren opbouw - as sluiten vanuit medium blok",
         "suggestedContent": "8v8 vanaf middellijn; tegenstander opbouwen, VSV stuurt buiten.",
         "load": "Middel.",
         "duration": 90
@@ -1385,9 +1599,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 5,
     "dateFrom": "2027-02-01",
     "dateTo": "2027-02-07",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Baldruk en lijncoördinatie",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw, waarbij de laatste lijn haar positie afstemt op de baldruk en spelers gezamenlijk doorstappen of diepte beschermen.",
+    "mainPrinciple": "Verstoren opbouw - baldruk en lijncoördinatie",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Laatste lijn communiceert stap/zak",
@@ -1404,7 +1629,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-02-01",
-        "objective": "Baldruk en lijncoördinatie",
+        "objective": "Verstoren opbouw - baldruk en lijncoördinatie",
         "suggestedContent": "Lijnspel met diepe doelspelers; extra minuten voor wissels.",
         "load": "Middel.",
         "duration": 90
@@ -1412,7 +1637,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-02-04",
-        "objective": "Baldruk en lijncoördinatie",
+        "objective": "Verstoren opbouw - baldruk en lijncoördinatie",
         "suggestedContent": "8v8 met wisselende baldruk; diepe pass toegestaan bij geen druk.",
         "load": "Middel.",
         "duration": 90
@@ -1439,9 +1664,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 6,
     "dateFrom": "2027-02-08",
     "dateTo": "2027-02-14",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Verdedigen tegen ruit en binnenbezetting",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw tegen binnenbezetting, waarbij spelers de as afschermen, naar buiten sturen en op het juiste moment doordekken.",
+    "mainPrinciple": "Verstoren opbouw - ruit en binnenbezetting verdedigen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "6 schermt 10-zone",
@@ -1458,7 +1694,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-02-08",
-        "objective": "Verdedigen tegen ruit en binnenbezetting",
+        "objective": "Verstoren opbouw - ruit en binnenbezetting verdedigen",
         "suggestedContent": "4v3 middenveldverdediging; individuele herstelopties.",
         "load": "Middel.",
         "duration": 90
@@ -1466,7 +1702,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-02-11",
-        "objective": "Verdedigen tegen ruit en binnenbezetting",
+        "objective": "Verstoren opbouw - ruit en binnenbezetting verdedigen",
         "suggestedContent": "8v8: tegenstander met ruit, VSV verschuift en houdt as bezet.",
         "load": "Middel.",
         "duration": 90
@@ -1494,9 +1730,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 7,
     "dateFrom": "2027-02-15",
     "dateTo": "2027-02-21",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Inhaal/beker",
-    "mainPrinciple": "Rugdekking en restverdediging",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het gezamenlijk verstoren van de opbouw, waarbij de eerste verdediger druk zet en de tweede verdediger door positie kiezen rugdekking geeft.",
+    "mainPrinciple": "Verstoren opbouw - rugdekking geven",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Dichtstbijzijnde speler dekt door",
@@ -1513,7 +1760,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-02-15",
-        "objective": "Rugdekking en restverdediging",
+        "objective": "Verstoren opbouw - rugdekking geven",
         "suggestedContent": "2v2+herstelverdediger; 4v4 naar grote doelen.",
         "load": "Middel-hoog in korte blokken.",
         "duration": 90
@@ -1521,7 +1768,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-02-18",
-        "objective": "Rugdekking en restverdediging",
+        "objective": "Verstoren opbouw - rugdekking geven",
         "suggestedContent": "8v8: aanval met verplichte restbezetting; counter na verlies.",
         "load": "Middel-hoog in korte blokken.",
         "duration": 90
@@ -1549,9 +1796,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 8,
     "dateFrom": "2027-02-22",
     "dateTo": "2027-02-28",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Inhaal/beker",
-    "mainPrinciple": "Collectief kantelen",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw, waarbij spelers gezamenlijk naar de balzijde kantelen, aansluiten en het centrum gesloten houden.",
+    "mainPrinciple": "Verstoren opbouw - collectief kantelen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Balzijde klein maken",
@@ -1568,7 +1826,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-02-22",
-        "objective": "Collectief kantelen",
+        "objective": "Verstoren opbouw - collectief kantelen",
         "suggestedContent": "5v5+2 buitensteunen; kantelen op balverplaatsing.",
         "load": "Middel.",
         "duration": 90
@@ -1576,7 +1834,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-02-25",
-        "objective": "Collectief kantelen",
+        "objective": "Verstoren opbouw - collectief kantelen",
         "suggestedContent": "9v9 met flankwissels door tegenstander; VSV herstelt als blok.",
         "load": "Middel.",
         "duration": 90
@@ -1603,9 +1861,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 9,
     "dateFrom": "2027-03-01",
     "dateTo": "2027-03-07",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Counter smoren na balverlies",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het verstoren van de opbouw na balverlies, waarbij spelers de eerste pass vooruit blokkeren of, als heroveren niet mogelijk is, de tegenstander vertragen en herstellen.",
+    "mainPrinciple": "Verstoren opbouw - counter na balverlies smoren",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste pass vooruit blokkeren",
@@ -1622,7 +1891,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-03-01",
-        "objective": "Counter smoren na balverlies",
+        "objective": "Verstoren opbouw - counter na balverlies smoren",
         "suggestedContent": "3v3+3 transitie; herstelgroep lagere herhalingen.",
         "load": "Middel-hoog.",
         "duration": 90
@@ -1630,7 +1899,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-03-04",
-        "objective": "Counter smoren na balverlies",
+        "objective": "Verstoren opbouw - counter na balverlies smoren",
         "suggestedContent": "8v8 met counterdoelen en herstelzone.",
         "load": "Middel-hoog.",
         "duration": 90
@@ -1657,9 +1926,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 10,
     "dateFrom": "2027-03-08",
     "dateTo": "2027-03-14",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Aanvallen / Verdedigen > Opbouwen / Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "6 als scherm en spelverdeler",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Opbouwen / Verstoren van het opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het verbeteren van de rol van de 6 bij opbouwen en verdedigen, waarbij de 6 vóór ontvangst scant, aanspeelbaar wordt, vooruit speelt en bij balverlies positie kiest om de as te bewaken.",
+    "mainPrinciple": "De 6 - opbouwen en de as bewaken",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "6 scant beide schouders",
@@ -1676,7 +1958,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-03-08",
-        "objective": "6 als scherm en spelverdeler",
+        "objective": "De 6 - opbouwen en de as bewaken",
         "suggestedContent": "Rondovorm met 6 als verbindingsspeler; 5v5+2.",
         "load": "Middel.",
         "duration": 90
@@ -1684,7 +1966,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-03-11",
-        "objective": "6 als scherm en spelverdeler",
+        "objective": "De 6 - opbouwen en de as bewaken",
         "suggestedContent": "8v8: punten na pass via 6 en na onderschepping door 6.",
         "load": "Middel.",
         "duration": 90
@@ -1712,9 +1994,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 11,
     "dateFrom": "2027-03-15",
     "dateTo": "2027-03-21",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Verdedigen > Verstoren van het opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Hoog verdedigen met verstand",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Verstoren van het opbouwen",
+    "footballActions": [
+      "druk zetten",
+      "knijpen/aansluiten",
+      "duelleren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het hoog verstoren van de opbouw, waarbij de voorste lijn druk zet en de overige spelers aansluiten zonder de diepte onbeschermd te laten.",
+    "mainPrinciple": "Verstoren opbouw - hoog druk zetten met samenhang",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Voorste lijn zet baldruk",
@@ -1731,7 +2024,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-03-15",
-        "objective": "Hoog verdedigen met verstand",
+        "objective": "Verstoren opbouw - hoog druk zetten met samenhang",
         "suggestedContent": "Korte snelheidprikkel met volledige rust; 5v5 lijnspel.",
         "load": "Middel, lage sprintomvang.",
         "duration": 90
@@ -1739,7 +2032,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-03-18",
-        "objective": "Hoog verdedigen met verstand",
+        "objective": "Verstoren opbouw - hoog druk zetten met samenhang",
         "suggestedContent": "9v9 hoog druk zetten, afgewisseld met terugvallen naar medium blok.",
         "load": "Middel, lage sprintomvang.",
         "duration": 90
@@ -1767,9 +2060,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 12,
     "dateFrom": "2027-03-22",
     "dateTo": "2027-03-28",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Inhaal/beker • Pasen",
-    "mainPrinciple": "Evalueren en herstellen",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het evalueren en herhalen van voetbalhandelingen binnen alle teamtaken, waarbij spelers zelf benoemen welke keuzes en oplossingen zij in wedstrijdsituaties herkennen.",
+    "mainPrinciple": "Evalueren - voetbalhandelingen zelfstandig herkennen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Spelers beoordelen vier wedstrijdmomenten",
@@ -1786,7 +2092,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-03-22",
-        "objective": "Evalueren en herstellen",
+        "objective": "Evalueren - voetbalhandelingen zelfstandig herkennen",
         "suggestedContent": "Herstel, techniekcircuits en korte partijen.",
         "load": "Laag.",
         "duration": 90
@@ -1794,7 +2100,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-03-25",
-        "objective": "Evalueren en herstellen",
+        "objective": "Evalueren - voetbalhandelingen zelfstandig herkennen",
         "suggestedContent": "Vrije partij met spelersopdrachten; geen zware volumeprikkel.",
         "load": "Laag.",
         "duration": 90
@@ -1821,9 +2127,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 13,
     "dateFrom": "2027-03-29",
     "dateTo": "2027-04-04",
-    "competitionBlock": "Toepassen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Toepassen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Start competitieblok 4",
-    "mainPrinciple": "Uit de drukte spelen",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen onder druk, waarbij spelers met de eerste aanname uit de druk spelen, de vrije kant bezetten en via passen of dribbelen vooruit spelen.",
+    "mainPrinciple": "Opbouwen - uit de drukte spelen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste aanname weg van druk",
@@ -1840,7 +2157,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-03-29",
-        "objective": "Uit de drukte spelen",
+        "objective": "Opbouwen - uit de drukte spelen",
         "suggestedContent": "4v4+3 met ontsnappingszones; extra blok voor weinig minuten.",
         "load": "Middel.",
         "duration": 90
@@ -1848,7 +2165,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-04-01",
-        "objective": "Uit de drukte spelen",
+        "objective": "Opbouwen - uit de drukte spelen",
         "suggestedContent": "8v8: tegenstander zet vast aan één kant, VSV opent via 6/keeper.",
         "load": "Middel.",
         "duration": 90
@@ -1875,9 +2192,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 14,
     "dateFrom": "2027-04-05",
     "dateTo": "2027-04-11",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Derde man en spelen tussen linies",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers via positie kiezen, passen en kaatsen een derde speler of een speler tussen de linies vrijspelen.",
+    "mainPrinciple": "Opbouwen - derde man en tussen linies spelen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Speler achter druk kaatst",
@@ -1894,7 +2221,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-04-05",
-        "objective": "Derde man en spelen tussen linies",
+        "objective": "Opbouwen - derde man en tussen linies spelen",
         "suggestedContent": "Driehoeksvorm met verdediger; 5v5+3.",
         "load": "Middel.",
         "duration": 90
@@ -1902,7 +2229,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-04-08",
-        "objective": "Derde man en spelen tussen linies",
+        "objective": "Opbouwen - derde man en tussen linies spelen",
         "suggestedContent": "8v8 met punten na derde-manactie of ontvangst tussen linies.",
         "load": "Middel.",
         "duration": 90
@@ -1929,9 +2256,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 15,
     "dateFrom": "2027-04-12",
     "dateTo": "2027-04-18",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie • meivakantie",
-    "mainPrinciple": "Ingooien als balbezitmoment",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen vanuit een ingooi, waarbij spelers door positie kiezen meerdere afspeelmogelijkheden creëren en na de hervatting opnieuw aansluiten.",
+    "mainPrinciple": "Opbouwen - ingooi als balbezitmoment",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Altijd drie opties rond inwerper",
@@ -1948,7 +2285,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-04-12",
-        "objective": "Ingooien als balbezitmoment",
+        "objective": "Opbouwen - ingooi als balbezitmoment",
         "suggestedContent": "Lage- opkomstvormen; 4v4 met ingooistarts.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -1956,7 +2293,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-04-15",
-        "objective": "Ingooien als balbezitmoment",
+        "objective": "Opbouwen - ingooi als balbezitmoment",
         "suggestedContent": "7v7/8v8: iedere uitbal start met gekozen routine.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -1983,9 +2320,18 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 16,
     "dateFrom": "2027-04-19",
     "dateTo": "2027-04-25",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Scoren",
     "matchContext": "Inhaal • meivakantie",
-    "mainPrinciple": "Aanvallende corner en restverdediging",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Scoren",
+    "footballActions": [
+      "schieten",
+      "koppen"
+    ],
+    "trainingObjective": "Het verbeteren van het scoren vanuit een aanvallende corner, waarbij spelers met verschillende loopacties en timing tot een schot- of kopkans komen en na de actie georganiseerd blijven.",
+    "mainPrinciple": "Scoren - aanvallende corner benutten",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Looplijnen hebben verschillende timing",
@@ -2002,7 +2348,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-04-19",
-        "objective": "Aanvallende corner en restverdediging",
+        "objective": "Scoren - aanvallende corner benutten",
         "suggestedContent": "Techniek en afwerking; korte cornerrepetities.",
         "load": "Middel.",
         "duration": 90
@@ -2010,7 +2356,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-04-22",
-        "objective": "Aanvallende corner en restverdediging",
+        "objective": "Scoren - aanvallende corner benutten",
         "suggestedContent": "6v6+keepers met cornerstart en doorvoetballen na tweede bal.",
         "load": "Middel.",
         "duration": 90
@@ -2037,9 +2383,20 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 17,
     "dateFrom": "2027-04-26",
     "dateTo": "2027-05-02",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Inhaal/competitie",
-    "mainPrinciple": "Kansen creëren via cutback",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "dribbelen/passeren",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het creëren van een scoringskans, waarbij de buitenspeler via dribbelen of passen de achterlijn bereikt en medespelers door positie kiezen verschillende scoringszones bezetten.",
+    "mainPrinciple": "Opbouwen - scoringskans creëren via cutback",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Buitenspeler komt achter laatste lijn",
@@ -2056,7 +2413,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-04-26",
-        "objective": "Kansen creëren via cutback",
+        "objective": "Opbouwen - scoringskans creëren via cutback",
         "suggestedContent": "2v1 flank, cutback en afwerking; herstelgroep minder herhalingen.",
         "load": "Middel, korte acceleraties.",
         "duration": 90
@@ -2064,7 +2421,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-04-29",
-        "objective": "Kansen creëren via cutback",
+        "objective": "Opbouwen - scoringskans creëren via cutback",
         "suggestedContent": "8v8 laatste derde met cutbackzone.",
         "load": "Middel, korte acceleraties.",
         "duration": 90
@@ -2091,9 +2448,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 18,
     "dateFrom": "2027-05-03",
     "dateTo": "2027-05-09",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Verdedigen > Voorkomen van scoren",
     "matchContext": "Competitie",
-    "mainPrinciple": "Verdedigende corner en uitbraak",
+    "teamFunction": "Verdedigen",
+    "teamTask": "Voorkomen van scoren",
+    "footballActions": [
+      "blokken",
+      "koppen",
+      "tegenhouden (keeper)"
+    ],
+    "trainingObjective": "Het verbeteren van het voorkomen van scoren bij een verdedigende corner, waarbij spelers de eerste bal blokken of wegkoppen en de keeper en verdedigers de tweede bal organiseren.",
+    "mainPrinciple": "Voorkomen van scoren - corner verdedigen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Eerste bal verdedigen, tweede bal organiseren",
@@ -2110,7 +2477,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-05-03",
-        "objective": "Verdedigende corner en uitbraak",
+        "objective": "Voorkomen van scoren - corner verdedigen",
         "suggestedContent": "Duel- en koptechniek laag gedoseerd; 4v4 tweede bal.",
         "load": "Middel.",
         "duration": 90
@@ -2118,7 +2485,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-05-06",
-        "objective": "Verdedigende corner en uitbraak",
+        "objective": "Voorkomen van scoren - corner verdedigen",
         "suggestedContent": "Corner-scenario’s met direct doorvoetballen naar counterdoel.",
         "load": "Middel.",
         "duration": 90
@@ -2145,9 +2512,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 19,
     "dateFrom": "2027-05-10",
     "dateTo": "2027-05-16",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Pinksteren/inhaal",
-    "mainPrinciple": "Eerste pass vooruit",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen na balwinst, waarbij spelers eerst scannen, positie kiezen en herkennen of de eerste pass vooruit gespeeld kan worden.",
+    "mainPrinciple": "Opbouwen - eerste pass vooruit na balwinst",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Na winst eerst scannen",
@@ -2164,7 +2541,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-05-10",
-        "objective": "Eerste pass vooruit",
+        "objective": "Opbouwen - eerste pass vooruit na balwinst",
         "suggestedContent": "4v3 transitievorm; korte hersteltraining voor veel minuten.",
         "load": "Middel.",
         "duration": 90
@@ -2172,7 +2549,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-05-13",
-        "objective": "Eerste pass vooruit",
+        "objective": "Opbouwen - eerste pass vooruit na balwinst",
         "suggestedContent": "8v8 met 6 seconden om counterkans te herkennen, niet verplicht te forceren.",
         "load": "Middel.",
         "duration": 90
@@ -2199,9 +2576,19 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 20,
     "dateFrom": "2027-05-17",
     "dateTo": "2027-05-23",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen > Opbouwen",
     "matchContext": "Competitie",
-    "mainPrinciple": "Ritme controleren",
+    "teamFunction": "Aanvallen",
+    "teamTask": "Opbouwen",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen"
+    ],
+    "trainingObjective": "Het verbeteren van het opbouwen, waarbij spelers herkennen wanneer zij via passen en positie kiezen kunnen versnellen en wanneer balbezit en rust de betere oplossing zijn.",
+    "mainPrinciple": "Opbouwen - tempo en ritme kiezen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Versnellen wanneer tegenstander open staat",
@@ -2218,7 +2605,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-05-17",
-        "objective": "Ritme controleren",
+        "objective": "Opbouwen - tempo en ritme kiezen",
         "suggestedContent": "4v4+3 met tempo- opdrachten; spelers benoemen keuze.",
         "load": "Middel.",
         "duration": 90
@@ -2226,7 +2613,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-05-20",
-        "objective": "Ritme controleren",
+        "objective": "Opbouwen - tempo en ritme kiezen",
         "suggestedContent": "9v9 met wedstrijdscenario’s: achter, gelijk, voor.",
         "load": "Middel.",
         "duration": 90
@@ -2253,9 +2640,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 21,
     "dateFrom": "2027-05-24",
     "dateTo": "2027-05-30",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Competitie",
-    "mainPrinciple": "Zelfsturend toepassen van volledige cyclus",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het zelfstandig toepassen van passende voetbalhandelingen binnen alle teamtaken, waarbij spelers elkaar coachen en tijdens het spel oplossingen aanpassen.",
+    "mainPrinciple": "Zelfsturen - volledige cyclus toepassen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Linieleiders coachen",
@@ -2272,7 +2672,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-05-24",
-        "objective": "Zelfsturend toepassen van volledige cyclus",
+        "objective": "Zelfsturen - volledige cyclus toepassen",
         "suggestedContent": "6v6 met spelersreflectie; differentiatie via extra blok.",
         "load": "Middel.",
         "duration": 90
@@ -2280,7 +2680,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-05-27",
-        "objective": "Zelfsturend toepassen van volledige cyclus",
+        "objective": "Zelfsturen - volledige cyclus toepassen",
         "suggestedContent": "9v9, spelers maken voor elk kwart een plan.",
         "load": "Middel.",
         "duration": 90
@@ -2306,9 +2706,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 22,
     "dateFrom": "2027-05-31",
     "dateTo": "2027-06-06",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Final League",
-    "mainPrinciple": "Tactische flexibiliteit zonder identiteit te verliezen",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het zelfstandig herkennen en uitvoeren van passende voetbalhandelingen binnen alle teamtaken, ook wanneer de veldbezetting of speelwijze wordt aangepast.",
+    "mainPrinciple": "Tactische flexibiliteit - principes blijven herkenbaar",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Vorm kan veranderen, principes blijven",
@@ -2325,7 +2738,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-05-31",
-        "objective": "Tactische flexibiliteit zonder identiteit te verliezen",
+        "objective": "Tactische flexibiliteit - principes blijven herkenbaar",
         "suggestedContent": "Scenario’s 4-3-3 tegen verschillende drukvormen.",
         "load": "Middel, frisheid prioriteit.",
         "duration": 90
@@ -2333,7 +2746,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-06-03",
-        "objective": "Tactische flexibiliteit zonder identiteit te verliezen",
+        "objective": "Tactische flexibiliteit - principes blijven herkenbaar",
         "suggestedContent": "9v9 met wisselende tegenstanderorganisatie en spelerscoaching.",
         "load": "Middel, frisheid prioriteit.",
         "duration": 90
@@ -2359,9 +2772,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 23,
     "dateFrom": "2027-06-07",
     "dateTo": "2027-06-13",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Nacompetitie/toernooien",
-    "mainPrinciple": "Rollen wisselen en verantwoordelijkheid",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het verbeteren van het zelfstandig uitvoeren en onderling coachen van voetbalhandelingen binnen alle teamtaken, waarbij spelers verschillende rollen leren herkennen.",
+    "mainPrinciple": "Zelfsturen - rollen wisselen en verantwoordelijkheid nemen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Spelers ervaren andere positie",
@@ -2378,7 +2804,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-06-07",
-        "objective": "Rollen wisselen en verantwoordelijkheid",
+        "objective": "Zelfsturen - rollen wisselen en verantwoordelijkheid nemen",
         "suggestedContent": "Positieroulatie in kleine partijen.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -2386,7 +2812,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-06-10",
-        "objective": "Rollen wisselen en verantwoordelijkheid",
+        "objective": "Zelfsturen - rollen wisselen en verantwoordelijkheid nemen",
         "suggestedContent": "Toernooivorm met teamopdrachten en korte evaluaties.",
         "load": "Laag tot middel.",
         "duration": 90
@@ -2413,9 +2839,22 @@ const PLANNER_WEEK_CARDS = [
     "weekNumber": 24,
     "dateFrom": "2027-06-14",
     "dateTo": "2027-06-20",
-    "competitionBlock": "Zelfsturen",
+    "knvbSchemaVersion": 1,
+    "developmentPhase": "Zelfsturen",
+    "competitionBlock": "Aanvallen / Verdedigen > Alle teamtaken",
     "matchContext": "Seizoensafsluiting",
-    "mainPrinciple": "Evalueren, vieren en vooruitkijken",
+    "teamFunction": "Aanvallen / Verdedigen",
+    "teamTask": "Alle teamtaken",
+    "footballActions": [
+      "passen",
+      "aannemen/meenemen",
+      "positie kiezen",
+      "druk zetten",
+      "duelleren",
+      "schieten"
+    ],
+    "trainingObjective": "Het evalueren van de ontwikkeling binnen alle teamtaken, waarbij spelers benoemen welke voetbalhandelingen zij beter uitvoeren en welk aandachtspunt zij meenemen naar een volgende periode.",
+    "mainPrinciple": "Evalueren - ontwikkeling herkennen en benoemen",
     "supportingPrinciples": [],
     "desiredBehaviours": [
       "Successen concreet benoemen",
@@ -2432,7 +2871,7 @@ const PLANNER_WEEK_CARDS = [
       "monday": {
         "day": "monday",
         "date": "2027-06-14",
-        "objective": "Evalueren, vieren en vooruitkijken",
+        "objective": "Evalueren - ontwikkeling herkennen en benoemen",
         "suggestedContent": "Speelse techniek, mini-toernooi en individuele gesprekken.",
         "load": "Laag.",
         "duration": 90
@@ -2440,7 +2879,7 @@ const PLANNER_WEEK_CARDS = [
       "thursday": {
         "day": "thursday",
         "date": "2027-06-17",
-        "objective": "Evalueren, vieren en vooruitkijken",
+        "objective": "Evalueren - ontwikkeling herkennen en benoemen",
         "suggestedContent": "Afsluitende wedstrijdvorm; spelers leiden warming-up en coaching.",
         "load": "Laag.",
         "duration": 90
