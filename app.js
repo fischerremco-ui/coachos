@@ -1445,11 +1445,19 @@ function normalizeWeekCard(card = {}) {
     weekNumber: Number(card.weekNumber) || 0,
     dateFrom: card.dateFrom || "",
     dateTo: card.dateTo || "",
+    knvbSchemaVersion: Number(card.knvbSchemaVersion) || 0,
+    developmentPhase: card.developmentPhase || "",
     competitionBlock: card.competitionBlock || "",
     blockId: Number(card.blockId)
       || (getPlannerBlockForWeekNumber(card.weekNumber) || {}).id
       || 0,
     matchContext: card.matchContext || "",
+    teamFunction: card.teamFunction || "",
+    teamTask: card.teamTask || "",
+    footballActions: Array.isArray(card.footballActions)
+      ? card.footballActions.filter(Boolean).map(String)
+      : [],
+    trainingObjective: card.trainingObjective || "",
     mainPrinciple: card.mainPrinciple || "",
     supportingPrinciples: Array.isArray(card.supportingPrinciples)
       ? card.supportingPrinciples.filter(Boolean).map(String)
@@ -1517,7 +1525,31 @@ function migrateWeekCards() {
   const migrated = PLANNER_WEEK_CARDS.map((source) => {
     const current = uniqueSaved.get(weekCardStableKey(source));
     uniqueSaved.delete(weekCardStableKey(source));
-    return normalizeWeekCard(current ? fillMissingPlannerFields(source, current) : source);
+    if (!current) return normalizeWeekCard(source);
+
+    const merged = fillMissingPlannerFields(source, current);
+    if ((Number(current.knvbSchemaVersion) || 0) < (Number(source.knvbSchemaVersion) || 0)) {
+      [
+        "knvbSchemaVersion",
+        "developmentPhase",
+        "competitionBlock",
+        "teamFunction",
+        "teamTask",
+        "footballActions",
+        "trainingObjective",
+        "mainPrinciple"
+      ].forEach((field) => {
+        merged[field] = JSON.parse(JSON.stringify(source[field]));
+      });
+      Object.keys(source.sessions || {}).forEach((day) => {
+        merged.sessions = merged.sessions || {};
+        merged.sessions[day] = {
+          ...(merged.sessions[day] || {}),
+          objective: source.sessions[day].objective
+        };
+      });
+    }
+    return normalizeWeekCard(merged);
   });
   uniqueSaved.forEach((card) => migrated.push(normalizeWeekCard(card)));
   const serialized = JSON.stringify(migrated);
@@ -5081,7 +5113,8 @@ function renderWeekCardDetail(id) {
             <div><dt>Week</dt><dd>W${card.weekNumber} · ${card.year}</dd></div>
             <div><dt>Datum</dt><dd>${escapeHtml(formatSeasonDateRange(card.dateFrom, card.dateTo))}</dd></div>
             <div><dt>Wedstrijdcontext</dt><dd>${escapeHtml(card.matchContext)}</dd></div>
-            <div><dt>Competitieblok</dt><dd>${escapeHtml(card.competitionBlock)}</dd></div>
+            ${card.developmentPhase ? `<div><dt>Periodiseringsfase</dt><dd>${escapeHtml(card.developmentPhase)}</dd></div>` : ""}
+            <div><dt>KNVB-kader</dt><dd>${escapeHtml(card.competitionBlock)}</dd></div>
             ${plannerBlock ? `<div><dt>Werkblok</dt><dd>Blok ${plannerBlock.id} · ${escapeHtml(plannerBlock.name)}</dd></div>` : ""}
             <div><dt>Competitiefase</dt><dd>${escapeHtml(calendarPhases.join(" · ") || "Geen actieve competitiefase")}</dd></div>
             <div><dt>Kalenderstatus</dt><dd>${escapeHtml(calendarStatuses.join(" · ") || "Geen kalenderitem")}</dd></div>
@@ -5091,8 +5124,14 @@ function renderWeekCardDetail(id) {
         </section>
 
         <section class="content-card">
-          <h2>B. Voetbalinhoud</h2>
-          ${renderDetailText("Hoofdprincipe", card.mainPrinciple)}
+          <h2>B. KNVB-voetbalinhoud</h2>
+          ${renderDetailText("Teamfunctie", card.teamFunction)}
+          ${renderDetailText("Teamtaak", card.teamTask)}
+          ${card.footballActions.length ? `
+            <div class="detail-field"><span class="detail-label">Voetbalhandelingen</span>${renderPlannerArray(card.footballActions)}</div>
+          ` : ""}
+          ${renderDetailText("Trainingsdoelstelling", card.trainingObjective)}
+          ${renderDetailText("Praktisch hoofdaccent", card.mainPrinciple)}
           ${card.supportingPrinciples.length ? `
             <div class="detail-field"><span class="detail-label">Ondersteunende principes</span>${renderPlannerArray(card.supportingPrinciples)}</div>
           ` : ""}
